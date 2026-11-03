@@ -132,6 +132,8 @@ struct RoundIconButton: View {
 struct StatusChip: View {
     let tier: StatusTier?
     var accessibilityDetail: String? = nil
+    /// Green but honest: a better-than-usual value says "Above usual" / "Below usual", not "In range".
+    var wordOverride: String? = nil
 
     init(flag: Flag) { self.tier = flag.statusTier }
     init(tier: StatusTier?) { self.tier = tier }
@@ -140,6 +142,10 @@ struct StatusChip: View {
         self.tier = state.statusTier
         if state.flag == .high { accessibilityDetail = "above your usual range" }
         if state.flag == .low { accessibilityDetail = "below your usual range" }
+        if state.hasData, !state.isConcern {
+            if state.flag == .high { wordOverride = "Above usual" }
+            if state.flag == .low { wordOverride = "Below usual" }
+        }
     }
 
     var body: some View {
@@ -147,14 +153,14 @@ struct StatusChip: View {
             let c = tier.chipColors
             HStack(spacing: Space.xs) {
                 Circle().fill(tier.fill).frame(width: 6, height: 6)
-                Text(tier.word).typo(.label).foregroundStyle(c.text)
+                Text(wordOverride ?? tier.word).typo(.label).foregroundStyle(c.text)
             }
             .padding(.horizontal, Space.s)
             .padding(.vertical, Space.xs)
             .background(c.bg, in: RoundedRectangle(cornerRadius: Radius.chip, style: .continuous))
             .fixedSize()
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(accessibilityDetail.map { "\(tier.word), \($0)" } ?? tier.word)
+            .accessibilityLabel(accessibilityDetail.map { "\(wordOverride ?? tier.word), \($0)" } ?? (wordOverride ?? tier.word))
         }
     }
 }
@@ -213,10 +219,13 @@ struct NotSentLabel: View {
 struct FreshnessChip: View {
     let date: Date?
     var staleAfter: TimeInterval = 3 * 3600
+    /// "Synced" = age of the newest data; "Checked" = when the app last asked Apple Health.
+    var verb: String = "Synced"
 
-    init(date: Date?, staleAfter: TimeInterval = 3 * 3600) {
+    init(date: Date?, staleAfter: TimeInterval = 3 * 3600, verb: String = "Synced") {
         self.date = date
         self.staleAfter = staleAfter
+        self.verb = verb
     }
 
     var body: some View {
@@ -224,7 +233,7 @@ struct FreshnessChip: View {
             let stale = date.map { ctx.date.timeIntervalSince($0) > staleAfter } ?? true
             HStack(spacing: Space.xs) {
                 if stale { Image(systemName: "clock").font(.system(size: 11, weight: .regular)) }
-                Text(Self.text(date, now: ctx.date)).typo(.micro)
+                Text(Self.text(date, now: ctx.date, verb: verb)).typo(.micro)
             }
             .foregroundStyle(stale ? Theme.limitText : Theme.graphite)
             .padding(.horizontal, Space.s)
@@ -233,18 +242,18 @@ struct FreshnessChip: View {
                         in: Capsule())
             .fixedSize()
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Self.text(date, now: ctx.date) + (stale ? ", data may be out of date" : ""))
+            .accessibilityLabel(Self.text(date, now: ctx.date, verb: verb) + (stale ? ", data may be out of date" : ""))
         }
     }
 
-    static func text(_ date: Date?, now: Date = .now) -> String {
+    static func text(_ date: Date?, now: Date = .now, verb: String = "Synced") -> String {
         guard let date else { return "Waiting for sync" }
         let mins = max(0, Int(now.timeIntervalSince(date) / 60))
-        if mins < 1 { return "Synced just now" }
-        if mins < 60 { return "Synced \(mins) min ago" }
+        if mins < 1 { return "\(verb) just now" }
+        if mins < 60 { return "\(verb) \(mins) min ago" }
         let hours = mins / 60
-        if hours < 24 { return "Synced \(hours) h ago" }
-        return "Synced " + date.formatted(.dateTime.day().month(.abbreviated))
+        if hours < 24 { return "\(verb) \(hours) h ago" }
+        return verb + " " + date.formatted(.dateTime.day().month(.abbreviated))
     }
 }
 

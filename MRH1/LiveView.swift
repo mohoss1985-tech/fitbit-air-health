@@ -8,6 +8,7 @@ struct LiveView: View {
     @Environment(HealthStore.self) private var health
     @Environment(AppNav.self) private var nav
     @Environment(\.dynamicTypeSize) private var typeSize
+    @State private var userPickedRange = false
 
     var body: some View {
         ScrollView {
@@ -29,6 +30,7 @@ struct LiveView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .task { live.start(health: health) }
+        .onChange(of: live.latestSampleDate, initial: true) { _, _ in autoPickRange() }
         .onChange(of: health.lastRefresh) { _, _ in live.attach(health: health) }
     }
 
@@ -96,7 +98,8 @@ struct LiveView: View {
                     .foregroundStyle(Theme.ink2)
                     .monospacedDigit()
                 if isStale(now: now) {
-                    FreshnessChip(date: live.lastDelivery ?? live.latestSampleDate)
+                    FreshnessChip(date: live.lastDelivery ?? live.latestSampleDate,
+                                  verb: live.lastDelivery == nil ? "Synced" : "Checked")
                 }
             }
             .accessibilityElement(children: .combine)
@@ -155,10 +158,21 @@ struct LiveView: View {
             .transition(.opacity)
             .animation(Motion.crossfade, value: live.selectedRange)
 
-            PillPicker(selection: $live.selectedRange, options: LiveRange.allCases) { $0.rawValue }
+            PillPicker(selection: Binding(get: { live.selectedRange },
+                                          set: { userPickedRange = true; live.selectedRange = $0 }),
+                       options: LiveRange.allCases) { $0.rawValue }
 
             statsStrip(stats)
         }
+    }
+
+    /// Opening on an empty "Live" window looks broken when Google Health last synced hours ago,
+    /// so until the user picks a range we open on the newest window that actually has samples.
+    private func autoPickRange() {
+        guard !userPickedRange, !live.mode.isDemo, let d = live.latestSampleDate else { return }
+        let age = Date().timeIntervalSince(d)
+        let pick: LiveRange = age < 30 * 60 ? .live : age < 3600 ? .h1 : age < 20 * 3600 ? .h24 : .d7
+        if live.selectedRange != pick { live.selectedRange = pick }
     }
 
     private var emptyChart: some View {
@@ -253,7 +267,7 @@ struct LiveView: View {
             SectionLabel("So far today")
             Card(spacing: 0) {
                 TodayRow(title: "Strain",
-                         detail: "Target \(fmt1(target.lowerBound))–\(fmt1(target.upperBound)) today",
+                         detail: "Target \(fmtTarget(target.lowerBound))–\(fmtTarget(target.upperBound)) today",
                          value: t.strain.map { fmt1($0.value) }, unit: "of 21",
                          progress: t.strain.map { $0.value / 21 }, color: Theme.ember,
                          marks: [target.lowerBound / 21, target.upperBound / 21],
@@ -329,6 +343,8 @@ struct LiveView: View {
     }
 
     private func fmt1(_ v: Double) -> String { v.formatted(.number.precision(.fractionLength(1))) }
+    /// Targets are whole numbers most of the time: "14–17", not "14,0–17,0".
+    private func fmtTarget(_ v: Double) -> String { v.formatted(.number.precision(.fractionLength(0...1))) }
 }
 
 // MARK: - Rows

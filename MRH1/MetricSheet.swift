@@ -284,9 +284,47 @@ struct MetricSheet: View {
                     .foregroundStyle(Theme.graphite)
             }
         }
+        // Sleep metrics are stored in minutes; label the axis in hours ("6 h"), not "400".
+        .chartYAxis {
+            if isDuration {
+                AxisMarks(position: .trailing, values: hourTicks(domain)) { v in
+                    AxisGridLine(stroke: MRHChart.grid).foregroundStyle(Theme.graphite2)
+                    AxisValueLabel {
+                        if let m = v.as(Double.self) { Text(hourLabel(m)) }
+                    }
+                    .font(Typo.caption.monospacedDigit())
+                    .foregroundStyle(Theme.graphite)
+                }
+            } else {
+                AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) { _ in
+                    AxisGridLine(stroke: MRHChart.grid).foregroundStyle(Theme.graphite2)
+                    AxisValueLabel().font(Typo.caption.monospacedDigit()).foregroundStyle(Theme.graphite)
+                }
+            }
+        }
         .mrhAxes(xCount: range == 7 ? 7 : 4)
         .sensoryFeedback(.selection, trigger: picked?.date)
         .accessibilityLabel("\(info.name) trend")
+    }
+
+    private var isDuration: Bool {
+        switch state.id { case .sleepTotal, .deepSleep, .remSleep, .awake: return true; default: return false }
+    }
+
+    /// Whole-hour ticks (or half hours / 15 min for short spans), at most 4.
+    private func hourTicks(_ d: ClosedRange<Double>) -> [Double] {
+        let span = d.upperBound - d.lowerBound
+        let step: Double = span > 360 ? 120 : span > 150 ? 60 : span > 60 ? 30 : 15
+        var t = (d.lowerBound / step).rounded(.up) * step
+        var out: [Double] = []
+        while t <= d.upperBound { out.append(t); t += step }
+        return out
+    }
+
+    private func hourLabel(_ m: Double) -> String {
+        let mins = Int(m.rounded())
+        if mins % 60 == 0 { return "\(mins / 60) h" }
+        return mins < 60 ? "\(mins) min" : "\(mins / 60) h \(String(format: "%02d", mins % 60))"
     }
 
     private func bubble(for p: DayValue) -> some View {

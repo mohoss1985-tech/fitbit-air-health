@@ -170,7 +170,8 @@ private struct PanelResults: View {
 
     private func panelStatus(shared: Int, total: Int, watch: Int) -> String {
         if shared == 0 { return "Waiting for sync" }
-        if watch == 0 { return shared == total ? "All in range" : "\(shared) of \(total) in range" }
+        // Metrics Google Health never sends aren't "out of range", so don't count them against you.
+        if watch == 0 { return shared == total ? "All in range" : "All \(shared) in range · \(total - shared) not sent" }
         return watch == 1 ? "1 to watch" : "\(watch) to watch"
     }
 
@@ -338,7 +339,8 @@ private enum BodyCopy {
         if s.hasData, s.baseline == nil, let early = s.earlyReadText { return early }
         if let b = s.baseline {
             if s.id == .skinTemp { return "Your normal ±" + String(format: "%.1f", locale: .current, b.sd) + "\u{00A0}°C" }
-            return "Your normal " + s.id.format(b.low) + "–" + s.id.format(b.high)
+            let day = (s.id == .steps || s.id == .energy) ? "Yesterday · " : (s.id == .workoutMinutes ? "Last 7 days · " : "")
+            return day + "Your normal " + s.id.format(b.low) + "–" + s.id.format(b.high)
         }
         return "Typical " + s.id.info.typicalText
     }

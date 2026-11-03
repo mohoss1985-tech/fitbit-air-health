@@ -369,7 +369,18 @@ final class HealthStore {
             limit: nil
         )
         guard let workouts = try? await descriptor.result(for: store) else { return [] }
-        return workouts.map { WorkoutItem(name: $0.workoutActivityType.displayName, start: $0.startDate, minutes: $0.duration / 60) }
+        // Google Health and other apps can each write the same session, and auto-detected walks
+        // can overlap a logged run. Merge overlapping time so a minute is only counted once.
+        var items: [WorkoutItem] = []
+        var lastEnd: Date? = nil
+        for w in workouts {
+            let start = max(w.startDate, lastEnd ?? .distantPast)
+            guard w.endDate > start else { continue }
+            items.append(WorkoutItem(name: w.workoutActivityType.displayName, start: w.startDate,
+                                     minutes: w.endDate.timeIntervalSince(start) / 60))
+            lastEnd = max(lastEnd ?? w.endDate, w.endDate)
+        }
+        return items
     }
 
     private func ageYears() -> Int? {
