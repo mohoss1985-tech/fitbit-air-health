@@ -22,6 +22,8 @@ final class HealthStore {
         let name: String
         let start: Date
         let minutes: Double
+        /// Walks are usually auto-detected by the band, not logged; they don't count as workout time.
+        var isWalk: Bool = false
     }
 
     private let store = HKHealthStore()
@@ -189,7 +191,7 @@ final class HealthStore {
             guard let day = Calendar.current.date(byAdding: .day, value: -offset, to: today),
                   let from = Calendar.current.date(byAdding: .day, value: -6, to: day),
                   let to = Calendar.current.date(byAdding: .day, value: 1, to: day) else { continue }
-            let total = workoutAll.filter { $0.start >= from && $0.start < to }.reduce(0) { $0 + $1.minutes }
+            let total = workoutAll.filter { !$0.isWalk && $0.start >= from && $0.start < to }.reduce(0) { $0 + $1.minutes }
             weekly.append(DayValue(date: day, value: total))
         }
         new[.workoutMinutes] = .make(.workoutMinutes, series: workoutAll.isEmpty ? [] : weekly)
@@ -377,7 +379,8 @@ final class HealthStore {
             let start = max(w.startDate, lastEnd ?? .distantPast)
             guard w.endDate > start else { continue }
             items.append(WorkoutItem(name: w.workoutActivityType.displayName, start: w.startDate,
-                                     minutes: w.endDate.timeIntervalSince(start) / 60))
+                                     minutes: w.endDate.timeIntervalSince(start) / 60,
+                                     isWalk: w.workoutActivityType == .walking))
             lastEnd = max(lastEnd ?? w.endDate, w.endDate)
         }
         return items

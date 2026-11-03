@@ -82,7 +82,7 @@ struct StressCard: View {
         let current = hours.last(where: { $0.level != nil })?.level
         Card {
             CardTitle(title: "Stress today",
-                      trailing: current.map { String(format: "%@ now, %.1f of 3", locale: .current, Insights.stressWord($0), $0) },
+                      trailing: current.map { "\(Insights.stressWord($0)) now, \($0.formatted(.number.precision(.fractionLength(0...1)))) of 3" },
                       info: { showInfo = true }, infoLabel: "What is stress?")
             if hours.isEmpty {
                 NotSentLabel(kind: .waiting)
