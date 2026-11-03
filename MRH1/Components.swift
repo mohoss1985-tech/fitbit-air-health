@@ -333,7 +333,8 @@ struct BaselineRibbon: View {
                 if let value {
                     let inside = band.map { $0.contains(value) } ?? true
                     Circle()
-                        .fill(inside ? Theme.ember : (outsideColor ?? Theme.ember))
+                        // Same colour as the status chip: green inside your range, never an orange that reads as a warning.
+                        .fill(inside ? Theme.good : (outsideColor ?? Theme.ember))
                         .overlay(Circle().strokeBorder(Theme.card, lineWidth: 2))
                         .frame(width: dot, height: dot)
                         .offset(x: min(max(RangeMath.x(value, in: d, width: w) - dot / 2, 0), w - dot))
