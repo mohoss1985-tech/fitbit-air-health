@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Basis — Strain and stress</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9AA3AE;text-decoration:none}a:hover{color:#EDEFF2}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0E1116; color: #EDEFF2; font-family: Manrope, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding: 56px 20px 16px 20px; overflow: hidden">
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 13px; color: #9AA3AE; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase">All day, 0–21 scale</span>
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em">Strain</h1>
+      </div>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 34px; font-weight: 600; color: #4DA3FF">11.4</span>
+    </div>
+
+    <div style="background: #171B22; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 15px; font-weight: 700">Heart rate today</span>
+        <span style="font-size: 12px; color: #9AA3AE">peak <span style="font-family: 'IBM Plex Mono', monospace; color: #EDEFF2">163</span> bpm</span>
+      </div>
+      <svg width="318" height="110" viewBox="0 0 318 110" role="img" aria-label="Heart rate across the day with a run in the late afternoon reaching zone 4">
+        <rect x="0" y="0" width="318" height="22" fill="#2A1E1A"></rect>
+        <rect x="0" y="22" width="318" height="22" fill="#2A2418"></rect>
+        <rect x="0" y="44" width="318" height="22" fill="#1A2430"></rect>
+        <polyline fill="none" stroke="#4DA3FF" stroke-width="2" stroke-linejoin="round" points="0,92 20,90 40,86 55,80 70,84 90,78 110,82 125,74 140,80 160,84 175,82 190,76 205,62 212,30 220,18 228,24 236,20 244,28 252,60 262,78 280,82 300,86 318,88"></polyline>
+      </svg>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: #9AA3AE; font-family: 'IBM Plex Mono', monospace"><span>07:00</span><span>14:00</span><span>21:00</span></div>
+      <div style="display: flex; gap: 14px; font-size: 11px; color: #9AA3AE">
+        <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; background: #1A2430; border: 1px solid #3A4A5E"></span>Z2–3</span>
+        <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; background: #2A2418; border: 1px solid #5E4E2E"></span>Z4</span>
+        <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; background: #2A1E1A; border: 1px solid #5E3A2E"></span>Z5</span>
+      </div>
+    </div>
+
+    <div style="background: #171B22; border-radius: 20px; padding: 4px 16px; display: flex; flex-direction: column">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #222832">
+        <div style="width: 40px; height: 40px; border-radius: 12px; background: #1E2A3A; display: flex; align-items: center; justify-content: center; color: #4DA3FF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="4" r="2"></circle><path d="M8 21l3-6 3 2v4M6 12l3-4 4 1 3 3 3 1"></path></svg></div>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Run</span><span style="font-size: 12px; color: #9AA3AE">17:42 · 38 min · HRR60 −31</span></div>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: #4DA3FF">8.9</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0">
+        <div style="width: 40px; height: 40px; border-radius: 12px; background: #1E2A3A; display: flex; align-items: center; justify-content: center; color: #4DA3FF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20l4-8 3 3 4-9 3 14"></path></svg></div>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Everyday load</span><span style="font-size: 12px; color: #9AA3AE">walking, stairs, errands</span></div>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: #4DA3FF">2.5</span>
+      </div>
+    </div>
+
+    <div style="background: #171B22; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 15px; font-weight: 700">Stress</span>
+        <span style="font-size: 12px; color: #9AA3AE">high <span style="font-family: 'IBM Plex Mono', monospace; color: #EDEFF2">1 h 10</span> · calm <span style="font-family: 'IBM Plex Mono', monospace; color: #EDEFF2">9 h</span></span>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #C9CED6">Heart rate above your resting baseline while you were still, 10:00–11:30. Workouts are excluded.</p>
+      <a href="Main.dc.html" style="align-self: flex-start; display: flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 22px; background: #2A2418; color: #FFB454; font-size: 14px; font-weight: 700">Start 2‑min breathing</a>
+    </div>
+  </div>
+
+  <nav style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 8px 8px 28px 8px; background: #12161C; border-top: 1px solid #222832">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; font-size: 11px; font-weight: 600">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Today</a>
+    <a href="Recovery.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; font-size: 11px; font-weight: 600">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"></path></svg>Recovery</a>
+    <a href="Strain.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; color: #EDEFF2; font-size: 11px; font-weight: 700">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Strain</a>
+    <a href="Health.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; font-size: 11px; font-weight: 600">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"></path><circle cx="12" cy="12" r="3"></circle></svg>Health</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

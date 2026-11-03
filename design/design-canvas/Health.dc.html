@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MRH1 — Health and healthspan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9AA3AE;text-decoration:none}a:hover{color:#EDEFF2}
+button{font:inherit}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #0E1116; color: #EDEFF2; font-family: Manrope, system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding: 56px 20px 16px 20px; overflow: hidden">
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 13px; color: #9AA3AE; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase">Your baselines · 30 days</span>
+        <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em">Health</h1>
+      </div>
+      <a href="Results.dc.html" aria-label="Results guide" style="width: 44px; height: 44px; border-radius: 22px; background: #171B22; display: flex; align-items: center; justify-content: center; color: #EDEFF2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"></path><path d="M4 19.5V21h16"></path></svg></a>
+    </div>
+
+    <div style="background: #171B22; border-radius: 20px; padding: 12px 16px 14px 16px; display: flex; flex-direction: column; gap: 2px">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px">
+        <span style="font-size: 15px; font-weight: 700">Monitor</span>
+        <span style="font-size: 12px; color: #9AA3AE">Tap a row for its meaning</span>
+      </div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+        <button type="button" onClick="{{r.open}}" aria-label="{{r.aria}}" style="display: grid; grid-template-columns: 96px minmax(0, 1fr) 52px 20px; align-items: center; gap: 10px; min-height: 44px; padding: 0; background: transparent; border: 0; color: #EDEFF2; text-align: left; cursor: pointer">
+          <span style="font-size: 13px; color: #C9CED6">{{r.name}}</span>
+          <span style="position: relative; display: block; height: 8px; background: #222832; border-radius: 4px"><span style="position: absolute; left: 25%; width: 50%; top: 0; bottom: 0; background: #24302B; border-radius: 4px"></span><span style="{{r.markStyle}}"></span></span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; text-align: right">{{r.value}}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA3AE" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="background: #171B22; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; color: #9AA3AE; font-weight: 600">Sleep debt</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; color: #A78BFA">1 h 35</span>
+        <span style="font-size: 12px; color: #9AA3AE">7 nights · need 7 h 50</span>
+      </div>
+      <div style="background: #171B22; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; color: #9AA3AE; font-weight: 600">Consistency</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; color: #A78BFA">81%</span>
+        <span style="font-size: 12px; color: #9AA3AE">bedtime ±34 min</span>
+      </div>
+    </div>
+
+    <div style="background: #171B22; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 15px; font-weight: 700">Body age</span>
+        <span style="font-size: 12px; color: #9AA3AE">pace <span style="font-family: 'IBM Plex Mono', monospace; color: #3DDC97">0.9×</span></span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 40px; font-weight: 600">37.2</span>
+        <span style="font-size: 13px; color: #9AA3AE">vs calendar age [YOUR AGE]</span>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #9AA3AE">Estimate from VO2 max, resting HR, steps, sleep consistency and strength time. Not a medical measure.</p>
+    </div>
+  </div>
+
+  <nav style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 8px 8px 28px 8px; background: #12161C; border-top: 1px solid #222832">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; font-size: 11px; font-weight: 600">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Today</a>
+    <a href="Recovery.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; font-size: 11px; font-weight: 600">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"></path></svg>Recovery</a>
+    <a href="Strain.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; font-size: 11px; font-weight: 600">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Strain</a>
+    <a href="Health.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; min-height: 44px; color: #EDEFF2; font-size: 11px; font-weight: 700">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"></path><circle cx="12" cy="12" r="3"></circle></svg>Health</a>
+  </nav>
+
+  <sc-if value="{{hasTip}}" hint-placeholder-val="{{ true }}">
+    <button type="button" aria-label="Close" onClick="{{close}}" style="position: absolute; inset: 0; background: rgba(5,7,10,0.55); border: 0; padding: 0; cursor: pointer"></button>
+    <div role="dialog" aria-label="{{tip.name}}" style="position: absolute; left: 16px; right: 16px; top: 268px; background: #1E232C; border: 1px solid #2E3540; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 16px 40px rgba(0,0,0,0.5)">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <span style="font-size: 16px; font-weight: 800">{{tip.name}}</span>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 600">{{tip.value}}</span>
+          <span style="font-size: 12px; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: #24302B; color: #3DDC97">N</span>
+        </div>
+      </div>
+      <span style="font-size: 12px; color: #9AA3AE; font-family: 'IBM Plex Mono', monospace">Ref. {{tip.ref}}</span>
+      <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #C9CED6">{{tip.what}}</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <div style="background: #151920; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 800; color: #FFB454; letter-spacing: 0.06em; text-transform: uppercase">If higher</span><span style="font-size: 12px; line-height: 1.4; color: #C9CED6">{{tip.ifHigh}}</span></div>
+        <div style="background: #151920; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 800; color: #7DBBFF; letter-spacing: 0.06em; text-transform: uppercase">If lower</span><span style="font-size: 12px; line-height: 1.4; color: #C9CED6">{{tip.ifLow}}</span></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { open: null }; }
+  renderVals() {
+    const data = [
+      { id: 'hrv', name: 'HRV', value: '58', mark: 62, ref: 'yours 41–67 ms',
+        what: 'Variation between heartbeats during sleep. Very personal and falls with age, so only your own trend matters.',
+        ifHigh: 'Usually a relaxed, recovered nervous system.', ifLow: 'Stress, short sleep, alcohol, a coming illness or overtraining.' },
+      { id: 'rhr', name: 'Resting HR', value: '52', mark: 40, ref: 'adults 60–100 bpm · yours 49–56',
+        what: 'Your lowest steady heart rate during sleep. Fit people often sit at 40–60, which is normal for them.',
+        ifHigh: '5+ bpm above baseline: stress, heat, alcohol, dehydration or illness.', ifLow: 'Normal if you train a lot. See a doctor if it comes with dizziness.' },
+      { id: 'resp', name: 'Resp. rate', value: '14.6', mark: 52, ref: 'adults 12–20 /min',
+        what: 'Breaths per minute while asleep. Very stable night to night, so small changes mean something.',
+        ifHigh: '+1 above baseline often shows a day or two before you feel ill.', ifLow: 'Rarely a concern on its own.' },
+      { id: 'spo2', name: 'SpO2', value: '96%', mark: 55, ref: '95–100%',
+        what: 'Average blood oxygen overnight, estimated with red and infrared light.',
+        ifHigh: 'Nothing to worry about.', ifLow: 'Repeated nights under 93% can mean breathing issues in sleep. Under 90%: see a doctor.' },
+      { id: 'temp', name: 'Skin temp', value: '+0.2°', mark: 58, ref: '±0.5 °C of baseline',
+        what: 'Change versus your normal night temperature, not your actual body temperature.',
+        ifHigh: 'Over +1 °C: fever, illness, alcohol, warm room or cycle phase.', ifLow: 'Usually a cold room or less bedding.' }
+    ];
+    const rows = data.map((d) => Object.assign({}, d, {
+      aria: d.name + ' ' + d.value + ', in range. Show meaning',
+      markStyle: 'position: absolute; top: -4px; width: 4px; height: 16px; border-radius: 2px; background: #3DDC97; left: calc(' + d.mark + '% - 2px)',
+      open: () => this.setState({ open: d.id })
+    }));
+    const tip = data.find((d) => d.id === this.state.open) || data[0];
+    return { rows: rows, tip: tip, hasTip: this.state.open !== null, close: () => this.setState({ open: null }) };
+  }
+}
+</script>
+</body>
+</html>

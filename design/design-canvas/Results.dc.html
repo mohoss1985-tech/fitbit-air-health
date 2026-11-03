@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MRH1 — Results guide</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9AA3AE;text-decoration:none}a:hover{color:#EDEFF2}
+</style>
+</helmet>
+<div style="width: 390px; box-sizing: border-box; background: #0E1116; color: #EDEFF2; font-family: Manrope, system-ui, sans-serif; display: flex; flex-direction: column; gap: 14px; padding: 56px 20px 40px 20px">
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <span style="font-size: 13px; color: #9AA3AE; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase">Menu › Reference</span>
+      <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em">Results guide</h1>
+    </div>
+    <a href="Health.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 4px; font-size: 14px; font-weight: 700">Done</a>
+  </div>
+
+  <div style="display: flex; gap: 14px; font-size: 12px; color: #9AA3AE; flex-wrap: wrap">
+    <span style="display: flex; align-items: center; gap: 6px"><span style="padding: 2px 7px; border-radius: 6px; background: #24302B; color: #3DDC97; font-weight: 800">N</span>within range</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span style="padding: 2px 7px; border-radius: 6px; background: #2A2418; color: #FFB454; font-weight: 800">H</span>above</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span style="padding: 2px 7px; border-radius: 6px; background: #1E2A3A; color: #7DBBFF; font-weight: 800">L</span>below</span>
+  </div>
+
+  <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+    <div style="background: #171B22; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+        <span style="font-size: 15px; font-weight: 700">{{r.name}}</span>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600">{{r.value}}</span>
+          <span style="font-size: 12px; color: #9AA3AE">{{r.unit}}</span>
+          <span style="{{r.flagStyle}}">{{r.flag}}</span>
+        </div>
+      </div>
+      <div style="position: relative; height: 8px; border-radius: 4px; background: #222832">
+        <div style="{{r.bandStyle}}"></div>
+        <div style="{{r.markStyle}}"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: #9AA3AE; font-family: 'IBM Plex Mono', monospace"><span>{{r.low}}</span><span>Ref. {{r.ref}}</span><span>{{r.high}}</span></div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #C9CED6">{{r.what}}</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <div style="background: #12161C; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 800; color: #FFB454; letter-spacing: 0.06em; text-transform: uppercase">If higher</span><span style="font-size: 12px; line-height: 1.4; color: #C9CED6">{{r.ifHigh}}</span></div>
+        <div style="background: #12161C; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 800; color: #7DBBFF; letter-spacing: 0.06em; text-transform: uppercase">If lower</span><span style="font-size: 12px; line-height: 1.4; color: #C9CED6">{{r.ifLow}}</span></div>
+      </div>
+    </div>
+  </sc-for>
+
+  <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #9AA3AE">Wellness estimates from a wrist sensor, not medical tests. Personal ranges come from your last 30 days; general adult ranges are shown where they exist. Talk to a doctor about anything persistent or worrying.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const pill = (f) => {
+      const c = f === 'N' ? ['#24302B', '#3DDC97'] : f === 'H' ? ['#2A2418', '#FFB454'] : ['#1E2A3A', '#7DBBFF'];
+      return 'font-size: 12px; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: ' + c[0] + '; color: ' + c[1];
+    };
+    const row = (o) => Object.assign({}, o, {
+      flagStyle: pill(o.flag),
+      bandStyle: 'position: absolute; top: 0; bottom: 0; left: ' + o.band[0] + '%; width: ' + (o.band[1] - o.band[0]) + '%; background: #2B3A33; border-radius: 4px',
+      markStyle: 'position: absolute; top: -4px; width: 4px; height: 16px; border-radius: 2px; left: calc(' + o.mark + '% - 2px); background: ' + (o.flag === 'N' ? '#3DDC97' : o.flag === 'H' ? '#FFB454' : '#7DBBFF')
+    });
+    return { rows: [
+      row({ name: 'Recovery', value: '72', unit: '%', flag: 'N', band: [67, 100], mark: 72, low: '0', high: '100', ref: '67–100 green',
+        what: 'How ready your body is today, from HRV, resting heart rate, breathing rate and sleep, each compared with your own baseline.',
+        ifHigh: 'Well recovered. A good day for a hard session.',
+        ifLow: 'Under 34 is red: poor sleep, illness, alcohol or heavy training. Favour rest.' }),
+      row({ name: 'HRV (RMSSD)', value: '58', unit: 'ms', flag: 'N', band: [30, 70], mark: 58, low: '20', high: '100', ref: 'yours 41–67',
+        what: 'Variation between heartbeats during sleep. Very personal and falls with age, so only your own trend matters.',
+        ifHigh: 'Usually a relaxed, recovered nervous system.',
+        ifLow: 'Stress, short sleep, alcohol, a coming illness or overtraining.' }),
+      row({ name: 'Resting heart rate', value: '52', unit: 'bpm', flag: 'N', band: [30, 70], mark: 40, low: '40', high: '100', ref: 'adults 60–100',
+        what: 'Your lowest steady heart rate during sleep. Fit people often sit at 40–60, which is normal for them.',
+        ifHigh: '5+ bpm above your baseline: stress, heat, alcohol, dehydration or illness.',
+        ifLow: 'Normal if you train a lot. See a doctor if it comes with dizziness or fainting.' }),
+      row({ name: 'Breathing rate', value: '14.6', unit: '/min', flag: 'N', band: [20, 60], mark: 34, low: '8', high: '26', ref: 'adults 12–20',
+        what: 'Breaths per minute while asleep. Very stable night to night, so small changes mean something.',
+        ifHigh: '+1 or more above baseline often shows up a day or two before you feel ill.',
+        ifLow: 'Rarely a concern on its own.' }),
+      row({ name: 'Blood oxygen (SpO2)', value: '96', unit: '%', flag: 'N', band: [50, 100], mark: 60, low: '85', high: '100', ref: '95–100',
+        what: 'Average oxygen saturation overnight, estimated with red and infrared light.',
+        ifHigh: 'Nothing to worry about.',
+        ifLow: 'Repeated nights under 93% can mean breathing issues in sleep or altitude. Under 90% is worth a doctor visit.' }),
+      row({ name: 'Skin temperature', value: '+0.2', unit: '°C', flag: 'N', band: [35, 65], mark: 54, low: '−1.5', high: '+1.5', ref: '±0.5 of baseline',
+        what: 'Change versus your normal night temperature, not your actual body temperature.',
+        ifHigh: 'Over +1 °C can mean fever, illness, alcohol, a warm room or the luteal phase of a cycle.',
+        ifLow: 'Usually a cold room or less bedding.' }),
+      row({ name: 'Sleep duration', value: '7.4', unit: 'h', flag: 'N', band: [35, 75], mark: 46, low: '4', high: '12', ref: 'adults 7–9',
+        what: 'Time actually asleep, without awake periods.',
+        ifHigh: 'Fine after hard days. Regularly over 9–10 h with fatigue is worth checking.',
+        ifLow: 'Under 7 h builds sleep debt and lowers tomorrow’s recovery.' }),
+      row({ name: 'Strain', value: '11.4', unit: '/21', flag: 'N', band: [48, 69], mark: 54, low: '0', high: '21', ref: 'target 10–14.5',
+        what: 'All-day load on your heart, on a scale where each step up is harder to reach. 10–13 moderate, 14–17 high, 18+ all out.',
+        ifHigh: 'Above your target: great for fitness gains, but plan recovery.',
+        ifLow: 'An easy day. Fine if your recovery is low.' })
+    ] };
+  }
+}
+</script>
+</body>
+</html>

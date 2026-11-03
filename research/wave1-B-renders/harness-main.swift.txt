@@ -1,0 +1,98 @@
+import SwiftUI
+import Charts
+import UIKit
+
+enum Flag { case normal, high, low, none }
+
+struct Sample: View {
+    let hr: [Double?] = (0..<120).map { i in
+        if i > 70 && i < 78 { return nil }
+        return 64 + 12 * sin(Double(i) / 9) + 5 * sin(Double(i) / 2.3) + Double((i * 7) % 5)
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Chart {
+                ForEach(Array(hr.enumerated()), id: \.offset) { i, v in
+                    if let v {
+                        AreaMark(x: .value("t", i), yStart: .value("b", 40), yEnd: .value("bpm", v), series: .value("s", i < 71 ? 0 : 1))
+                            .interpolationMethod(.monotone)
+                            .foregroundStyle(.grainedArea())
+                        LineMark(x: .value("t", i), y: .value("bpm", v), series: .value("s", i < 71 ? 0 : 1))
+                            .interpolationMethod(.monotone)
+                            .lineStyle(MRHChart.line)
+                            .foregroundStyle(Theme.ink)
+                    }
+                }
+                LivePointMark(x: .value("t", 119), y: .value("bpm", hr[119]!), pulse: 0)
+            }
+            .chartYScale(domain: 40...95)
+            .mrhAxes()
+            .frame(height: 180)
+
+            GlowLine(values: hr, domain: 40...95, color: Theme.ember, fill: true)  // Strain-style ember
+                .frame(height: 110)
+
+            HStack(alignment: .bottom, spacing: MRHChart.barGap) {
+                ForEach(0..<24, id: \.self) { i in
+                    let h = 20 + 50 * abs(sin(Double(i) / 3.1))
+                    UnevenRoundedRectangle(topLeadingRadius: 2, topTrailingRadius: 2)
+                        .fill(i < 18 ? (h > 55 ? Theme.danger : h > 40 ? Theme.limit : Theme.good) : Color.clear)
+                        .overlay { if i >= 18 { UnevenRoundedRectangle(topLeadingRadius: 2, topTrailingRadius: 2).stroke(Theme.hair, lineWidth: 1) } }
+                        .frame(height: h)
+                }
+            }
+            .printGrain(amount: 0.03)
+            .frame(height: 72)
+
+            Capsule().fill(LinearGradient(stops: OKLab.stops(GfxTokens.ember, GfxTokens.peach), startPoint: .leading, endPoint: .trailing))
+                .printGrain(amount: 0.04)
+                .frame(height: 14)
+            HStack(spacing: 4) { ForEach(0..<10) { i in Rectangle().fill(Color.oklabMix(Theme.ember, Theme.iris, t: Double(i)/9)).frame(height: 18) } }
+        }
+        .padding(20)
+        .background(Theme.card)
+    }
+}
+
+struct Page: View {
+    var status: Flag?
+    var evening: Bool
+    var tier: StatusTier? = nil
+    var body: some View {
+        ZStack(alignment: .top) {
+            Theme.paper
+            (tier != nil ? OrbBackground(tier: tier, evening: evening) : OrbBackground(status: status, evening: evening)).frame(height: 460)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Monday 2 November").font(Typo.label).foregroundStyle(Theme.graphite)
+                Text("Recovered well. A good day to push a little.").font(Typo.title).foregroundStyle(Theme.ink).fixedSize(horizontal: false, vertical: true)
+                Spacer().frame(height: 170)
+                Sample().clipShape(RoundedRectangle(cornerRadius: 28))
+            }
+            .padding(.horizontal, 20).padding(.top, 70)
+        }
+        .frame(width: 402, height: 874)
+    }
+}
+
+@MainActor func render(_ v: some View, _ name: String, dark: Bool) {
+    let r = ImageRenderer(content: v.environment(\.colorScheme, dark ? .dark : .light).environment(\.displayScale, 3))
+    r.scale = 3
+    guard let img = r.uiImage, let data = img.pngData() else { print("FAIL", name); return }
+    let out = ProcessInfo.processInfo.environment["OUT"] ?? "."
+    try! data.write(to: URL(fileURLWithPath: out + "/" + name + ".png"))
+    print("wrote", name, img.size)
+}
+
+MainActor.assumeIsolated {
+    render(Page(status: .normal, evening: false), "orb-light-good", dark: false)
+    render(Page(status: .high, evening: false), "orb-light-watch", dark: false)
+    render(Page(status: nil, evening: true), "orb-light-evening", dark: false)
+    render(Page(status: .normal, evening: true), "orb-dark", dark: true)
+    render(Page(status: nil, evening: false, tier: .outOfRange), "orb-light-danger", dark: false)
+    render(Page(status: nil, evening: false, tier: .outOfRange), "orb-dark-danger", dark: true)
+    for (f, n) in [(Flag.normal, "good"), (Flag.high, "watch")] {
+        render(OrbBackground(status: f, evening: false).frame(width: 402, height: 874), "bare-light-" + n, dark: false)
+        render(OrbBackground(status: f, evening: false).frame(width: 402, height: 874), "bare-dark-" + n, dark: true)
+    }
+    render(OrbBackground(status: nil, evening: true).frame(width: 402, height: 874), "bare-light-evening", dark: false)
+}

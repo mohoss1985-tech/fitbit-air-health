@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MRH1, recovery and sleep for Fitbit Air</title>
+<meta name="description" content="MRH1 is an iPhone app that turns the data your Fitbit Air sends to Apple Health into recovery, strain, sleep and stress you can read. On-device, no subscription, no account.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search).get('theme');
+    var dark = q ? q === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  })();
+</script>
+<style>
+:root { --paper:#EDEBE7; --card:#FAF9F7; --ink:#151413; --graphite:#6B665F; --graphite2:#A8A39C; --hair:#DFDBD5; --track:#E9E6E1;
+  --ember:#F0582A; --emberInk:#B83F17; --iris:#8B88F0; --good:#2F9D68; --goodBg:#DDF0E4; --goodText:#1F6E47; --limit:#E6B820; --danger:#D23A3A;
+  --font-ui: Geist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; --font-num: ui-rounded, Geist, -apple-system, system-ui, sans-serif; }
+:root[data-theme="dark"] { --paper:#151413; --card:#1F1D1B; --ink:#F2EFEA; --graphite:#B4AEA7; --graphite2:#8A847D; --hair:#2E2B28; --track:#2A2724;
+  --goodBg:#1F2E25; --goodText:#8FD4AE; --emberInk:#F59A78; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 400 17px/1.55 var(--font-ui); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+.hero { position: relative; overflow: hidden; }
+#orbs { position: absolute; left: 0; top: 0; width: 100%; height: 640px; display: block; pointer-events: none; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 48px; align-items: center; padding-top: 32px; padding-bottom: 48px; }
+nav.top { position: relative; display: flex; justify-content: space-between; align-items: center; height: 72px; }
+nav.top b { font: 600 17px/1 var(--font-ui); letter-spacing: -.01em; }
+nav.top a { font-size: 15px; text-decoration: none; margin-left: 20px; }
+nav.top a:hover { text-decoration: underline; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 6px 10px; border-radius: 8px; font: 500 13px/1.3 var(--font-ui); background: rgba(250,249,247,.7); box-shadow: inset 0 0 0 .5px var(--hair); }
+:root[data-theme="dark"] .chip { background: rgba(31,29,27,.7); }
+h1 { font: 600 clamp(40px, 6.4vw, 64px)/1.04 var(--font-ui); letter-spacing: -.035em; margin: 20px 0 20px; }
+.lead { font-size: 19px; line-height: 1.5; margin: 0 0 28px; max-width: 30em; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; font: 500 16px/1 var(--font-ui); text-decoration: none; transition: transform 160ms ease-out; }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn.ghost { box-shadow: inset 0 0 0 1px var(--hair); background: var(--card); }
+.small { font-size: 13px; color: var(--graphite); margin: 16px 0 0; }
+.phones { position: relative; display: flex; justify-content: center; gap: 16px; }
+.shot { margin: 0; flex: 0 1 260px; min-width: 0; }
+.shot img { display: block; width: 100%; height: auto; border-radius: 36px; background: var(--card); box-shadow: 0 0 0 1px rgba(21,20,19,.06), 0 24px 64px rgba(21,20,19,.14); }
+.phones .shot:nth-child(2) { margin-top: 56px; }
+.shot figcaption { font-size: 13px; color: var(--graphite); margin-top: 10px; text-align: center; }
+section { padding: 72px 0; }
+section + section { border-top: .5px solid var(--hair); }
+h2 { font: 600 clamp(28px, 3.6vw, 36px)/1.15 var(--font-ui); letter-spacing: -.025em; margin: 0 0 12px; max-width: 22em; }
+.sub { color: var(--graphite); margin: 0 0 40px; max-width: 38em; }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.card { background: var(--card); border-radius: 28px; padding: 24px; }
+.card h3 { font: 600 17px/1.3 var(--font-ui); margin: 0 0 8px; }
+.card p { margin: 0; color: var(--graphite); font-size: 15px; }
+.card .big { font: 600 34px/1 var(--font-num); letter-spacing: -.03em; color: var(--ink); margin-bottom: 16px; display: block; font-variant-numeric: tabular-nums; }
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: s; }
+.flow .card { padding: 20px; }
+.flow .card::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--paper); font: 600 13px/1 var(--font-ui); margin-bottom: 16px; }
+.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.gallery .shot img { border-radius: 28px; }
+.gallery .shot figcaption { text-align: left; color: var(--ink); font-size: 15px; }
+.gallery .shot figcaption span { display: block; color: var(--graphite); font-size: 13px; margin-top: 2px; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 14px 12px 14px 0; border-bottom: .5px solid var(--hair); vertical-align: top; }
+th { font-weight: 500; font-size: 13px; color: var(--graphite); }
+td:first-child { font-weight: 500; white-space: nowrap; }
+td.ns { color: var(--graphite); }
+.tablewrap { overflow-x: auto; background: var(--card); border-radius: 28px; padding: 8px 24px; }
+.legal { background: var(--card); border-radius: 28px; padding: 24px; font-size: 15px; color: var(--graphite); }
+.legal p { margin: 0; } .legal p + p { margin-top: 12px; }
+.legal b { color: var(--ink); font-weight: 500; }
+footer { padding: 40px 0 56px; color: var(--graphite); font-size: 14px; border-top: .5px solid var(--hair); }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+@media (max-width: 900px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: 40px; }
+  .three, .flow { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  nav.top a.hide-s { display: none; }
+  .phones { gap: 12px; } .phones .shot:nth-child(2) { margin-top: 32px; }
+  .shot img { border-radius: 24px; }
+  section { padding: 56px 0; }
+  .gallery { gap: 12px; }
+  .tablewrap { padding: 4px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<div class="hero">
+  <canvas id="orbs" aria-hidden="true"></canvas>
+  <div class="wrap" style="display:block;padding-top:0;padding-bottom:0">
+    <nav class="top"><b>MRH1</b><span><a href="#how" class="hide-s">How it works</a><a href="#privacy" class="hide-s">Privacy</a><a href="demo/">Demo</a></span></nav>
+  </div>
+  <div class="wrap">
+    <div>
+      <span class="chip">Works with Fitbit Air via Google Health and Apple Health</span>
+      <h1>Recovery, strain and sleep you can actually read.</h1>
+      <p class="lead">MRH1 turns the readings Google Health sends to Apple Health into scores, lab-style body panels and a live heart-rate view, each one explained against your own usual range. No subscription, no account, and nothing leaves your iPhone.</p>
+      <div class="cta"><a class="btn primary" href="demo/">Try the demo</a><a class="btn ghost" href="https://github.com/mohoss1985-tech/fitbit-air-on-steroids">View the code</a></div>
+      <p class="small">The demo and every screenshot use synthetic sample data, not a real person’s readings.</p>
+    </div>
+    <div class="phones">
+      <figure class="shot"><img src="screenshots-v1/today.png" width="390" height="844" alt="Today screen: recovery 78 percent in a ring of ticks, strain 9.4 and sleep 86, on sample data."><figcaption>Today, sample data</figcaption></figure>
+      <figure class="shot"><img src="screenshots-v1/live.png" width="390" height="844" alt="Live screen: heart rate 71 bpm with a chart of the last two minutes, on sample data."><figcaption>Live, sample data</figcaption></figure>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <h2>Three things it does differently.</h2>
+    <p class="sub">Most band apps either hide the numbers behind a subscription or show them without context. MRH1 does neither.</p>
+    <div class="three">
+      <div class="card"><span class="big">On-device</span><h3>Nothing collected</h3><p>No servers, no analytics, no third-party code. It reads Apple Health on your iPhone and does every calculation there.</p></div>
+      <div class="card"><span class="big">Shows its math</span><h3>Every score explained</h3><p>Each result sits against your own 30-day range, with the weights behind Recovery and a plain “how it’s computed” page.</p></div>
+      <div class="card"><span class="big">Honest gaps</span><h3>Never a fake zero</h3><p>Google Health doesn’t send HRV, skin temperature or VO2 max yet. MRH1 says “Not sent” and always shows when it last synced.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="sub">No API keys and no cloud account. The app reads what the Google Health app already writes into Apple Health.</p>
+    <div class="flow">
+      <div class="card"><h3>Fitbit Air</h3><p>Heart rate, motion, SpO2 and sleep stages from the band.</p></div>
+      <div class="card"><h3>Google Health app</h3><p>Syncs the band and writes the readings to Apple Health, minutes to hours later.</p></div>
+      <div class="card"><h3>Apple Health</h3><p>MRH1 asks for read-only access to the types it uses.</p></div>
+      <div class="card"><h3>MRH1</h3><p>Recovery, strain, sleep, stress, body panels, trends and the Live tab.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Four tabs, one calm read.</h2>
+    <p class="sub">Warm paper, ink type and one ember accent. Green, yellow and red only ever mean a result. Screens from the web replica, on synthetic sample data.</p>
+    <div class="gallery">
+      <figure class="shot"><img src="screenshots-v1/today.png" width="390" height="844" loading="lazy" alt="Today screen on sample data."><figcaption>Today<span>Recovery, strain and sleep, with a verdict for the time of day.</span></figcaption></figure>
+      <figure class="shot"><img src="screenshots-v1/live.png" width="390" height="844" loading="lazy" alt="Live screen on sample data."><figcaption>Live<span>Heart rate as samples land, with 1H, 24H, 7D and 30D history.</span></figcaption></figure>
+      <figure class="shot"><img src="screenshots-v1/body.png" width="390" height="844" loading="lazy" alt="Body screen on sample data."><figcaption>Body<span>Lab-style panels with your range for every result.</span></figcaption></figure>
+      <figure class="shot"><img src="screenshots-v1/trends.png" width="390" height="844" loading="lazy" alt="Trends screen on sample data."><figcaption>Trends<span>What changed this week, in plain sentences.</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What it reads</h2>
+    <p class="sub">“Normal” means normal for you: ranges come from your own last 30 days, and need about 14 days to settle.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Result</th><th>Source</th><th>What it tells you</th></tr></thead>
+      <tbody>
+        <tr><td>Recovery</td><td>Computed</td><td>0–100 %. Resting heart rate, sleep and breathing against your usual.</td></tr>
+        <tr><td>Strain</td><td>Computed</td><td>0–21. All-day heart-rate load, with a target that follows your recovery.</td></tr>
+        <tr><td>Sleep score</td><td>Computed</td><td>Duration against need, deep and REM share, time awake.</td></tr>
+        <tr><td>Stress</td><td>Computed</td><td>Hourly. Heart rate raised above resting while you are still.</td></tr>
+        <tr><td>Resting heart rate</td><td>Fitbit Air</td><td>Lowest steady heart rate during sleep.</td></tr>
+        <tr><td>Breathing rate</td><td>Fitbit Air</td><td>Breaths per minute asleep. Very steady night to night.</td></tr>
+        <tr><td>Blood oxygen (SpO2)</td><td>Fitbit Air</td><td>Oxygen saturation asleep, for wellness only.</td></tr>
+        <tr><td>Sleep stages</td><td>Fitbit Air</td><td>Deep, core, REM and awake time.</td></tr>
+        <tr><td>Steps and energy</td><td>Fitbit Air</td><td>Daily movement and active energy.</td></tr>
+        <tr><td>HRV, skin temperature, VO2 max</td><td class="ns">Not sent</td><td class="ns">Google Health doesn’t send these to Apple Health yet. Shown as “Not sent”, never as zero.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <h2>Private by construction</h2>
+    <p class="sub">The app has no networking code. It reads Apple Health read-only, keeps its history and journal on the device, and makes its notifications there too.</p>
+    <div class="legal">
+      <p><b>Wellness estimates, not medical advice.</b> MRH1 is not a medical device and does not diagnose anything. See a doctor about any symptoms.</p>
+      <p>Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google. Fitbit and Fitbit Air are trademarks of Google LLC.</p>
+      <p>The demo and screenshots use synthetic sample data.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Built with AI</h2>
+    <p class="sub" style="margin-bottom:0">Designed and built in conversation with Claude (Anthropic): sensor research, metric design, the SwiftUI code and the Metal and WebGL shaders. Part of an AI portfolio, alongside <a href="https://github.com/mohoss1985-tech/AI-skills">AI-skills</a>.</p>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>© 2026 MRH1</span><span><a href="demo/">Demo</a> · <a href="https://github.com/mohoss1985-tech/fitbit-air-on-steroids">GitHub</a></span></div></footer>
+
+<script src="demo/orbs.js"></script>
+<script>
+  (function () {
+    var c = document.getElementById('orbs');
+    if (!window.MRHOrbs || !c) return;
+    var dark = document.documentElement.dataset.theme === 'dark';
+    var o = MRHOrbs.mount(c, { status: 'good', evening: dark, frozen: new URLSearchParams(location.search).has('shot'),
+      unit: function (w) { return Math.min(w, 560); }, fadeStart: function (h) { return h * 0.45; }, fadeEnd: function (h) { return h; } });
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+      if (new URLSearchParams(location.search).get('theme')) return;
+      document.documentElement.dataset.theme = e.matches ? 'dark' : 'light'; o.setEvening(e.matches);
+    });
+  })();
+</script>
+</body>
+</html>

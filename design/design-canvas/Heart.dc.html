@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MRH1 — Panel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #0E1116; color: #EDEFF2; font-family: Manrope, system-ui, sans-serif; overflow: hidden">
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 52px 16px 16px 16px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <a href="Overview.dc.html" aria-label="Back to body panels" style="width: 44px; height: 44px; border-radius: 22px; background: #171B22; color: #EDEFF2; display: flex; align-items: center; justify-content: center; text-decoration: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></a>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 12px; color: #9AA3AE; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase">Body panel · last night</span>
+        <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px"><span style="{{dotStyle}}"></span>{{title}}</span>
+      </div>
+    </div>
+    <span style="{{statusStyle}}">{{status}}</span>
+
+    <div style="background: #171B22; border-radius: 22px; padding: 4px 16px">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+        <button type="button" onClick="{{r.open}}" aria-label="{{r.aria}}" style="{{r.btnStyle}}">
+          <span style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+            <span style="display: flex; flex-direction: column; gap: 2px; text-align: left">
+              <span style="font-size: 14px; font-weight: 700; color: #EDEFF2">{{r.name}}</span>
+              <span style="font-size: 11px; color: #9AA3AE">{{r.sub}}</span>
+            </span>
+            <span style="display: flex; align-items: baseline; gap: 6px; flex-shrink: 0">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: #EDEFF2">{{r.value}}</span>
+              <span style="font-size: 11px; color: #9AA3AE">{{r.unit}}</span>
+              <span style="{{r.flagStyle}}">{{r.flagWord}}</span>
+            </span>
+          </span>
+          <span style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 18px; gap: 10px; align-items: center">
+            <span style="position: relative; display: block; height: 12px">
+              <span style="position: absolute; left: 0; right: 0; top: 4px; height: 4px; border-radius: 2px; background: #222832"></span>
+              <span style="{{r.bandStyle}}"></span>
+              <span style="{{r.markStyle}}"></span>
+            </span>
+            <svg width="70" height="20" viewBox="0 0 70 20" aria-hidden="true"><polyline fill="none" stroke="{{r.color}}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="{{r.spark}}"></polyline></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA3AE" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+          </span>
+        </button>
+      </sc-for>
+    </div>
+    <span style="font-size: 11px; color: #9AA3AE; line-height: 1.5; padding: 0 4px">Dashed zone = your normal range (last 30 days). Line = last 7 days. Tap any row for what it means. Sample values.</span>
+  </div>
+
+  <sc-if value="{{hasTip}}" hint-placeholder-val="{{ false }}">
+    <button type="button" aria-label="Close" onClick="{{close}}" style="position: absolute; inset: 0; background: rgba(5,7,10,0.6); border: 0; padding: 0; cursor: pointer"></button>
+    <div role="dialog" aria-label="{{tip.name}}" style="position: absolute; left: 0; right: 0; bottom: 0; background: #1E232C; border-radius: 28px 28px 0 0; border-top: 1px solid #2E3540; padding: 12px 20px 34px 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -16px 40px rgba(0,0,0,0.5)">
+      <span style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #4A5462"></span>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 3px">
+          <span style="font-size: 19px; font-weight: 800">{{tip.name}}</span>
+          <span style="font-size: 12px; color: #9AA3AE">{{tip.sub}}</span>
+        </div>
+        <span style="display: flex; align-items: baseline; gap: 6px; flex-shrink: 0">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600">{{tip.value}}</span>
+          <span style="font-size: 12px; color: #9AA3AE">{{tip.unit}}</span>
+        </span>
+      </div>
+      <span style="position: relative; display: block; height: 14px">
+        <span style="position: absolute; left: 0; right: 0; top: 5px; height: 4px; border-radius: 2px; background: #2A303A"></span>
+        <span style="{{tip.bandStyle}}"></span>
+        <span style="{{tip.markStyle}}"></span>
+      </span>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <div style="background: #151920; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 10px; font-weight: 800; color: #3DDC97; letter-spacing: 0.06em">YOUR RANGE</span><span style="font-size: 13px; font-family: 'IBM Plex Mono', monospace">{{tip.yours}}</span></div>
+        <div style="background: #151920; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 10px; font-weight: 800; color: #9AA3AE; letter-spacing: 0.06em">TYPICAL ADULT</span><span style="font-size: 13px; font-family: 'IBM Plex Mono', monospace">{{tip.typical}}</span></div>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #C9CED6">{{tip.what}}</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <div style="background: #151920; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 10px; font-weight: 800; color: #FFB454; letter-spacing: 0.06em">IF HIGHER</span><span style="font-size: 12px; line-height: 1.4; color: #C9CED6">{{tip.ifHigh}}</span></div>
+        <div style="background: #151920; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 10px; font-weight: 800; color: #7DBBFF; letter-spacing: 0.06em">IF LOWER</span><span style="font-size: 12px; line-height: 1.4; color: #C9CED6">{{tip.ifLow}}</span></div>
+      </div>
+      <span style="font-size: 11px; color: #7E8794">Wellness estimate from a wrist sensor, not a medical test.</span>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"which":{"editor":"enum","options":["heart","lungs","sleep","activity"],"default":"heart"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { open: -1 }; }
+  renderVals() {
+    const C = { N: '#3DDC97', H: '#FFB454', L: '#7DBBFF' };
+    const BG = { N: '#24302B', H: '#2A2418', L: '#1E2A3A' };
+    const WORD = { N: 'Normal', H: 'High', L: 'Low' };
+    const m = (name, sub, value, unit, flag, band, mark, spark, yours, typical, what, ifHigh, ifLow) =>
+      ({ name, sub, value, unit, flag, band, mark, spark, yours, typical, what, ifHigh, ifLow });
+    const P = {
+      heart: { title: 'Heart', tint: '#FF6B7A', rows: [
+        m('Resting heart rate', 'RHR · beats per minute at rest', '70', 'bpm', 'N', [30, 60], 46, [0.5, 0.55, 0.45, 0.5, 0.6, 0.55, 0.5], '68 – 74 bpm', '60 – 100 bpm',
+          'Your lowest steady heart rate, measured while you sleep. Fit people often sit lower, which is normal for them.', '5+ bpm above your usual: stress, alcohol, heat, dehydration or a coming illness.', 'Usually a sign of good fitness. See a doctor only if it comes with dizziness or fainting.'),
+        m('Heart rate variability', 'HRV · variation between beats, in ms', '52', 'ms', 'N', [35, 70], 58, [0.4, 0.5, 0.3, 0.6, 0.55, 0.5, 0.65], '40 – 58 ms', 'Very personal (20 – 100 ms)',
+          'The tiny differences in time between heartbeats. Higher means your nervous system is relaxed and recovered. Only compare it with yourself.', 'Well rested and recovered.', 'Stress, short sleep, alcohol, illness or overtraining.'),
+        m('Heart rate during sleep', 'Average while asleep', '66', 'bpm', 'N', [30, 65], 50, [0.5, 0.45, 0.5, 0.4, 0.5, 0.55, 0.45], '62 – 70 bpm', '50 – 75 bpm',
+          'Your average heart rate across the night. It should sit close to your resting heart rate.', 'Late meal, alcohol, warm room or illness.', 'Deep, calm sleep.'),
+        m('Heart rate recovery', 'HRR · drop 1 min after exercise', '28', 'bpm', 'N', [40, 80], 58, [0.4, 0.5, 0.45, 0.6, 0.5, 0.55, 0.6], '24 – 32 bpm', '12+ bpm is healthy',
+          'How fast your heart slows down in the first minute after a workout. A bigger drop means a fitter heart.', 'Excellent fitness.', 'Under 12 bpm: fatigue or low fitness. Worth watching if it stays low.')
+      ]},
+      lungs: { title: 'Lungs, oxygen & temperature', tint: '#4DD0E1', rows: [
+        m('Breathing rate', 'Breaths per minute while asleep', '20', '/min', 'H', [25, 60], 76, [0.4, 0.45, 0.4, 0.45, 0.5, 0.6, 0.85], '14 – 17 /min', '12 – 20 /min',
+          'How many breaths you take per minute during sleep. It barely changes from night to night, so a jump is meaningful.', '+1 or more above your usual can appear a day or two before you feel ill. Also alcohol or heat.', 'Rarely a concern on its own.'),
+        m('Blood oxygen', 'SpO2 · oxygen saturation in your blood', '95.7', '%', 'N', [50, 100], 62, [0.6, 0.65, 0.6, 0.7, 0.65, 0.6, 0.62], '95 – 97 %', '95 – 100 %',
+          'The share of your red blood cells carrying oxygen, estimated with red and infrared light through the skin.', 'Nothing to worry about.', 'Repeated nights under 93 % can mean breathing pauses in sleep or altitude. Under 90 %: see a doctor.'),
+        m('Skin temperature', 'Change vs your usual night, in °C', '+0.2', '°C', 'N', [35, 65], 55, [0.5, 0.45, 0.5, 0.55, 0.5, 0.45, 0.55], '±0.5 °C', '±0.5 °C',
+          'Not your body temperature: the difference between tonight and your normal night at the wrist.', 'Over +1 °C: fever, illness, alcohol, a warm room or the cycle phase after ovulation.', 'Usually a cold room or less bedding.')
+      ]},
+      sleep: { title: 'Sleep', tint: '#A78BFA', rows: [
+        m('Total sleep', 'Time actually asleep', '9 h 35', '', 'H', [35, 65], 84, [0.3, 0.5, 0.2, 0.55, 0.45, 0.4, 0.9], '6 h 45 – 8 h 15', '7 – 9 h',
+          'Time asleep, not counting awake moments in bed.', 'Fine after hard days or short nights. Often over 9 – 10 h with tiredness is worth checking.', 'Under 7 h builds sleep debt and lowers tomorrow’s recovery.'),
+        m('Deep sleep', 'Slow-wave sleep · body repair', '59', 'min', 'N', [25, 60], 40, [0.4, 0.5, 0.45, 0.35, 0.5, 0.4, 0.45], '45 – 80 min', '10 – 20 % of the night',
+          'The deepest stage, when your body repairs muscle and your immune system works hardest. Mostly in the first half of the night.', 'Your body caught up after a hard day.', 'Alcohol, late caffeine or a late meal often cut it.'),
+        m('REM sleep', 'Rapid eye movement · dreaming', '2 h 05', '', 'N', [35, 70], 64, [0.5, 0.4, 0.5, 0.55, 0.45, 0.5, 0.65], '1 h 20 – 2 h 10', '20 – 25 % of the night',
+          'The dreaming stage, important for memory and mood. Longer in the second half of the night.', 'Common after a sleep debt (rebound).', 'Alcohol and short nights cut REM first.'),
+        m('Time to fall asleep', 'Sleep onset latency', '32', 'min', 'H', [10, 40], 66, [0.3, 0.4, 0.35, 0.5, 0.45, 0.55, 0.65], '10 – 20 min', '10 – 20 min',
+          'How long it took you to fall asleep after going to bed.', 'Screens, caffeine, stress or going to bed before you feel sleepy.', 'Under 5 min regularly can mean you are sleep-deprived.')
+      ]},
+      activity: { title: 'Activity & load', tint: '#4DA3FF', rows: [
+        m('Steps', '7-day average per day', '8 401', '/day', 'N', [40, 75], 60, [0.3, 0.4, 0.35, 0.5, 0.45, 0.9, 0.2], '7 000 – 10 000', '7 000 – 10 000',
+          'Daily steps, from the Fitbit Air and your iPhone combined.', 'Great for long-term health.', 'Under 5 000 a day for weeks is linked to poorer health.'),
+        m('Active zone minutes', 'AZM · minutes with heart rate raised', '109', 'min/day', 'N', [30, 70], 64, [0.2, 0.25, 0.2, 0.9, 0.3, 0.6, 0.1], '60 – 120 /day', '150+ /week',
+          'Minutes spent in a raised heart-rate zone. Harder zones count double.', 'Big training day: plan recovery.', 'Fine on rest days. Aim for 150+ in a week.'),
+        m('Cardio load', 'Weekly heart-rate training load', '111', '/760', 'L', [40, 80], 18, [0.2, 0.3, 0.25, 0.3, 0.2, 0.15, 0.1], '300 – 760', 'Personal target',
+          'How much work your heart did in workouts this week, against the target Google sets for you.', 'Above target: fitness gains, but watch recovery.', 'Below target: an easy week. Fine if recovery is low.'),
+        m('Energy burned', 'Calories per day, all day', '3 741', 'kcal', 'N', [35, 70], 54, [0.5, 0.55, 0.5, 0.45, 0.5, 0.55, 0.5], '3 500 – 4 100', 'Depends on body size',
+          'All calories you burned: at rest plus movement.', 'A very active day.', 'A quiet day.')
+      ]}
+    };
+    const key = this.props.which || 'heart';
+    const p = P[key] || P.heart;
+    const rows = p.rows.map((r, i) => Object.assign({}, r, {
+      color: C[r.flag],
+      flagWord: WORD[r.flag],
+      aria: r.name + ' ' + r.value + ' ' + r.unit + ', ' + WORD[r.flag] + '. Show meaning',
+      btnStyle: 'display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 14px 0; background: transparent; border: 0; cursor: pointer; text-align: left; font: inherit; ' + (i > 0 ? 'border-top: 1px solid #222832' : ''),
+      flagStyle: 'font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: ' + BG[r.flag] + '; color: ' + C[r.flag],
+      bandStyle: 'position: absolute; top: 0; height: 12px; box-sizing: border-box; border: 1.5px dashed #3E5A4C; border-radius: 6px; background: rgba(61,220,151,0.10); left: ' + r.band[0] + '%; width: ' + (r.band[1] - r.band[0]) + '%',
+      markStyle: 'position: absolute; top: -1px; width: 14px; height: 14px; margin-left: -7px; border-radius: 7px; box-sizing: border-box; border: 3px solid #171B22; background: ' + C[r.flag] + '; left: ' + r.mark + '%',
+      spark: r.spark.map((v, j) => (j * 11 + 2) + ',' + (18 - v * 16)).join(' '),
+      open: () => this.setState({ open: i })
+    }));
+    const out = p.rows.filter((r) => r.flag !== 'N').length;
+    const t = this.state.open >= 0 ? rows[this.state.open] : null;
+    return {
+      title: p.title,
+      dotStyle: 'width: 12px; height: 12px; border-radius: 6px; background: ' + p.tint,
+      status: out === 0 ? 'All ' + p.rows.length + ' results in your range' : out + ' of ' + p.rows.length + ' outside your range',
+      statusStyle: 'font-size: 14px; font-weight: 700; padding: 0 4px; color: ' + (out === 0 ? C.N : C.H),
+      rows: rows,
+      hasTip: !!t,
+      tip: t ? Object.assign({}, t, {
+        bandStyle: 'position: absolute; top: 0; height: 14px; box-sizing: border-box; border: 1.5px dashed #3E5A4C; border-radius: 7px; background: rgba(61,220,151,0.12); left: ' + t.band[0] + '%; width: ' + (t.band[1] - t.band[0]) + '%',
+        markStyle: 'position: absolute; top: -1px; width: 16px; height: 16px; margin-left: -8px; border-radius: 8px; box-sizing: border-box; border: 3px solid #1E232C; background: ' + t.color + '; left: ' + t.mark + '%'
+      }) : { name: '', sub: '', value: '', unit: '', yours: '', typical: '', what: '', ifHigh: '', ifLow: '', bandStyle: '', markStyle: '' },
+      close: () => this.setState({ open: -1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

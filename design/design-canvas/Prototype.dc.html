@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MRH1 — Motion prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9AA3AE;text-decoration:none}a:hover{color:#EDEFF2}
+button{font:inherit}
+@keyframes mrhDraw{from{stroke-dashoffset:252}}
+@keyframes mrhRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes mrhZoom{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:none}}
+@keyframes mrhSheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes mrhFade{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #0E1116; color: #EDEFF2; font-family: Manrope, system-ui, sans-serif; overflow: hidden">
+
+  <sc-if value="{{isHome}}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-direction: column; gap: 16px; padding: 56px 20px 20px 20px">
+      <span style="font-size: 13px; color: #9AA3AE; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; animation: mrhFade 0.5s ease-out both">Mon 2 Nov · 07:42</span>
+      <h1 style="margin: 0; font-size: 26px; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; animation: mrhRise 0.6s ease-out 0.1s both">Good morning, Mo.<br>You're ready to push.</h1>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding-top: 8px">
+        <sc-for list="{{rings}}" as="g" hint-placeholder-count="3">
+          <button type="button" onClick="{{g.open}}" aria-label="{{g.aria}}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; background: #171B22; border: 0; border-radius: 22px; padding: 16px 4px 14px 4px; color: #EDEFF2; cursor: pointer">
+            <span style="position: relative; display: block; width: 92px; height: 92px">
+              <svg width="92" height="92" viewBox="0 0 96 96" aria-hidden="true">
+                <circle cx="48" cy="48" r="40" fill="none" stroke="{{g.track}}" stroke-width="9"></circle>
+                <circle cx="48" cy="48" r="40" fill="none" stroke="{{g.color}}" stroke-width="9" stroke-linecap="round" stroke-dasharray="{{g.dash}}" transform="rotate(-90 48 48)" style="{{g.anim}}"></circle>
+              </svg>
+              <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600; color: #EDEFF2">{{g.value}}</span>
+            </span>
+            <span style="{{g.labelStyle}}">{{g.label}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <a href="Overview.dc.html" style="background: #171B22; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; color: #EDEFF2; text-decoration: none; animation: mrhRise 0.6s ease-out 0.5s both">
+        <div style="display: flex; justify-content: space-between"><span style="font-size: 15px; font-weight: 700">Body panels</span><span style="font-size: 13px; color: #FFB454; font-weight: 700">4 to watch ›</span></div>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+          <span style="display: flex; flex-direction: column; gap: 6px; align-items: center"><span style="width: 100%; height: 8px; border-radius: 4px; background: #3DDC97; animation: mrhFade 0.4s ease-out 0.6s both"></span><span style="font-size: 11px; color: #C9CED6">Heart</span></span>
+          <span style="display: flex; flex-direction: column; gap: 6px; align-items: center"><span style="width: 100%; height: 8px; border-radius: 4px; background: #FFB454; animation: mrhFade 0.4s ease-out 0.7s both"></span><span style="font-size: 11px; color: #C9CED6">Lungs</span></span>
+          <span style="display: flex; flex-direction: column; gap: 6px; align-items: center"><span style="width: 100%; height: 8px; border-radius: 4px; background: #FFB454; animation: mrhFade 0.4s ease-out 0.8s both"></span><span style="font-size: 11px; color: #C9CED6">Sleep</span></span>
+          <span style="display: flex; flex-direction: column; gap: 6px; align-items: center"><span style="width: 100%; height: 8px; border-radius: 4px; background: #7DBBFF; animation: mrhFade 0.4s ease-out 0.9s both"></span><span style="font-size: 11px; color: #C9CED6">Activity</span></span>
+        </div>
+      </a>
+      <p style="margin: 0; font-size: 12px; color: #9AA3AE; text-align: center; animation: mrhFade 0.6s ease-out 1.2s both">Tap a ring, or the panels.</p>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isDetail}}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-direction: column; gap: 16px; padding: 52px 20px 20px 20px; animation: mrhZoom 0.35s cubic-bezier(.2,.8,.2,1) both">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <button type="button" onClick="{{goHome}}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: #171B22; color: #EDEFF2; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+        <svg width="56" height="56" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="40" fill="none" stroke="{{d.track}}" stroke-width="11"></circle><circle cx="48" cy="48" r="40" fill="none" stroke="{{d.color}}" stroke-width="11" stroke-linecap="round" stroke-dasharray="{{d.dash}}" transform="rotate(-90 48 48)"></circle></svg>
+        <div style="display: flex; flex-direction: column"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 600">{{d.value}}</span><span style="{{d.labelStyle}}">{{d.label}}</span></div>
+      </div>
+      <div style="display: flex; gap: 6px">
+        <sc-for list="{{ranges}}" as="r" hint-placeholder-count="3">
+          <button type="button" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button>
+        </sc-for>
+      </div>
+      <div style="position: relative; background: #171B22; border-radius: 22px; padding: 18px 14px 12px 14px; display: flex; flex-direction: column; gap: 8px">
+        <div style="position: relative; height: 220px">
+          <div style="{{d.bandStyle}}"></div>
+          <div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 6px">
+            <sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
+              <button type="button" onClick="{{b.pick}}" aria-label="{{b.aria}}" style="flex: 1; height: 100%; display: flex; align-items: flex-end; background: transparent; border: 0; padding: 0; cursor: pointer">
+                <span style="{{b.style}}"></span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{hasTip}}" hint-placeholder-val="{{ false }}">
+            <div style="{{tipStyle}}">
+              <span style="font-size: 11px; font-weight: 700">{{tip.day}}</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 600">{{tip.value}}</span>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #9AA3AE; font-family: 'IBM Plex Mono', monospace"><span>{{axisStart}}</span><span>{{axisEnd}}</span></div>
+      </div>
+      <div style="background: #171B22; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 6px; animation: mrhRise 0.5s ease-out 0.15s both">
+        <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.05em; color: #9AA3AE">TREND</span>
+        <span style="font-size: 15px; font-weight: 700; line-height: 1.35">{{d.trend}}</span>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #9AA3AE; text-align: center">Tap a bar to read it. Switch Week / Month to see the bars morph.</p>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { view: 'home', metric: 'recovery', range: 'Week', tip: -1 }; }
+  renderVals() {
+    const M = {
+      recovery: { label: 'RECOVERY', value: '72%', color: '#3DDC97', track: '#24302B', frac: 0.72, band: [0.55, 0.85], unit: '%', max: 100,
+        week: [58, 64, 41, 70, 66, 61, 72], month: [55,60,62,48,52,66,70,64,58,61,44,50,63,68,71,59,62,65,57,60,41,70,66,61,72,69,64,68,70,72],
+        trend: 'Recovery has averaged 64% this week, up from 58% the week before.' },
+      strain: { label: 'STRAIN', value: '2.1', color: '#4DA3FF', track: '#1E2A3A', frac: 0.12, band: [0.45, 0.7], unit: '', max: 21,
+        week: [11.2, 14.8, 9.1, 15.6, 12.4, 6.3, 2.1], month: [10,12,8,14,13,7,9,11,15,12,10,6,13,14,9,12,11,16,10,8,12,11.2,14.8,9.1,15.6,12.4,6.3,2.1,11,13],
+        trend: 'A balanced week: 3 high days and 2 easy ones. Today’s target is 12 to 14.5.' },
+      sleep: { label: 'SLEEP', value: '87', color: '#A78BFA', track: '#2A2540', frac: 0.87, band: [0.6, 0.9], unit: '', max: 100,
+        week: [72, 68, 81, 65, 78, 60, 87], month: [70,74,66,80,72,69,75,77,64,71,82,68,73,79,66,70,76,72,68,81,65,72,68,81,65,78,60,87,74,80],
+        trend: 'Your best night this week. You slept 9 h 35, with 2 h 05 of REM.' }
+    };
+    const order = ['recovery', 'strain', 'sleep'];
+    const C = 252;
+    const rings = order.map((k, i) => ({
+      label: M[k].label, value: M[k].value, color: M[k].color, track: M[k].track,
+      aria: M[k].label + ' ' + M[k].value + ', open',
+      dash: Math.round(C * M[k].frac) + ' ' + C,
+      anim: 'animation: mrhDraw 0.9s cubic-bezier(.2,.8,.2,1) ' + (0.15 + i * 0.09).toFixed(2) + 's both',
+      labelStyle: 'font-size: 11px; font-weight: 800; letter-spacing: 0.06em; color: ' + M[k].color,
+      open: () => this.setState({ view: 'detail', metric: k, tip: -1 })
+    }));
+    const m = M[this.state.metric];
+    const data = this.state.range === 'Week' ? m.week : m.month;
+    const top = m.max;
+    const days = ['Tue 27', 'Wed 28', 'Thu 29', 'Fri 30', 'Sat 31', 'Sun 1', 'Today'];
+    const n = data.length;
+    const bars = data.map((v, i) => {
+      const f = v / top;
+      const inBand = f >= m.band[0] && f <= m.band[1];
+      const col = inBand ? m.color : (f > m.band[1] ? '#FFB454' : '#7DBBFF');
+      const sel = i === this.state.tip;
+      return {
+        aria: (this.state.range === 'Week' ? days[i] : 'Day ' + (i + 1)) + ': ' + v + m.unit,
+        style: 'display: block; width: 100%; border-radius: 6px; transition: height 0.45s cubic-bezier(.2,.8,.2,1), background-color 0.3s, opacity 0.3s; height: ' + Math.max(4, Math.round(f * 100)) + '%; background: ' + col + '; opacity: ' + (this.state.tip === -1 || sel ? 1 : 0.4),
+        pick: () => this.setState({ tip: sel ? -1 : i })
+      };
+    });
+    const ranges = ['Week', 'Month'].map((r) => ({
+      label: r,
+      pick: () => this.setState({ range: r, tip: -1 }),
+      style: 'min-height: 36px; padding: 0 16px; border-radius: 18px; border: 0; cursor: pointer; font-size: 13px; font-weight: 700; transition: background-color 0.25s, color 0.25s; ' +
+        (this.state.range === r ? 'background: #EDEFF2; color: #0E1116' : 'background: #171B22; color: #C9CED6')
+    }));
+    const t = this.state.tip;
+    const tipLeft = t < 0 ? 0 : Math.min(250, Math.max(0, ((t + 0.5) / n) * 334 - 50));
+    return {
+      isHome: this.state.view === 'home',
+      isDetail: this.state.view === 'detail',
+      goHome: () => this.setState({ view: 'home', tip: -1 }),
+      rings: rings,
+      d: {
+        label: m.label, value: m.value, color: m.color, track: m.track, trend: m.trend,
+        dash: Math.round(C * m.frac) + ' ' + C,
+        labelStyle: 'font-size: 12px; font-weight: 800; letter-spacing: 0.06em; color: ' + m.color,
+        bandStyle: 'position: absolute; left: 0; right: 0; box-sizing: border-box; border-top: 1.5px dashed #3E5A4C; border-bottom: 1.5px dashed #3E5A4C; background: rgba(61,220,151,0.08); bottom: ' + (m.band[0] * 100) + '%; height: ' + ((m.band[1] - m.band[0]) * 100) + '%'
+      },
+      ranges: ranges,
+      bars: bars,
+      hasTip: t >= 0,
+      tip: t >= 0 ? { day: this.state.range === 'Week' ? days[t] : 'Day ' + (t + 1), value: data[t] + m.unit } : { day: '', value: '' },
+      tipStyle: 'position: absolute; top: -6px; left: ' + tipLeft + 'px; background: #EDEFF2; color: #0E1116; border-radius: 12px; padding: 6px 12px; display: flex; flex-direction: column; animation: mrhRise 0.25s ease-out both; transition: left 0.3s cubic-bezier(.2,.8,.2,1)',
+      axisStart: this.state.range === 'Week' ? 'Tue 27 Oct' : '4 Oct',
+      axisEnd: this.state.range === 'Week' ? 'Today' : 'Today'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<title>MRH1 Body Light</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: a study column on the left (references, brand, controls), the live phone on the right. Light-first, warm paper + ink, one living gradient. */
+:root {
+  --paper: #EDEBE7;      /* warm grey ground, from ref 2 */
+  --card: #FAF9F7;       /* soft white surfaces */
+  --ink: #151413;        /* text, pills, filled days */
+  --graphite: #77726C;   /* secondary text */
+  --hair: #DFDBD5;       /* hairlines, empty cells */
+  --ember: #F0582A;      /* the one accent: today, deviations */
+  --iris: #8B88F0;       /* night, sleep */
+  --good: #23A26B;       /* green: in range or better */
+  --limit: #E39A12;      /* amber: at the limit */
+  --danger: #DC3B3F;     /* red: danger */
+  --page: #E4E1DC;       /* area around the phone */
+  --font: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --r-l: 30px; --r-m: 22px; --r-s: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #161514; --card: #201F1D; --ink: #F1EFEB; --graphite: #9C968F; --hair: #34322F; --ember: #FF6A3D; --iris: #A3A1FF; --good: #3DCB8A; --limit: #F2B035; --danger: #FF5A5F; --page: #0F0E0D; color-scheme: dark } }
+:root[data-theme="dark"] { --paper: #161514; --card: #201F1D; --ink: #F1EFEB; --graphite: #9C968F; --hair: #34322F; --ember: #FF6A3D; --iris: #A3A1FF; --good: #3DCB8A; --limit: #F2B035; --danger: #FF5A5F; --page: #0F0E0D; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--page); color: var(--ink); font-family: var(--font); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.shell { max-width: 1180px; margin: 0 auto; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 56px; align-items: start; }
+@media (max-width: 960px) { .shell { grid-template-columns: minmax(0, 1fr); } .stage { order: -1; justify-self: center; } }
+
+/* ---------- Study column ---------- */
+.study { display: flex; flex-direction: column; gap: 40px; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.mark { width: 44px; height: 44px; border-radius: 50%; background:
+  radial-gradient(circle at 30% 30%, #F7D9A6 0 18%, transparent 55%),
+  radial-gradient(circle at 70% 40%, var(--ember) 0 20%, transparent 60%),
+  radial-gradient(circle at 45% 75%, var(--iris) 0 15%, transparent 60%), #F3A79E; filter: saturate(1.1); }
+.word { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+h1 { margin: 0; font-size: clamp(34px, 5vw, 52px); font-weight: 300; letter-spacing: -0.035em; line-height: 1.02; text-wrap: balance; }
+.lede { margin: 14px 0 0; max-width: 34em; color: var(--graphite); font-size: 17px; }
+h2 { margin: 0 0 14px; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.refs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ref { background: var(--card); border-radius: var(--r-s); padding: 14px 16px; }
+.ref b { display: block; font-weight: 600; margin-bottom: 2px; }
+.ref span { color: var(--graphite); font-size: 14px; }
+.tokens { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.tok { background: var(--card); border-radius: var(--r-s); padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.tok i { display: block; height: 44px; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+.tok small { color: var(--graphite); font-variant-numeric: tabular-nums; }
+.rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.rules li { background: var(--card); border-radius: var(--r-s); padding: 12px 16px; }
+.rules b { font-weight: 600; }
+
+/* Controls */
+.controls { background: var(--card); border-radius: var(--r-m); padding: 20px; display: grid; gap: 18px; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { border: 0; border-radius: 999px; min-height: 40px; padding: 0 16px; font: inherit; font-weight: 500; cursor: pointer; background: var(--paper); color: var(--ink); }
+.pill[aria-pressed="true"], .pill.dark { background: var(--ink); color: var(--card); }
+.slider { display: grid; grid-template-columns: 120px minmax(0,1fr) 64px; gap: 12px; align-items: center; }
+.slider label { font-weight: 500; }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; color: var(--graphite); }
+input[type=range] { width: 100%; accent-color: var(--ink); }
+.readout { color: var(--graphite); font-size: 14px; margin: 0; }
+:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+
+/* ---------- Phone ---------- */
+.stage { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); }
+.phone { position: relative; width: 390px; max-width: 100%; height: 844px; border-radius: 52px; background: var(--paper); overflow: hidden;
+  box-shadow: 0 0 0 9px #1b1a19, 0 0 0 10px #3a3835, 0 40px 90px -20px rgba(40,30,20,.45); }
+#glow { position: absolute; left: 0; top: 0; width: 100%; height: 420px; display: block; transition: height .6s cubic-bezier(.2,.8,.2,1); }
+.phone.hero #glow { height: 470px; }
+.fade { position: absolute; left: 0; right: 0; top: 0; height: 420px; pointer-events: none; background: linear-gradient(to bottom, transparent 55%, var(--paper)); transition: height .6s cubic-bezier(.2,.8,.2,1); }
+.phone.hero .fade { height: 470px; }
+.status { position: absolute; top: 0; left: 0; right: 0; height: 50px; padding: 16px 30px 0; display: flex; justify-content: space-between; font-weight: 600; font-size: 15px; z-index: 5; }
+.island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 122px; height: 34px; border-radius: 20px; background: #000; z-index: 6; }
+.screen { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; padding: 62px 20px 120px; z-index: 2; }
+.screen::-webkit-scrollbar { display: none; }
+.screen > * + * { margin-top: 14px; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: color-mix(in srgb, var(--card) 80%, transparent); backdrop-filter: blur(12px); display: grid; place-items: center; color: var(--ink); cursor: pointer; }
+.chip { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px 0 6px; border-radius: 22px; background: color-mix(in srgb, var(--card) 80%, transparent); backdrop-filter: blur(12px); font-weight: 600; }
+.chip .mini { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; }
+.greet { font-size: 34px; font-weight: 400; letter-spacing: -0.03em; line-height: 1.1; margin-top: 26px !important; }
+.greet span { color: color-mix(in srgb, var(--ink) 62%, transparent); }
+.hero-num { display: flex; align-items: flex-end; gap: 14px; margin-top: 26px !important; }
+.hero-num b { font-size: 112px; font-weight: 300; letter-spacing: -0.06em; line-height: .82; font-variant-numeric: tabular-nums; }
+.hero-num small { font-size: 34px; font-weight: 300; }
+.hero-num p { margin: 0 0 6px; font-size: 14px; color: var(--ink); max-width: 9em; line-height: 1.35; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat { background: var(--card); border-radius: var(--r-m); padding: 16px; border: 0; text-align: left; font: inherit; color: var(--ink); cursor: pointer; }
+.stat p { margin: 0; color: var(--graphite); font-size: 13px; }
+.stat b { display: block; margin-top: 6px; font-size: 30px; font-weight: 400; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.bar { height: 4px; border-radius: 2px; background: var(--hair); margin-top: 12px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); border-radius: 2px; }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+.days small { display: block; font-size: 12px; color: var(--graphite); margin-bottom: 6px; }
+.days span { display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; font-weight: 500; font-size: 14px; background: var(--ink); color: var(--card); }
+.days span.today { background: var(--ember); color: #fff; }
+.days span.future { background: var(--hair); color: var(--graphite); }
+.card { background: var(--card); border-radius: var(--r-l); padding: 18px; }
+.card-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.card-h b { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.card-h span { color: var(--graphite); font-size: 13px; }
+.heat { display: grid; grid-template-columns: 76px repeat(7, 1fr); gap: 5px; align-items: center; font-size: 12px; color: var(--graphite); }
+.heat i { aspect-ratio: 1; border-radius: 4px; background: var(--hair); }
+.heat i.on { background: color-mix(in srgb, var(--good) 70%, var(--card)); }
+.heat i.hi { background: var(--limit); }
+.heat i.lo { background: var(--limit); }
+.stress { display: flex; align-items: flex-end; gap: 3px; height: 72px; }
+.stress i { flex: 1; border-radius: 3px; background: var(--hair); }
+.stress i.calm { background: color-mix(in srgb, var(--good) 75%, var(--card)); }
+.stress i.mid { background: var(--limit); }
+.stress i.high { background: var(--danger); }
+.axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--graphite); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.cta { display: flex; justify-content: space-between; align-items: center; }
+.cta p { margin: 0; color: var(--graphite); font-size: 13px; max-width: 14em; }
+.black { border: 0; background: var(--ink); color: var(--card); border-radius: 999px; height: 44px; padding: 0 20px; font: inherit; font-weight: 600; cursor: pointer; }
+
+/* Recovery screen */
+.big-title { font-size: 44px; font-weight: 400; letter-spacing: -0.04em; margin-top: 210px !important; line-height: 1; }
+.tag { display: inline-block; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--ember) 14%, var(--card)); color: var(--ember); font-weight: 600; font-size: 13px; }
+.driver { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--hair); align-items: center; cursor: pointer; background: none; border-left: 0; border-right: 0; border-bottom: 0; width: 100%; text-align: left; font: inherit; color: var(--ink); }
+.driver:first-of-type { border-top: 0; }
+.driver b { font-weight: 500; }
+.driver span { font-variant-numeric: tabular-nums; }
+.driver .track { grid-column: 1 / -1; position: relative; height: 6px; border-radius: 3px; background: var(--hair); }
+.driver .track i { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.driver .track em { position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; background: var(--graphite); }
+
+/* Panels screen */
+.panel { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 10px; padding: 14px 0; border-top: 1px solid var(--hair); background: none; border-left: 0; border-right: 0; border-bottom: 0; width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer; }
+.panel:first-child { border-top: 0; padding-top: 0; }
+.panel b { font-weight: 600; }
+.panel small { color: var(--graphite); font-size: 13px; }
+.panel .v { text-align: right; font-variant-numeric: tabular-nums; font-size: 20px; letter-spacing: -0.02em; }
+.flag { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; justify-self: end; }
+.flag.good { color: var(--good); background: color-mix(in srgb, var(--good) 13%, var(--card)); }
+.flag.limit { color: color-mix(in srgb, var(--limit) 85%, var(--ink)); background: color-mix(in srgb, var(--limit) 16%, var(--card)); }
+.flag.danger { color: var(--danger); background: color-mix(in srgb, var(--danger) 13%, var(--card)); }
+.scale { position: relative; height: 12px; border-radius: 6px; margin-top: 18px; background: linear-gradient(90deg, var(--danger) 0 12%, var(--limit) 12% 30%, var(--good) 30% 70%, var(--limit) 70% 88%, var(--danger) 88%); }
+.scale .dot { position: absolute; top: -4px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: var(--card); border: 4px solid var(--ink); }
+.scale-k { display: flex; justify-content: space-between; font-size: 12px; color: var(--graphite); margin-top: 6px; }
+.levels { display: grid; gap: 6px; margin-top: 14px; }
+.levels div { display: grid; grid-template-columns: 76px minmax(0,1fr); gap: 10px; align-items: start; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: var(--paper); }
+.levels b { font-weight: 600; }
+.range { grid-column: 1 / -1; position: relative; height: 14px; margin-top: 8px; }
+.range::before { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 2px; background: var(--hair); }
+.range .band { position: absolute; top: 2px; height: 10px; border-radius: 5px; background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.range .dot { position: absolute; top: 0; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; border: 3px solid var(--card); }
+
+/* Sheet */
+.scrim { position: absolute; inset: 0; background: rgba(20,18,16,.35); z-index: 20; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--card); border-radius: 32px 32px 0 0; padding: 10px 22px 36px; animation: up .4s cubic-bezier(.2,.8,.2,1) both; }
+.sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--hair); margin: 0 auto 16px; }
+.sheet h3 { margin: 0; font-size: 26px; font-weight: 500; letter-spacing: -0.03em; }
+.sheet p { color: var(--graphite); margin: 6px 0 0; }
+.sheet .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.sheet .box { background: var(--paper); border-radius: var(--r-s); padding: 12px; font-size: 13px; }
+.sheet .box b { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+@keyframes up { from { transform: translateY(100%); } }
+
+/* Tab bar (refs 1 and 4: round icon buttons in a floating pill) */
+.tabs { position: absolute; left: 20px; right: 20px; bottom: 22px; height: 68px; border-radius: 34px; z-index: 10; display: flex; justify-content: space-around; align-items: center;
+  background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(18px); box-shadow: 0 10px 30px -12px rgba(40,30,20,.25); }
+.tab { width: 52px; height: 52px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; color: var(--graphite); cursor: pointer; }
+.tab[aria-current="page"] { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } #glow, .fade { transition: none; } }
+@media (max-width: 430px) { .phone { width: 100%; border-radius: 40px; } }
+</style>
+
+<div class="shell">
+  <section class="study" aria-label="Design study">
+    <div>
+      <div class="brand"><span class="mark" aria-hidden="true"></span><span class="word">MRH1</span></div>
+      <h1 style="margin-top:28px">Your body, as light.</h1>
+      <p class="lede">A minimal redesign of the Fitbit Air app. Warm paper and ink everywhere, and one living gradient that is your body state: its colour follows recovery, its motion follows heart rate, its grain follows stress, and it turns to dusk at bedtime.</p>
+    </div>
+
+    <div>
+      <h2>Try it</h2>
+      <div class="controls">
+        <div class="presets" role="group" aria-label="Moments of the day">
+          <button class="pill" data-preset="morning" aria-pressed="true">Recovered morning</button>
+          <button class="pill" data-preset="meeting" aria-pressed="false">Stressful meeting</button>
+          <button class="pill" data-preset="run" aria-pressed="false">Mid-run</button>
+          <button class="pill" data-preset="tired" aria-pressed="false">Poor night</button>
+          <button class="pill" data-preset="night" aria-pressed="false">Bedtime</button>
+        </div>
+        <div class="slider"><label for="s-rec">Recovery</label><input id="s-rec" type="range" min="0" max="100" value="78"><output id="o-rec">78%</output></div>
+        <div class="slider"><label for="s-hr">Heart rate</label><input id="s-hr" type="range" min="45" max="185" value="62"><output id="o-hr">62 bpm</output></div>
+        <div class="slider"><label for="s-st">Stress</label><input id="s-st" type="range" min="0" max="30" value="5"><output id="o-st">0.5 / 3</output></div>
+        <div class="slider"><label for="s-tm">Time of day</label><input id="s-tm" type="range" min="0" max="24" step="0.25" value="8"><output id="o-tm">08:00</output></div>
+        <p class="readout" id="readout"></p>
+      </div>
+    </div>
+
+    <div>
+      <h2>What I took from your references</h2>
+      <div class="refs">
+        <div class="ref"><b>Soft light orb</b><span>A blurred peach and lavender glow is the only living element; cards float on it.</span></div>
+        <div class="ref"><b>Paper and ink</b><span>Warm grey ground, white surfaces, black pills, a monochrome grid with hatched bars.</span></div>
+        <div class="ref"><b>Gradient as hero</b><span>A full-bleed ember-to-blush field on top, quiet type underneath.</span></div>
+        <div class="ref"><b>Day circles</b><span>Black for past days, ember for today; round icon buttons in a floating bar.</span></div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Brand tokens</h2>
+      <div class="tokens">
+        <div class="tok"><i style="background:#EDEBE7"></i>Paper<small>#EDEBE7</small></div>
+        <div class="tok"><i style="background:#FAF9F7"></i>Card<small>#FAF9F7</small></div>
+        <div class="tok"><i style="background:#151413"></i>Ink<small>#151413</small></div>
+        <div class="tok"><i style="background:#77726C"></i>Graphite<small>#77726C</small></div>
+        <div class="tok"><i style="background:#F0582A"></i>Ember<small>#F0582A</small></div>
+        <div class="tok"><i style="background:#8B88F0"></i>Iris<small>#8B88F0</small></div>
+        <div class="tok"><i style="background:#23A26B"></i>Good<small>#23A26B</small></div>
+        <div class="tok"><i style="background:#E39A12"></i>Limit<small>#E39A12</small></div>
+        <div class="tok"><i style="background:#DC3B3F"></i>Danger<small>#DC3B3F</small></div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Rules</h2>
+      <ul class="rules">
+        <li><b>Traffic-light results.</b> Every result is green when it’s good, amber at the limit and red in danger. Tap one to see the three levels spelled out. Better than usual (more steps, higher HRV) stays green.</li>
+        <li><b>Two colour layers, never mixed.</b> Green, amber and red judge a result. The living gradient sets the mood. Orange marks today only.</li>
+        <li><b>One big number per screen.</b> Light-weight numerals, generous air, everything else secondary.</li>
+        <li><b>The gradient is data.</b> Calm sand and lavender when recovered, saturated ember when strained, faster when your heart is, grainier when stressed, dusk after bedtime. It breathes at your sleeping breathing rate.</li>
+        <li><b>One type family.</b> Geist on the web, SF Pro on iPhone; weight and size carry the hierarchy.</li>
+        <li><b>Respect stillness.</b> With Reduce Motion on, the gradient holds still and only changes colour.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="stage">
+    <div class="phone" id="phone">
+      <canvas id="glow" aria-hidden="true"></canvas>
+      <div class="fade" aria-hidden="true"></div>
+      <div class="island" aria-hidden="true"></div>
+      <div class="status" aria-hidden="true"><span id="clock">8:00</span><span>100%</span></div>
+      <div class="screen" id="screen"></div>
+      <nav class="tabs" aria-label="App sections">
+        <button class="tab" data-tab="today" aria-current="page" aria-label="Today"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
+        <button class="tab" data-tab="recovery" aria-label="Recovery"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 8 8"/></svg></button>
+        <button class="tab" data-tab="panels" aria-label="Body panels"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button>
+        <button class="tab" data-tab="sleep" aria-label="Sleep"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // ---------- Body state ----------
+  const S = { recovery: 78, hr: 62, stress: 0.5, hour: 8, breath: 14.8, tab: "today", sheet: null };
+  const PRESETS = {
+    morning: { recovery: 78, hr: 62, stress: 0.5, hour: 8 },
+    meeting: { recovery: 78, hr: 96, stress: 2.4, hour: 10.25 },
+    run:     { recovery: 78, hr: 158, stress: 0.4, hour: 12.5 },
+    tired:   { recovery: 31, hr: 74, stress: 1.4, hour: 7.75 },
+    night:   { recovery: 64, hr: 58, stress: 0.3, hour: 23 }
+  };
+
+  // ---------- Colour logic: the gradient is data ----------
+  const hex = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
+  const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const PAL = {
+    calm:   ["#F7D9A6", "#F6B49A", "#A9A6F5", "#F3E7DA"],   // recovered: sand, peach, lavender
+    charge: ["#F0582A", "#F49A86", "#F6C08A", "#F4D9CF"],   // middle / effort: ember and blush
+    strain: ["#E0391B", "#F06A4A", "#C9475E", "#F2B7A4"],   // low recovery: deep ember, coral
+    dusk:   ["#6E6BD8", "#B08BD9", "#F2A08E", "#2E2C45"]    // bedtime: iris, plum, last ember
+  };
+  function palette() {
+    const r = S.recovery / 100;
+    let base;
+    if (r >= 0.67) base = PAL.calm.map(hex);
+    else if (r >= 0.34) base = PAL.calm.map(hex).map((c, i) => mix(c, hex(PAL.charge[i]), (0.67 - r) / 0.33));
+    else base = PAL.charge.map(hex).map((c, i) => mix(c, hex(PAL.strain[i]), clamp((0.34 - r) / 0.2, 0, 1)));
+    // Effort pulls toward ember regardless of recovery.
+    const effort = clamp((S.hr - 90) / 80, 0, 1);
+    base = base.map((c, i) => mix(c, hex(PAL.charge[i]), effort * 0.7));
+    // Night: after 21:30 or before 6, drift to dusk.
+    const h = S.hour;
+    const night = h >= 21.5 ? clamp((h - 21.5) / 1.5, 0, 1) : h < 6 ? 1 : h < 7 ? 1 - (h - 6) : 0;
+    return { cols: base.map((c, i) => mix(c, hex(PAL.dusk[i]), night * 0.92)), night };
+  }
+
+  // ---------- WebGL gradient ----------
+  const canvas = document.getElementById("glow");
+  const gl = canvas.getContext("webgl", { premultipliedAlpha: false, antialias: false });
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  let prog, U = {};
+  const VS = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
+  const FS = `precision highp float;
+  uniform vec2 res; uniform float t, speed, warp, grain, breath, night, hero;
+  uniform vec3 c0, c1, c2, c3, paper;
+  float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+    return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}
+  float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.02;a*=.5;}return v;}
+  float blob(vec2 uv, vec2 c, float r){float d=length(uv-c);return exp(-d*d/(r*r));}
+  void main(){
+    vec2 uv=gl_FragCoord.xy/res; uv.y=1.-uv.y; float ar=res.x/res.y; vec2 q=vec2(uv.x*ar,uv.y);
+    float T=t*speed;
+    vec2 w=vec2(fbm(q*1.6+T*.15),fbm(q*1.6-T*.12+5.2))-.5; q+=w*warp;
+    float b=1.+.06*sin(t*6.2831*breath);
+    vec2 a0=vec2(.30*ar+.10*sin(T*.37),.38+.08*cos(T*.29));
+    vec2 a1=vec2(.72*ar+.08*cos(T*.31),.30+.10*sin(T*.41));
+    vec2 a2=vec2(.58*ar+.12*sin(T*.23+1.7),.62+.07*cos(T*.33));
+    vec2 a3=vec2(.15*ar+.07*cos(T*.27+2.),.70+.06*sin(T*.21));
+    float k0=blob(q,a0,.34*b), k1=blob(q,a1,.30*b), k2=blob(q,a2,.30*b), k3=blob(q,a3,.26*b);
+    float s=k0+k1+k2+k3+1e-4;
+    vec3 col=(c0*k0+c1*k1+c2*k2+c3*k3)/s;
+    float cover=clamp(s*1.15,0.,1.);
+    float fall=mix(smoothstep(1.05,.35,uv.y), smoothstep(1.,.55,uv.y), hero);
+    vec3 outc=mix(paper, col, cover*fall);
+    outc+= (h(gl_FragCoord.xy+fract(t)*91.)-.5)*grain;
+    gl_FragColor=vec4(outc,1.);
+  }`;
+  function compile(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
+  function setupGL() {
+    if (!gl) return false;
+    prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
+    gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    ["res", "t", "speed", "warp", "grain", "breath", "night", "hero", "c0", "c1", "c2", "c3", "paper"].forEach(k => U[k] = gl.getUniformLocation(prog, k));
+    return true;
+  }
+  const glOK = setupGL();
+  if (!glOK) canvas.style.background = "radial-gradient(circle at 30% 35%, #F6B49A, transparent 60%), radial-gradient(circle at 70% 30%, #A9A6F5, transparent 60%), var(--paper)";
+
+  // Smoothly animate toward targets so changes feel like weather, not switches.
+  const cur = { cols: palette().cols, speed: 0.4, warp: 0.25, grain: 0.02, night: 0 };
+  function targets() {
+    const p = palette();
+    return {
+      cols: p.cols,
+      speed: 0.25 + clamp((S.hr - 50) / 130, 0, 1) * 1.6,     // heart rate drives flow speed
+      warp: 0.18 + clamp((S.hr - 50) / 130, 0, 1) * 0.35 + S.stress * 0.08, // effort + stress = turbulence
+      grain: 0.012 + S.stress * 0.018,                         // stress = grain
+      night: p.night
+    };
+  }
+  function paperRGB() { return hex(getComputedStyle(document.documentElement).getPropertyValue("--paper").trim() || "#EDEBE7"); }
+  let paper = paperRGB();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { paper = paperRGB(); });
+
+  let last = performance.now(), t = 0;
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, 0.05); last = now;
+    if (!reduce.matches) t += dt;
+    const tg = targets(), e = 1 - Math.exp(-dt * 2.2);
+    cur.cols = cur.cols.map((c, i) => mix(c, tg.cols[i], e));
+    ["speed", "warp", "grain", "night"].forEach(k => cur[k] += (tg[k] - cur[k]) * e);
+    if (glOK) {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const w = Math.round(canvas.clientWidth * dpr / 2), h = Math.round(canvas.clientHeight * dpr / 2); // half-res: it's a blur anyway
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      gl.viewport(0, 0, w, h);
+      gl.uniform2f(U.res, w, h); gl.uniform1f(U.t, t);
+      gl.uniform1f(U.speed, cur.speed); gl.uniform1f(U.warp, cur.warp); gl.uniform1f(U.grain, cur.grain);
+      gl.uniform1f(U.breath, S.breath / 60); gl.uniform1f(U.night, cur.night); gl.uniform1f(U.hero, S.tab === "recovery" ? 1 : 0);
+      ["c0", "c1", "c2", "c3"].forEach((k, i) => gl.uniform3fv(U[k], cur.cols[i]));
+      gl.uniform3fv(U.paper, paper);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---------- Screens ----------
+  const M = {
+    rhr:   { name: "Resting heart rate", sub: "Lowest steady rate while you sleep", v: "60", u: "bpm", f: "good", band: [30, 62], dot: 44, pos: 44, lv: ["Within ±3 bpm of your usual 58–62.", "4–6 bpm above usual: stress, alcohol, heat or a coming illness.", "7+ bpm above for 2+ nights: rest, and see a doctor if it persists."], what: "Fit people often sit lower, which is normal for them. Five or more above your usual can mean stress, alcohol or a coming illness." },
+    hrv:   { name: "Heart rate variability", sub: "HRV, the variation between beats", v: "56", u: "ms", f: "good", band: [34, 66], dot: 60, pos: 60, lv: ["Around or above your usual 45–60 ms.", "10–20% below usual: short sleep, stress or alcohol.", "More than 20% below for several days: overtraining or illness."], what: "Higher means a relaxed, recovered nervous system. Only compare it with yourself." },
+    breath:{ name: "Breathing rate", sub: "Breaths per minute while asleep", v: "15.9", u: "/min", f: "limit", band: [30, 60], dot: 78, pos: 76, lv: ["Within ±0.5 of your usual 14.3–15.3.", "+0.5 to +1.5 above usual: watch it, often before a cold.", "+1.5 or more, or above 20 /min: likely illness, take it easy."], what: "It barely changes night to night. One breath above your usual can show up a day before you feel ill." },
+    spo2:  { name: "Blood oxygen", sub: "SpO2, oxygen in your blood", v: "96.6", u: "%", f: "good", band: [40, 85], dot: 64, pos: 58, lv: ["95–100%.", "93–94%: altitude, a blocked nose or breathing pauses.", "Under 93% on repeated nights, or under 90% once: see a doctor."], what: "Estimated with red and infrared light. Repeated nights under 93% are worth a doctor’s look." },
+    deep:  { name: "Deep sleep", sub: "Slow-wave sleep, body repair", v: "1 h 22", u: "", f: "good", band: [30, 66], dot: 58, pos: 56, lv: ["About 45–110 min, 10–20% of the night.", "30–45 min: a late meal, alcohol or caffeine.", "Under 30 min for several nights: poor recovery."], what: "When your body repairs muscle. Alcohol and late caffeine cut it first." },
+    steps: { name: "Steps", sub: "Yesterday", v: "12 850", u: "", f: "good", band: [30, 62], dot: 80, pos: 82, lv: ["7 000 or more a day.", "4 000–7 000 a day.", "Under 4 000 a day for weeks: linked to poorer health."], what: "More than usual is good news, so it stays green even above your range." }
+  };
+  const fmtH = h => String(Math.floor(h)).padStart(2, "0") + ":" + String(Math.round((h % 1) * 60)).padStart(2, "0");
+  function stressBars() {
+    const now = Math.floor(S.hour); let out = "";
+    for (let i = 0; i < 24; i++) {
+      if (i > now) { out += `<i style="height:4px"></i>`; continue; }
+      let v = [0.4, 0.3, 0.3, 0.2, 0.3, 0.3, 0.5, 0.7, 0.6, 2.2, 2.5, 1.2, 0.4, 0.6, 0.8, 1.3, 0.7, 0.6, 0.5, 0.6, 0.4, 0.4, 0.3, 0.3][i];
+      if (i === now) v = S.stress;
+      const cls = v >= 2 ? "high" : v >= 1 ? "mid" : "calm";
+      out += `<i class="${cls}" style="height:${Math.max(v / 3 * 70, 8)}px"></i>`;
+    }
+    return out;
+  }
+  function today() {
+    const r = S.recovery;
+    const words = r >= 67 ? "Recovered. A good day to push." : r >= 34 ? "Middle ground. Train, but steady." : "Low. Your body is asking for rest.";
+    const part = S.hour < 12 ? "morning" : S.hour < 18 ? "afternoon" : "evening";
+    return `
+      <div class="top"><span class="chip"><canvas class="mini" aria-hidden="true"></canvas>MRH1</span>
+        <button class="icon-btn" aria-label="Results guide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5V21h16"/></svg></button></div>
+      <p class="greet">Good ${part}, Mo.<br><span>Here’s your body today.</span></p>
+      <div class="hero-num"><b>${r}<small>%</small></b><p><span class="flag ${r >= 67 ? "good" : r >= 34 ? "limit" : "danger"}" style="display:inline-block;margin-bottom:6px">${r >= 67 ? "Good" : r >= 34 ? "Limit" : "Danger"}</span><br>${words}</p></div>
+      <div class="duo">
+        <button class="stat" data-tab="recovery"><p>Strain so far</p><b>${(S.hr > 140 ? 13.8 : 9.4).toFixed(1)}</b><div class="bar"><i style="width:${(S.hr > 140 ? 13.8 : 9.4) / 21 * 100}%"></i></div></button>
+        <button class="stat" data-tab="sleep"><p>Sleep</p><b>7 h 12</b><div class="bar"><i style="width:86%"></i></div></button>
+      </div>
+      <div class="days" aria-label="This week">
+        ${["M", "T", "W", "T", "F", "S", "S"].map((d, i) => `<div><small>${d}</small><span class="${i === 4 ? "today" : i > 4 ? "future" : ""}">${13 + i}</span></div>`).join("")}
+      </div>
+      <div class="card"><div class="card-h"><b>Stress today</b><span>${S.stress >= 2 ? "High right now" : S.stress >= 1 ? "Medium right now" : "Calm right now"}</span></div>
+        <div class="stress" aria-label="Stress by hour">${stressBars()}</div><div class="axis"><span>0:00</span><span>6:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div></div>
+      <div class="card"><div class="card-h"><b>Health monitor</b><span>1 to watch</span></div>
+        <div class="heat" aria-label="Vitals over 7 nights">
+          ${[["Resting HR", "0000000"], ["HRV", "000l000"], ["Breathing", "000000h"], ["Oxygen", "0l00000"], ["Skin temp", "00h0000"]].map(([n, p]) => `<span>${n}</span>${[...p].map(c => `<i class="${c === "h" ? "hi" : c === "l" ? "lo" : "on"}"></i>`).join("")}`).join("")}
+        </div></div>
+      <div class="card cta"><p>Two minutes of slow breathing lowers stress fast.</p><button class="black">Breathe</button></div>`;
+  }
+  function recovery() {
+    return `
+      <div class="top"><button class="icon-btn" data-tab="today" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+      <span class="flag ${S.recovery >= 67 ? "good" : S.recovery >= 34 ? "limit" : "danger"}" style="display:inline-block;margin-top:196px">${S.recovery >= 67 ? "Good" : S.recovery >= 34 ? "Limit" : "Danger"} · last night</span>
+      <p class="big-title" style="margin-top:12px !important">Recovery ${S.recovery}%</p>
+      <p style="color:var(--graphite);margin-top:8px">Compared with your own normal over the last 30 days.</p>
+      <div class="card">
+        ${[["Heart rate variability", "56 ms", 0.9], ["Resting heart rate", "60 bpm", 0.6], ["Breathing rate", "15.9 /min", -1.6], ["Sleep vs 8 h need", "7 h 12", -0.2]].map(([n, v, z]) => `
+          <button class="driver" data-sheet="${n.startsWith("Heart") ? "hrv" : n.startsWith("Rest") ? "rhr" : n.startsWith("Breath") ? "breath" : "deep"}"><b>${n}</b><span>${v}</span>
+            <span class="track"><em></em><i style="${z >= 0 ? "left:50%" : "right:50%"};width:${Math.abs(z) / 3 * 50}%;background:${z >= 0 ? "var(--good)" : z > -2 ? "var(--limit)" : "var(--danger)"}"></i></span></button>`).join("")}
+      </div>`;
+  }
+  function panels() {
+    return `
+      <p class="greet" style="margin-top:8px !important">Body panels<br><span>5 of 6 normal or better.</span></p>
+      <div class="card" style="margin-top:150px">
+        ${Object.entries(M).map(([k, m]) => `<button class="panel" data-sheet="${k}"><div><b>${m.name}</b><br><small>${m.sub}</small></div>
+          <div style="text-align:right"><div class="v">${m.v} <small>${m.u}</small></div><span class="flag ${m.f}">${m.f === "limit" ? "Limit" : m.f === "danger" ? "Danger" : "Good"}</span></div>
+          <div class="range"><span class="band" style="left:${m.band[0]}%;width:${m.band[1] - m.band[0]}%"></span><span class="dot" style="left:${m.dot}%;background:var(--${m.f})"></span></div></button>`).join("")}
+      </div>`;
+  }
+  function sleep() {
+    const segs = [["l", 18], ["d", 22], ["l", 30], ["r", 12], ["a", 3], ["l", 34], ["d", 18], ["l", 26], ["r", 22], ["a", 4], ["l", 40], ["d", 10], ["r", 28], ["a", 6], ["l", 30], ["r", 30]];
+    const tot = segs.reduce((a, s) => a + s[1], 0), row = { a: 0, r: 1, l: 2, d: 3 }, col = { a: "var(--ember)", r: "var(--iris)", l: "color-mix(in srgb, var(--ink) 35%, transparent)", d: "var(--ink)" };
+    let x = 0;
+    const rects = segs.map(([s, m]) => { const r = `<rect x="${x / tot * 320}" y="${row[s] * 26 + 4}" width="${m / tot * 320}" height="18" rx="4" fill="${col[s]}"/>`; x += m; return r; }).join("");
+    return `
+      <p class="greet" style="margin-top:8px !important">Sleep<br><span>Score 86. Deep sleep came early.</span></p>
+      <div class="hero-num" style="margin-top:118px !important"><b>7<small>h</small> 12</b></div>
+      <div class="card"><div class="card-h"><b>Your night</b><span>23:35 to 7:18</span></div>
+        <svg viewBox="0 0 320 108" width="100%" role="img" aria-label="Sleep stages through the night">${rects}</svg>
+        <div class="axis"><span>Awake</span><span>Dreaming</span><span>Light</span><span>Deep</span></div></div>
+      <div class="duo"><button class="stat" data-sheet="deep"><p>Deep</p><b>1 h 22</b></button><button class="stat"><p>Sleep debt</p><b>5 h 08</b></button></div>`;
+  }
+  const screen = document.getElementById("screen"), phone = document.getElementById("phone");
+  function render() {
+    phone.classList.toggle("hero", S.tab === "recovery");
+    screen.innerHTML = ({ today, recovery, panels, sleep })[S.tab]() + (S.sheet ? sheetHTML(S.sheet) : "");
+    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-current", b.dataset.tab === S.tab ? "page" : "false"));
+    paintMini();
+  }
+  function sheetHTML(k) {
+    const m = M[k];
+    return `<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="${m.name}"><div class="grab"></div>
+      <span class="flag ${m.f}">${m.f === "limit" ? "Limit" : m.f === "danger" ? "Danger" : "Good"}</span><h3 style="margin-top:10px">${m.name}</h3><p>${m.sub}</p>
+      <div class="hero-num" style="margin-top:14px !important"><b style="font-size:64px">${m.v}</b><p>${m.u}</p></div>
+      <div class="scale" aria-hidden="true"><span class="dot" style="left:${m.pos}%"></span></div>
+      <div class="scale-k"><span>Low</span><span>Your normal</span><span>High</span></div>
+      <p style="color:var(--ink);margin-top:14px">${m.what}</p>
+      <div class="levels">
+        <div><b style="color:var(--good)">Good</b><span>${m.lv[0]}</span></div>
+        <div><b style="color:color-mix(in srgb, var(--limit) 85%, var(--ink))">Limit</b><span>${m.lv[1]}</span></div>
+        <div><b style="color:var(--danger)">Danger</b><span>${m.lv[2]}</span></div>
+      </div>
+      </div>`;
+  }
+  // The tiny brand orb in the chip mirrors the big gradient.
+  function paintMini() {
+    const c = screen.querySelector(".mini"); if (!c) return;
+    const p = palette().cols.map(v => `rgb(${v.map(x => Math.round(x * 255)).join(",")})`);
+    c.style.background = `radial-gradient(circle at 30% 30%, ${p[0]}, transparent 60%), radial-gradient(circle at 70% 45%, ${p[1]}, transparent 60%), radial-gradient(circle at 45% 80%, ${p[2]}, transparent 65%), ${p[3]}`;
+  }
+
+  // ---------- Controls ----------
+  const el = id => document.getElementById(id);
+  function syncInputs() {
+    el("s-rec").value = S.recovery; el("o-rec").textContent = S.recovery + "%";
+    el("s-hr").value = S.hr; el("o-hr").textContent = S.hr + " bpm";
+    el("s-st").value = Math.round(S.stress * 10); el("o-st").textContent = S.stress.toFixed(1) + " / 3";
+    el("s-tm").value = S.hour; el("o-tm").textContent = fmtH(S.hour);
+    el("clock").textContent = fmtH(S.hour).replace(/^0/, "");
+    const p = palette();
+    el("readout").textContent = (p.night > 0.5 ? "Dusk palette: it’s past your bedtime. " : S.recovery >= 67 ? "Calm palette: well recovered. " : S.recovery >= 34 ? "Warming toward ember: middle recovery. " : "Deep ember: low recovery. ")
+      + (S.hr > 120 ? "Flowing fast with your heart rate. " : S.hr > 85 ? "Moving a little faster than at rest. " : "Drifting slowly at rest. ")
+      + (S.stress >= 2 ? "Grainy and turbulent: high stress." : S.stress >= 1 ? "Slightly grainy: some stress." : "Smooth: calm.");
+  }
+  function set(o) { Object.assign(S, o); syncInputs(); render(); }
+  el("s-rec").addEventListener("input", e => set({ recovery: +e.target.value }));
+  el("s-hr").addEventListener("input", e => set({ hr: +e.target.value }));
+  el("s-st").addEventListener("input", e => set({ stress: +e.target.value / 10 }));
+  el("s-tm").addEventListener("input", e => set({ hour: +e.target.value }));
+  document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    set(PRESETS[b.dataset.preset]);
+    if (b.dataset.preset === "night") { S.tab = "sleep"; render(); }
+  }));
+  document.querySelector(".phone").addEventListener("click", e => {
+    const t = e.target.closest("[data-tab],[data-sheet],[data-close]"); if (!t) return;
+    if (t.dataset.tab) { S.tab = t.dataset.tab; S.sheet = null; }
+    else if (t.dataset.sheet) S.sheet = t.dataset.sheet;
+    else S.sheet = null;
+    render();
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && S.sheet) { S.sheet = null; render(); } });
+  syncInputs(); render();
+})();
+</script>
