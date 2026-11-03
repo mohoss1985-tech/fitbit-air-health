@@ -2,6 +2,8 @@
 
 **Recovery, strain and sleep scores for your Fitbit Air, explained like a lab result. On-device. No subscription.**
 
+[**▶ Live demo**](https://mohoss1985-tech.github.io/mrh2/demo/) · [Project page](https://mohoss1985-tech.github.io/mrh2/)
+
 Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google, Fitbit or Apple.
 
 <p align="center">
@@ -44,7 +46,7 @@ Screenshot launch arguments: `-tab today|live|body|trends`, `-open recovery|stra
 | Path | What |
 |---|---|
 | `MRH1/` | App source |
-| `web/` | Landing page and browser demo (WebGL2), synthetic data |
+| `docs/` | GitHub Pages: landing page and browser demo (WebGL2), synthetic data |
 | `DESIGN_SPEC.md` | Design system: tokens, type, charts, motion, copy rules |
 | `research/` | Research behind the design (brands, competitors, UI craft, live data, graphics, market) |
 | `screenshots/v1/` | Simulator screenshots, light and dark |
