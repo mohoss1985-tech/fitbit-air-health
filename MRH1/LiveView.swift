@@ -104,7 +104,7 @@ struct LiveView: View {
             }
             .accessibilityElement(children: .combine)
         }
-        SyncNowButton(date: live.latestSampleDate)
+        SyncNowButton(date: live.latestSampleDate, checked: health.lastRefresh)
     }
 
     private func tickerText(now: Date) -> String {

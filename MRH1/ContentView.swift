@@ -40,7 +40,19 @@ struct ContentView: View {
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .background: live.stop()
-            case .active where health.hasAsked || Demo.isOn: live.start(health: health)
+            case .active where health.hasAsked || Demo.isOn:
+                live.start(health: health)
+                // Coming back (e.g. from Google Health after Sync now): re-read Apple Health, then
+                // again at 30 s and 90 s, because Google Health writes a minute or so after it syncs.
+                guard !Demo.isOn else { break }
+                Task {
+                    let before = health.latestSampleDate
+                    for wait in [0, 30, 60] {
+                        try? await Task.sleep(for: .seconds(wait))
+                        await health.refresh()
+                        if health.latestSampleDate != before { return }
+                    }
+                }
             default: break
             }
         }

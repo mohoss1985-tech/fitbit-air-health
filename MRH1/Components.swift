@@ -776,6 +776,8 @@ private struct EnvRow<Row: View>: View {
 /// old, this opens Google Health so it syncs; MRH1 re-reads Apple Health when you come back.
 struct SyncNowButton: View {
     let date: Date?
+    /// When MRH1 last re-read Apple Health; lets the caption say "checked, nothing newer yet".
+    var checked: Date? = nil
     var staleAfter: TimeInterval = 3600
     @State private var couldNotOpen = false
 
@@ -797,13 +799,20 @@ struct SyncNowButton: View {
                     }
                     .buttonStyle(PressStyle())
                     .accessibilityHint("Opens Google Health so it sends its latest data to Apple Health")
-                    Text(couldNotOpen
-                         ? "Open Google Health yourself, then come back. New data shows up here on its own."
-                         : "Opens Google Health so it sends new data. Come back and MRH1 updates.")
+                    Text(caption(now: ctx.date))
                         .typo(.caption).foregroundStyle(Theme.graphite)
                 }
             }
         }
+    }
+
+    private func caption(now: Date) -> String {
+        if couldNotOpen { return "Open Google Health yourself, then come back. New data shows up here on its own." }
+        if let checked, now.timeIntervalSince(checked) < 5 * 60, let date {
+            let t = date.formatted(date: .omitted, time: .shortened)
+            return "Checked Apple Health just now. Google Health hasn’t sent anything newer than \(t) yet."
+        }
+        return "Opens Google Health so it sends new data. Come back and MRH1 updates."
     }
 
     private func open() {

@@ -250,7 +250,7 @@ struct TodayView: View {
 
     private var statusLines: some View {
         VStack(alignment: .leading, spacing: Space.s) {
-            SyncNowButton(date: health.latestSampleDate)
+            SyncNowButton(date: health.latestSampleDate, checked: health.lastRefresh)
             HStack(spacing: Space.s) {
                 if let t = recoveryTier { StatusChip(tier: t) }
                 FreshnessChip(date: health.latestSampleDate)
