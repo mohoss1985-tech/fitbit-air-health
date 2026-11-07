@@ -89,7 +89,7 @@ struct LiveView: View {
     }
 
     /// SF Mono, ticks every second, always visible. Yellow chip once the feed is hours old.
-    private var ticker: some View {
+    @ViewBuilder private var ticker: some View {
         TimelineView(.periodic(from: .now, by: 1)) { ctx in
             let now = live.mode.isDemo ? live.now : ctx.date
             HStack(spacing: Space.s) {
@@ -104,6 +104,7 @@ struct LiveView: View {
             }
             .accessibilityElement(children: .combine)
         }
+        SyncNowButton(date: live.latestSampleDate)
     }
 
     private func tickerText(now: Date) -> String {

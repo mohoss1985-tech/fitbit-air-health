@@ -769,3 +769,46 @@ private struct EnvRow<Row: View>: View {
 
     var body: some View { row(health.state(id)) }
 }
+
+// MARK: - Sync now
+
+/// Google Health only pushes to Apple Health when it runs. When the newest data is over an hour
+/// old, this opens Google Health so it syncs; MRH1 re-reads Apple Health when you come back.
+struct SyncNowButton: View {
+    let date: Date?
+    var staleAfter: TimeInterval = 3600
+    @State private var couldNotOpen = false
+
+    var body: some View {
+        TimelineView(.everyMinute) { ctx in
+            if !Demo.isOn, date.map({ ctx.date.timeIntervalSince($0) > staleAfter }) ?? true {
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    Button(action: open) {
+                        HStack(spacing: Space.xs) {
+                            Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 12, weight: .semibold))
+                            Text("Sync now").typo(.label)
+                        }
+                        .foregroundStyle(Theme.paper)
+                        .padding(.horizontal, Space.m)
+                        .padding(.vertical, Space.s)
+                        .background(Theme.ink, in: Capsule())
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PressStyle())
+                    .accessibilityHint("Opens Google Health so it sends its latest data to Apple Health")
+                    Text(couldNotOpen
+                         ? "Open Google Health yourself, then come back. New data shows up here on its own."
+                         : "Opens Google Health so it sends new data. Come back and MRH1 updates.")
+                        .typo(.caption).foregroundStyle(Theme.graphite)
+                }
+            }
+        }
+    }
+
+    private func open() {
+        // Google Health is the renamed Fitbit app and still answers to fitbit://.
+        guard let url = URL(string: "fitbit://") else { return }
+        UIApplication.shared.open(url) { ok in couldNotOpen = !ok }
+    }
+}

@@ -66,6 +66,10 @@ struct MenuList: View {
                     }
                 }
 
+                // Hidden until Google Health offers "Share heart rate" on iPhone: the band has the
+                // standard HR service but stays silent without it (tested 2026-11-05). Shown only
+                // to anyone who already turned it on, so they can turn it off.
+                if bleOn {
                 section("Live heart rate") {
                     Card(spacing: Space.m) {
                         toggle("Bluetooth live heart rate (beta)",
@@ -80,6 +84,8 @@ struct MenuList: View {
                             .accessibilityElement(children: .combine)
                         }
                     }
+                }
+
                 }
 
                 section("About") {
