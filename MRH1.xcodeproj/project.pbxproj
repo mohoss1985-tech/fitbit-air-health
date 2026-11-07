@@ -227,7 +227,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Test App";
+				INFOPLIST_KEY_CFBundleDisplayName = "Test App Fitbit";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "MRH1 reads your Fitbit Air data from Apple Health to compute recovery, strain and sleep scores on this iPhone. Nothing leaves the device.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "MRH1 does not write to Apple Health.";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Optional: MRH1 can read live heart rate that your band broadcasts over Bluetooth. Readings stay on this iPhone.";
@@ -258,7 +258,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Test App";
+				INFOPLIST_KEY_CFBundleDisplayName = "Test App Fitbit";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "MRH1 reads your Fitbit Air data from Apple Health to compute recovery, strain and sleep scores on this iPhone. Nothing leaves the device.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "MRH1 does not write to Apple Health.";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Optional: MRH1 can read live heart rate that your band broadcasts over Bluetooth. Readings stay on this iPhone.";
