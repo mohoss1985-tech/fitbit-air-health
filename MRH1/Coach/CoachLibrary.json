@@ -1,0 +1,858 @@
+{
+  "version": 1,
+  "reviewed": "2026-11-07",
+  "safetyCue": "Stop if you feel pain or dizziness.",
+  "notes": "Human-written sessions. The coach only selects a session and sets its length; it never writes exercises. intensity = the highest readiness cap the session needs (rest < easy < moderate < any). Steps: minutes = fixed time, fill = takes the remaining time, reps/sets = strength sets (scaled), holdSec/sides = stretch holds (scaled), pattern [in, hold, out, hold] + rounds = breathing (scaled). Zones are % of max HR (Z1 50-60, Z2 60-70, Z3 70-80, Z4 80-90, Z5 90-100) and are shown in bpm by Swift.",
+  "sessions": [
+    {
+      "id": "breath-cyclic-sigh-5", "name": "Cyclic sighing", "kind": "breath", "intensity": "rest",
+      "modes": ["breath"], "minutes": [3, 10], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["calm", "stress"],
+      "summary": "Two inhales, one long exhale. Five minutes lifted mood more than mindfulness in a Stanford trial.",
+      "steps": [
+        {"label": "Settle", "minutes": 0.5, "cue": "Sit or lie down. Let your shoulders drop and breathe normally."},
+        {"label": "Cyclic sigh", "pattern": [3, 0, 6, 0], "rounds": 30, "cue": "Breathe in through the nose, then take a short second sip of air to fill up. Let it all out slowly through the mouth."},
+        {"label": "Rest", "minutes": 0.5, "cue": "Return to normal breathing and notice how you feel."}
+      ],
+      "avoidIf": [], "source": "S10"
+    },
+    {
+      "id": "breath-resonance-6", "name": "Slow breathing, 6 a minute", "kind": "breath", "intensity": "rest",
+      "modes": ["breath"], "minutes": [5, 15], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["calm", "sleep"],
+      "summary": "Even breaths at about six a minute. Breathing under ten a minute is linked to calmer heart rhythms.",
+      "steps": [
+        {"label": "Settle", "minutes": 0.5, "cue": "Sit upright with one hand on your belly."},
+        {"label": "Slow breathing", "pattern": [5, 0, 5, 0], "rounds": 50, "cue": "Breathe in through the nose so your belly rises, then out gently. Smooth, not forced."},
+        {"label": "Rest", "minutes": 0.5, "cue": "Let your breath find its own pace."}
+      ],
+      "avoidIf": [], "source": "S11"
+    },
+    {
+      "id": "breath-box-4", "name": "Box breathing", "kind": "breath", "intensity": "rest",
+      "modes": ["breath"], "minutes": [3, 10], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["calm", "focus"],
+      "summary": "Four equal sides: in, hold, out, hold. A steady rhythm to reset before a meeting or a race.",
+      "steps": [
+        {"label": "Settle", "minutes": 0.5, "cue": "Sit tall, feet flat on the floor."},
+        {"label": "Box breathing", "pattern": [4, 4, 4, 4], "rounds": 16, "cue": "Picture tracing the sides of a square. Keep the holds relaxed, never strained. Shorten them to 3 s if 4 feels hard."},
+        {"label": "Rest", "minutes": 0.5, "cue": "Breathe normally for a few breaths before you get up."}
+      ],
+      "avoidIf": [], "source": "S11"
+    },
+    {
+      "id": "breath-long-exhale-sleep", "name": "Breathing to fall asleep", "kind": "breath", "intensity": "rest",
+      "modes": ["breath"], "minutes": [3, 10], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["sleep"],
+      "summary": "Exhales twice as long as inhales, lying in bed with the lights off.",
+      "steps": [
+        {"label": "Lie down", "minutes": 0.5, "cue": "Lights off, phone face down out of reach. Lie on your back or side."},
+        {"label": "Long exhale", "pattern": [4, 0, 8, 0], "rounds": 25, "cue": "In through the nose, out slowly through pursed lips. If you lose count, just start again."},
+        {"label": "Let go", "minutes": 1, "cue": "Stop counting and let your breathing run on its own."}
+      ],
+      "avoidIf": [], "source": "S11"
+    },
+    {
+      "id": "breath-calm-reset-3", "name": "Three-minute calm reset", "kind": "breath", "intensity": "rest",
+      "modes": ["breath"], "minutes": [2, 5], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["calm", "stress", "desk"],
+      "summary": "A short reset you can do at a desk when stress has been running high.",
+      "steps": [
+        {"label": "Two big sighs", "pattern": [3, 0, 6, 0], "rounds": 2, "cue": "Double inhale through the nose, long sigh out through the mouth."},
+        {"label": "Slow breaths", "pattern": [4, 0, 6, 0], "rounds": 12, "cue": "Soften your jaw and hands. Each exhale a little longer than the inhale."},
+        {"label": "Look around", "minutes": 0.5, "cue": "Let your eyes rest on something far away before you go back to work."}
+      ],
+      "avoidIf": [], "source": "S10,S11"
+    },
+    {
+      "id": "breath-body-scan-10", "name": "Body scan", "kind": "breath", "intensity": "rest",
+      "modes": ["breath"], "minutes": [6, 15], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["sleep", "calm"],
+      "summary": "Slow breathing while you relax one body area at a time, feet to face.",
+      "steps": [
+        {"label": "Settle", "minutes": 1, "cue": "Lie on your back, arms by your sides. Breathe slowly through the nose."},
+        {"label": "Feet and legs", "fill": true, "cue": "Notice your feet, calves, knees and thighs. On each exhale let them feel heavier."},
+        {"label": "Hips and belly", "minutes": 2, "cue": "Let your belly rise and fall. Release your lower back into the floor."},
+        {"label": "Chest and shoulders", "minutes": 2, "cue": "Let your shoulders sink away from your ears."},
+        {"label": "Face and jaw", "minutes": 1.5, "cue": "Unclench your jaw, soften your forehead and eyes."}
+      ],
+      "avoidIf": [], "source": "S11"
+    },
+    {
+      "id": "winddown-10", "name": "Wind-down routine", "kind": "winddown", "intensity": "rest",
+      "modes": ["winddown"], "minutes": [8, 15], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["sleep", "evening"],
+      "summary": "Ten quiet minutes before bed: dim lights, gentle stretches, slow breathing.",
+      "steps": [
+        {"label": "Dim the lights", "minutes": 1, "cue": "Lights low, screens away, room cool. Set tomorrow’s alarm now so you can stop checking."},
+        {"label": "Child’s pose", "holdSec": 45, "sets": 1, "cue": "Knees wide, arms long, forehead down. Breathe into your back."},
+        {"label": "Lying knee hug", "holdSec": 30, "sides": true, "sets": 1, "cue": "On your back, hug one knee to your chest, other leg long."},
+        {"label": "Legs up the wall", "minutes": 2, "cue": "Lie close to a wall with your legs resting up it. Arms relaxed."},
+        {"label": "Long-exhale breathing", "pattern": [4, 0, 8, 0], "rounds": 15, "cue": "In through the nose, slowly out through the mouth."}
+      ],
+      "avoidIf": [], "source": "S2,S11,S12"
+    },
+    {
+      "id": "winddown-20", "name": "Long wind-down", "kind": "winddown", "intensity": "rest",
+      "modes": ["winddown"], "minutes": [15, 25], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["sleep", "evening"],
+      "summary": "A slower evening routine for nights when your mind is busy.",
+      "steps": [
+        {"label": "Write it down", "minutes": 3, "cue": "Jot tomorrow’s top three tasks on paper so they can leave your head."},
+        {"label": "Dim the lights", "minutes": 1, "cue": "Lights low, phone on its charger outside reach."},
+        {"label": "Cat-cow", "reps": "8 slow", "sets": 1, "setSec": 60, "cue": "On hands and knees, round then gently arch your back with your breath."},
+        {"label": "Child’s pose", "holdSec": 60, "sets": 1, "cue": "Knees wide, forehead down, slow breaths into your back."},
+        {"label": "Supine twist", "holdSec": 45, "sides": true, "sets": 1, "cue": "On your back, let both knees fall to one side. Shoulders stay down."},
+        {"label": "Body scan", "fill": true, "cue": "In bed, relax each area from feet to face on the exhale."},
+        {"label": "Long-exhale breathing", "pattern": [4, 0, 8, 0], "rounds": 15, "cue": "Lights off. In through the nose, slowly out."}
+      ],
+      "avoidIf": [], "source": "S2,S11,S12"
+    },
+    {
+      "id": "winddown-5", "name": "Five-minute wind-down", "kind": "winddown", "intensity": "rest",
+      "modes": ["winddown"], "minutes": [4, 7], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["sleep", "evening"],
+      "summary": "The short version for late nights.",
+      "steps": [
+        {"label": "Screens away", "minutes": 0.5, "cue": "Phone face down, out of reach. Lights off or very low."},
+        {"label": "Neck release", "holdSec": 20, "sides": true, "sets": 1, "cue": "Sitting on the bed, tip one ear toward the shoulder. No pulling."},
+        {"label": "Forward fold", "holdSec": 30, "sets": 1, "cue": "Sitting, legs long, fold forward gently with soft knees."},
+        {"label": "Long-exhale breathing", "pattern": [4, 0, 8, 0], "rounds": 12, "cue": "Lying down. In through the nose, slowly out through the mouth."}
+      ],
+      "avoidIf": [], "source": "S11,S12"
+    },
+    {
+      "id": "recovery-rest-day-20", "name": "Rest-day routine", "kind": "recovery", "intensity": "rest",
+      "modes": ["walk", "mobility"], "minutes": [15, 30], "zones": [1], "strainEstimate": [1, 4], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["recovery"],
+      "summary": "An easy walk, gentle mobility and slow breathing. Keeps you moving without adding load.",
+      "steps": [
+        {"label": "Easy walk", "fill": true, "zone": 1, "cue": "Relaxed pace, outdoors if you can. You could easily hold a conversation."},
+        {"label": "Hip flexor stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Half-kneel, tuck your tailbone and shift forward gently."},
+        {"label": "Hamstring stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Heel on a low step, hinge forward with a straight back."},
+        {"label": "Thread the needle", "holdSec": 30, "sides": true, "sets": 1, "cue": "On hands and knees, slide one arm under the other and rest your shoulder down."},
+        {"label": "Slow breathing", "pattern": [5, 0, 5, 0], "rounds": 12, "cue": "Sit or lie down and breathe slowly through the nose."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S5,S12"
+    },
+    {
+      "id": "mobility-full-body-10", "name": "10-min full-body mobility", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [8, 15], "zones": [], "strainEstimate": [0, 1], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["full body"],
+      "summary": "Head-to-toe moves and 30-second holds, the ACSM range for flexibility.",
+      "steps": [
+        {"label": "Neck circles", "reps": "5 each way", "sets": 1, "setSec": 40, "cue": "Slow half circles, chin moving from shoulder to shoulder."},
+        {"label": "Arm circles", "reps": "10 each way", "sets": 1, "setSec": 40, "cue": "Big, slow circles. Shoulders relaxed."},
+        {"label": "Cat-cow", "reps": "8", "sets": 1, "setSec": 45, "cue": "Move with your breath: round on the exhale, arch on the inhale."},
+        {"label": "World’s greatest stretch", "reps": "4 each side", "sets": 1, "setSec": 60, "cue": "Long lunge, hand inside the front foot, rotate the other arm to the ceiling."},
+        {"label": "Hip flexor stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Half-kneel, squeeze the back glute and shift forward."},
+        {"label": "Hamstring stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Heel on a step, hinge forward with a long back."},
+        {"label": "Child’s pose", "holdSec": 45, "sets": 1, "cue": "Knees wide, arms long, breathe into your back."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-full-body-20", "name": "20-min mobility flow", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [15, 30], "zones": [], "strainEstimate": [0, 2], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["full body"],
+      "summary": "A longer, slower session for rest days or after a hard week.",
+      "steps": [
+        {"label": "March in place", "minutes": 2, "cue": "Easy pace to warm up, swing your arms."},
+        {"label": "Cat-cow", "reps": "10", "sets": 1, "setSec": 60, "cue": "Slow, with your breath."},
+        {"label": "Thread the needle", "holdSec": 30, "sides": true, "sets": 2, "cue": "Rest the shoulder down and breathe into your upper back."},
+        {"label": "Low lunge", "holdSec": 30, "sides": true, "sets": 2, "cue": "Back knee down, hips forward, chest tall."},
+        {"label": "Pigeon or figure-four", "holdSec": 45, "sides": true, "sets": 1, "cue": "Pick the version that feels like a stretch, not a strain. On your back is fine."},
+        {"label": "Hamstring stretch", "holdSec": 30, "sides": true, "sets": 2, "cue": "Lying down with a towel around the foot works too."},
+        {"label": "Supine twist", "holdSec": 45, "sides": true, "sets": 1, "cue": "Knees to one side, both shoulders stay on the floor."},
+        {"label": "Child’s pose", "holdSec": 60, "sets": 1, "cue": "Slow breaths, let your hips sink to your heels."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-hips-10", "name": "Hip mobility", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [8, 15], "zones": [], "strainEstimate": [0, 1], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["hips"],
+      "summary": "For tight hips from sitting, running or cycling.",
+      "steps": [
+        {"label": "Leg swings", "reps": "10 each way, each leg", "sets": 1, "setSec": 60, "cue": "Hold a wall. Front to back, then side to side, easy range."},
+        {"label": "90/90 switches", "reps": "8 slow", "sets": 1, "setSec": 60, "cue": "Sit with both knees bent at 90 degrees and rotate the knees side to side. Use your hands behind you."},
+        {"label": "Low lunge", "holdSec": 30, "sides": true, "sets": 1, "cue": "Back knee down, squeeze that glute, hips forward."},
+        {"label": "Figure-four stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "On your back, ankle over the other knee, pull the thigh in."},
+        {"label": "Frog stretch", "holdSec": 30, "sets": 1, "cue": "On hands and knees, widen your knees and rock back gently."},
+        {"label": "Glute bridge", "reps": "10", "sets": 1, "setSec": 40, "cue": "Squeeze your glutes at the top, ribs down."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-desk-5", "name": "Desk mobility", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [4, 8], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["desk", "neck", "back"],
+      "summary": "Five minutes next to your chair for neck, shoulders and back.",
+      "steps": [
+        {"label": "Stand up and shake out", "minutes": 0.5, "cue": "Stand, roll your shoulders, shake your hands."},
+        {"label": "Chin tucks", "reps": "8", "sets": 1, "setSec": 30, "cue": "Slide your chin straight back, making a double chin. Hold 2 s."},
+        {"label": "Neck side stretch", "holdSec": 20, "sides": true, "sets": 1, "cue": "Ear toward shoulder, the other shoulder stays down."},
+        {"label": "Seated twist", "holdSec": 20, "sides": true, "sets": 1, "cue": "Sit tall and turn from the middle of your back, not the neck."},
+        {"label": "Doorway chest stretch", "holdSec": 30, "sets": 1, "cue": "Forearms on the door frame, step through until you feel the chest open."},
+        {"label": "Standing hip flexor stretch", "holdSec": 20, "sides": true, "sets": 1, "cue": "Split stance, tuck your tailbone, push the back hip forward."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-desk-10", "name": "Desk reset, 10 min", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [8, 12], "zones": [1], "strainEstimate": [0, 1], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["desk", "back"],
+      "summary": "A longer desk break: a short walk, then back and hip mobility.",
+      "steps": [
+        {"label": "Walk", "minutes": 3, "zone": 1, "cue": "Walk around the office or up and down stairs at an easy pace."},
+        {"label": "Chin tucks", "reps": "10", "sets": 1, "setSec": 30, "cue": "Slide your chin straight back, hold 2 s."},
+        {"label": "Wall angels", "reps": "8", "sets": 1, "setSec": 45, "cue": "Back against a wall, slide your arms up and down like a snow angel."},
+        {"label": "Standing forward fold", "holdSec": 30, "sets": 1, "cue": "Soft knees, let your head hang heavy."},
+        {"label": "Standing quad stretch", "holdSec": 20, "sides": true, "sets": 1, "cue": "Hold a desk for balance, knees together."},
+        {"label": "Doorway chest stretch", "holdSec": 30, "sets": 1, "cue": "Step through the door frame until the chest opens."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-upper-back-neck-8", "name": "Upper back and neck", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [6, 12], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["neck", "back", "shoulders"],
+      "summary": "For a stiff neck and rounded shoulders after a long day.",
+      "steps": [
+        {"label": "Shoulder rolls", "reps": "10 back, 10 forward", "sets": 1, "setSec": 40, "cue": "Slow and big."},
+        {"label": "Cat-cow", "reps": "8", "sets": 1, "setSec": 45, "cue": "Focus on moving your upper back."},
+        {"label": "Thread the needle", "holdSec": 30, "sides": true, "sets": 1, "cue": "Rest your shoulder and temple on the floor."},
+        {"label": "Open book", "reps": "6 each side", "sets": 1, "setSec": 60, "cue": "Lying on your side, knees bent, open the top arm across to the other side."},
+        {"label": "Neck side stretch", "holdSec": 20, "sides": true, "sets": 1, "cue": "Ear toward shoulder, no pulling."},
+        {"label": "Child’s pose", "holdSec": 45, "sets": 1, "cue": "Walk your hands to one side, then the other."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-morning-6", "name": "Morning wake-up", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [5, 10], "zones": [], "strainEstimate": [0, 1], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["morning", "full body"],
+      "summary": "Gentle moves to loosen up after sleep. Open the curtains first: daylight helps your rhythm.",
+      "steps": [
+        {"label": "Daylight", "minutes": 0.5, "cue": "Open the curtains or step outside for a minute."},
+        {"label": "Reach and side bend", "reps": "5 each side", "sets": 1, "setSec": 40, "cue": "Arms overhead, lean gently side to side."},
+        {"label": "Cat-cow", "reps": "8", "sets": 1, "setSec": 45, "cue": "Slow, with your breath."},
+        {"label": "Hip circles", "reps": "8 each way", "sets": 1, "setSec": 40, "cue": "Hands on hips, big slow circles."},
+        {"label": "Bodyweight squat", "reps": "8 easy", "sets": 1, "setSec": 40, "cue": "Sit back to a comfortable depth."},
+        {"label": "Downward dog", "holdSec": 30, "sets": 1, "cue": "Pedal your heels, knees can stay bent."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-lower-legs-8", "name": "Ankles, calves and knees", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [6, 12], "zones": [], "strainEstimate": [0, 1], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["ankles", "calves", "runners"],
+      "summary": "For runners and walkers: ankle range and calf length.",
+      "steps": [
+        {"label": "Ankle circles", "reps": "10 each way, each foot", "sets": 1, "setSec": 60, "cue": "Seated or holding a wall, slow full circles."},
+        {"label": "Knee-to-wall rocks", "reps": "10 each side", "sets": 1, "setSec": 60, "cue": "Foot a hand’s width from the wall, push the knee forward over the toes. Heel stays down."},
+        {"label": "Calf stretch, straight knee", "holdSec": 30, "sides": true, "sets": 1, "cue": "Hands on a wall, back leg straight, heel down."},
+        {"label": "Calf stretch, bent knee", "holdSec": 30, "sides": true, "sets": 1, "cue": "Same position, bend the back knee slightly."},
+        {"label": "Quad stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Hold a wall, knees together, hips forward."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "mobility-yoga-flow-15", "name": "Gentle yoga flow", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility", "yoga"], "minutes": [12, 25], "zones": [1], "strainEstimate": [0, 2], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["full body", "calm"],
+      "summary": "Slow, simple poses linked with breathing. No balance poses, no inversions.",
+      "steps": [
+        {"label": "Seated breathing", "pattern": [4, 0, 6, 0], "rounds": 8, "cue": "Sit cross-legged or on a cushion."},
+        {"label": "Cat-cow", "reps": "8", "sets": 1, "setSec": 45, "cue": "Move with your breath."},
+        {"label": "Downward dog", "holdSec": 30, "sets": 2, "cue": "Knees bent is fine. Lengthen your back."},
+        {"label": "Low lunge", "holdSec": 30, "sides": true, "sets": 1, "cue": "Back knee down, arms up if comfortable."},
+        {"label": "Standing forward fold", "holdSec": 30, "sets": 1, "cue": "Soft knees, head heavy."},
+        {"label": "Seated forward fold", "holdSec": 45, "sets": 1, "cue": "Legs long, fold from the hips."},
+        {"label": "Supine twist", "holdSec": 30, "sides": true, "sets": 1, "cue": "Knees to one side."},
+        {"label": "Rest on your back", "fill": true, "cue": "Arms by your sides, eyes closed, normal breathing."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "stretch-post-run-8", "name": "Post-run stretch", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [6, 15], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["runners", "legs"],
+      "summary": "Calves, hamstrings, quads and hips after a run.",
+      "steps": [
+        {"label": "Walk it out", "minutes": 2, "zone": 1, "cue": "Walk until your breathing settles."},
+        {"label": "Calf stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Hands on a wall, back heel down."},
+        {"label": "Hamstring stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Heel on a low step, hinge forward with a long back."},
+        {"label": "Quad stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Knees together, hips forward."},
+        {"label": "Hip flexor stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Split stance, tuck your tailbone."},
+        {"label": "Figure-four stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Standing with a hand on a wall, or lying down."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "stretch-post-ride-8", "name": "Post-ride stretch", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [6, 15], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["cyclists", "hips", "back"],
+      "summary": "Opens the hips, chest and back after time on the bike.",
+      "steps": [
+        {"label": "Standing back bend", "reps": "5 gentle", "sets": 1, "setSec": 30, "cue": "Hands on your lower back, lift your chest to the sky."},
+        {"label": "Hip flexor stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Half-kneel, squeeze the back glute."},
+        {"label": "Quad stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Knees together, hips forward."},
+        {"label": "Figure-four stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "On your back, pull the thigh in."},
+        {"label": "Doorway chest stretch", "holdSec": 30, "sets": 1, "cue": "Forearms on the frame, step through gently."},
+        {"label": "Child’s pose", "holdSec": 45, "sets": 1, "cue": "Breathe into your lower back."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "stretch-post-strength-8", "name": "Post-strength stretch", "kind": "mobility", "intensity": "rest",
+      "modes": ["mobility"], "minutes": [6, 12], "zones": [], "strainEstimate": [0, 0], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["full body"],
+      "summary": "A calm finish after a strength session.",
+      "steps": [
+        {"label": "Slow breathing", "pattern": [4, 0, 6, 0], "rounds": 6, "cue": "Let your heart rate come down."},
+        {"label": "Doorway chest stretch", "holdSec": 30, "sets": 1, "cue": "Step through until the chest opens."},
+        {"label": "Cross-body shoulder stretch", "holdSec": 20, "sides": true, "sets": 1, "cue": "Pull the arm across at chest height."},
+        {"label": "Hamstring stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Hinge with a long back."},
+        {"label": "Hip flexor stretch", "holdSec": 30, "sides": true, "sets": 1, "cue": "Half-kneel, tuck your tailbone."},
+        {"label": "Child’s pose", "holdSec": 45, "sets": 1, "cue": "Arms long, slow breaths."}
+      ],
+      "avoidIf": [], "source": "S12"
+    },
+    {
+      "id": "walk-easy-zone1", "name": "Easy walk", "kind": "walk", "intensity": "rest",
+      "modes": ["walk"], "minutes": [10, 30], "zones": [1], "strainEstimate": [1, 4], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["recovery", "steps"],
+      "summary": "A relaxed walk. The lightest way to move on a low day.",
+      "steps": [
+        {"label": "Easy walk", "fill": true, "zone": 1, "cue": "Relaxed pace, you could easily talk or hum. Daylight is a bonus."},
+        {"label": "Slow down", "minutes": 2, "zone": 1, "cue": "Ease off for the last couple of minutes."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1,S9"
+    },
+    {
+      "id": "walk-after-meal-10", "name": "After-meal walk", "kind": "walk", "intensity": "rest",
+      "modes": ["walk"], "minutes": [10, 20], "zones": [1], "strainEstimate": [1, 3], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["steps", "evening"],
+      "summary": "Ten to twenty easy minutes after lunch or dinner.",
+      "steps": [
+        {"label": "Easy walk", "fill": true, "zone": 1, "cue": "Gentle pace. Leave the phone in your pocket if you can."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S9"
+    },
+    {
+      "id": "walk-brisk-zone2", "name": "Brisk walk, Zone 2", "kind": "walk", "intensity": "easy",
+      "modes": ["walk"], "minutes": [20, 60], "zones": [1, 2], "strainEstimate": [3, 7], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["cardio", "steps"],
+      "summary": "A purposeful walk that counts toward your 150 weekly minutes.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Start at an easy stroll."},
+        {"label": "Brisk walk", "fill": true, "zone": 2, "cue": "Walk like you’re a little late. You can talk, but not sing."},
+        {"label": "Cool down", "minutes": 3, "zone": 1, "cue": "Slow to an easy stroll."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1,S9"
+    },
+    {
+      "id": "walk-steps-boost-15", "name": "Step boost walk", "kind": "walk", "intensity": "rest",
+      "modes": ["walk"], "minutes": [10, 30], "zones": [1, 2], "strainEstimate": [1, 4], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["steps"],
+      "summary": "A short walk to top up a quiet day. About 100 steps a minute.",
+      "steps": [
+        {"label": "Walk", "fill": true, "zone": 1, "cue": "Comfortable pace. A loop around the block or up and down stairs both count."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S9"
+    },
+    {
+      "id": "walk-hills-zone2", "name": "Hill walk", "kind": "walk", "intensity": "moderate",
+      "modes": ["walk", "hike"], "minutes": [30, 90], "zones": [2, 3], "strainEstimate": [6, 10], "recoveryMin": 34,
+      "equipment": [], "indoor": false, "focus": ["cardio", "legs"],
+      "summary": "Walking on hills or stairs. Steady effort, short steps on the climbs.",
+      "steps": [
+        {"label": "Warm up on the flat", "minutes": 5, "zone": 1, "cue": "Easy pace."},
+        {"label": "Hills", "fill": true, "zone": 2, "cue": "Shorten your stride uphill and keep the effort steady. Brief Zone 3 on steep parts is fine."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Flat ground, easy pace."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "walk-long-zone2", "name": "Long walk", "kind": "walk", "intensity": "moderate",
+      "modes": ["walk", "hike"], "minutes": [45, 120], "zones": [1, 2], "strainEstimate": [5, 9], "recoveryMin": 34,
+      "equipment": [], "indoor": false, "focus": ["cardio", "steps"],
+      "summary": "A long, easy walk. Bring water if it’s over an hour.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Start slowly."},
+        {"label": "Steady walk", "fill": true, "zone": 2, "cue": "Even pace. Drink a little every 20 to 30 min."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Ease off for the last few minutes."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "run-walk-zone2", "name": "Run-walk, Zone 2", "kind": "run", "intensity": "easy",
+      "modes": ["run"], "minutes": [20, 45], "zones": [1, 2], "strainEstimate": [4, 8], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["cardio", "beginner"],
+      "summary": "Short easy runs with walking breaks. Good for building up or coming back.",
+      "steps": [
+        {"label": "Brisk walk", "minutes": 5, "zone": 1, "cue": "Warm up at a brisk walk."},
+        {"label": "Run 2 min, walk 1 min", "fill": true, "zone": 2, "cue": "Repeat. Run slowly enough to talk. Walk breaks are part of the plan, not a failure."},
+        {"label": "Cool down walk", "minutes": 5, "zone": 1, "cue": "Easy walk until your breathing settles."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1,S8"
+    },
+    {
+      "id": "run-recovery-zone1", "name": "Recovery jog", "kind": "run", "intensity": "easy",
+      "modes": ["run"], "minutes": [15, 30], "zones": [1, 2], "strainEstimate": [3, 6], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["recovery"],
+      "summary": "A very easy jog the day after a hard session. Slower than feels natural.",
+      "steps": [
+        {"label": "Walk", "minutes": 3, "zone": 1, "cue": "Start with a few minutes of walking."},
+        {"label": "Very easy jog", "fill": true, "zone": 1, "cue": "So easy you could breathe through your nose the whole time. Walk any time."},
+        {"label": "Walk", "minutes": 2, "zone": 1, "cue": "Finish walking."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S5,S8"
+    },
+    {
+      "id": "run-z2-easy", "name": "Easy Zone 2 run", "kind": "run", "intensity": "easy",
+      "modes": ["run"], "minutes": [20, 45], "zones": [1, 2], "strainEstimate": [5, 9], "recoveryMin": 0,
+      "equipment": [], "indoor": false, "focus": ["cardio"],
+      "summary": "The backbone of endurance: easy, conversational running.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Walk or jog very easily."},
+        {"label": "Steady", "fill": true, "zone": 2, "cue": "Easy enough to chat. Nose breathing if you can."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Slow jog or walk."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1,S8"
+    },
+    {
+      "id": "run-z2-long", "name": "Long Zone 2 run", "kind": "run", "intensity": "moderate",
+      "modes": ["run"], "minutes": [45, 100], "zones": [1, 2], "strainEstimate": [9, 13], "recoveryMin": 34,
+      "equipment": [], "indoor": false, "focus": ["cardio", "endurance"],
+      "summary": "Your longest run of the week, all at an easy effort.",
+      "steps": [
+        {"label": "Warm up", "minutes": 8, "zone": 1, "cue": "Start slower than you think."},
+        {"label": "Long and steady", "fill": true, "zone": 2, "cue": "Keep it conversational. Drink every 20 to 30 min if it’s over an hour."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Easy jog or walk."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1,S8"
+    },
+    {
+      "id": "run-z2-strides", "name": "Zone 2 run with strides", "kind": "run", "intensity": "moderate",
+      "modes": ["run"], "minutes": [25, 50], "zones": [2, 3], "strainEstimate": [6, 10], "recoveryMin": 34,
+      "equipment": [], "indoor": false, "focus": ["cardio", "technique"],
+      "summary": "An easy run with six short, relaxed pick-ups at the end for form.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Easy jog."},
+        {"label": "Easy run", "fill": true, "zone": 2, "cue": "Conversational pace."},
+        {"label": "Strides", "minutes": 4, "zone": 3, "reps": "6 × 20 s quick, 20 s walk", "cue": "Fast but relaxed, like running downhill. Not a sprint."},
+        {"label": "Cool down", "minutes": 4, "zone": 1, "cue": "Easy jog or walk."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S8"
+    },
+    {
+      "id": "run-tempo-block", "name": "Steady run with one tempo block", "kind": "run", "intensity": "moderate",
+      "modes": ["run"], "minutes": [30, 50], "zones": [2, 3], "strainEstimate": [8, 12], "recoveryMin": 34,
+      "equipment": [], "indoor": false, "focus": ["cardio"],
+      "summary": "Mostly Zone 2, with one short Zone 3 block in the middle.",
+      "steps": [
+        {"label": "Warm up", "minutes": 8, "zone": 1, "cue": "Easy jog."},
+        {"label": "Steady", "fill": true, "zone": 2, "cue": "Conversational pace."},
+        {"label": "Tempo block", "minutes": 8, "zone": 3, "cue": "Comfortably hard: you can say a few words, not sentences."},
+        {"label": "Steady", "minutes": 5, "zone": 2, "cue": "Back to easy."},
+        {"label": "Cool down", "minutes": 4, "zone": 1, "cue": "Easy jog or walk."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S5,S8"
+    },
+    {
+      "id": "intervals-run-4x4", "name": "4 × 4 min intervals", "kind": "run", "intensity": "any",
+      "modes": ["run", "ride", "row"], "minutes": [35, 45], "zones": [1, 2, 4, 5], "strainEstimate": [12, 16], "recoveryMin": 67,
+      "equipment": [], "indoor": false, "focus": ["cardio", "intervals"],
+      "summary": "Four hard four-minute efforts. Only on a green day after an easy day.",
+      "steps": [
+        {"label": "Warm up", "minutes": 10, "zone": 1, "cue": "Easy jog, building to Zone 2."},
+        {"label": "Intervals", "minutes": 25, "zone": 4, "reps": "4 × 4 min hard, 3 min easy", "cue": "Hard but steady, ending each one able to do a little more. Easy jog between."},
+        {"label": "Cool down", "fill": true, "zone": 1, "cue": "Easy jog or walk until your breathing settles."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S5"
+    },
+    {
+      "id": "intervals-run-hills", "name": "Short hill repeats", "kind": "run", "intensity": "any",
+      "modes": ["run"], "minutes": [30, 45], "zones": [1, 2, 4, 5], "strainEstimate": [10, 14], "recoveryMin": 67,
+      "equipment": [], "indoor": false, "focus": ["cardio", "intervals", "legs"],
+      "summary": "Eight short uphill efforts. Strong on the way up, walk back down.",
+      "steps": [
+        {"label": "Warm up", "minutes": 10, "zone": 1, "cue": "Easy jog to the hill."},
+        {"label": "Hill repeats", "minutes": 12, "zone": 4, "reps": "8 × 30 s uphill, walk down", "cue": "Strong, tall posture, quick arms. Walk or jog slowly back down."},
+        {"label": "Easy run", "fill": true, "zone": 2, "cue": "Easy pace on the flat."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Walk."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S5"
+    },
+    {
+      "id": "intervals-run-fartlek", "name": "Fartlek run", "kind": "run", "intensity": "any",
+      "modes": ["run"], "minutes": [30, 50], "zones": [2, 3, 4], "strainEstimate": [10, 14], "recoveryMin": 67,
+      "equipment": [], "indoor": false, "focus": ["cardio", "intervals"],
+      "summary": "Playful speed changes: one minute faster, two minutes easy.",
+      "steps": [
+        {"label": "Warm up", "minutes": 10, "zone": 1, "cue": "Easy jog."},
+        {"label": "1 min on, 2 min easy", "fill": true, "zone": 4, "cue": "Pick a lamp post or tree and surge to it. Easy jog between."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Easy jog or walk."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S8"
+    },
+    {
+      "id": "ride-z1-spin", "name": "Recovery spin", "kind": "ride", "intensity": "rest",
+      "modes": ["ride"], "minutes": [15, 30], "zones": [1], "strainEstimate": [2, 4], "recoveryMin": 0,
+      "equipment": ["bike"], "indoor": true, "focus": ["recovery"],
+      "summary": "Easy pedalling, light gear. Loosens the legs without adding load.",
+      "steps": [
+        {"label": "Easy spin", "fill": true, "zone": 1, "cue": "Light gear, smooth pedalling. Breathing barely changes."},
+        {"label": "Spin down", "minutes": 3, "zone": 1, "cue": "Lightest gear for the last few minutes."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S5"
+    },
+    {
+      "id": "ride-z2-easy", "name": "Easy Zone 2 ride", "kind": "ride", "intensity": "easy",
+      "modes": ["ride"], "minutes": [20, 60], "zones": [1, 2], "strainEstimate": [4, 9], "recoveryMin": 0,
+      "equipment": ["bike"], "indoor": true, "focus": ["cardio"],
+      "summary": "Steady, conversational riding, indoors or out.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Light gear, easy spin."},
+        {"label": "Steady", "fill": true, "zone": 2, "cue": "Easy enough to chat. Smooth cadence."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Light gear."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1,S8"
+    },
+    {
+      "id": "ride-z2-long", "name": "Long Zone 2 ride", "kind": "ride", "intensity": "moderate",
+      "modes": ["ride"], "minutes": [60, 150], "zones": [1, 2], "strainEstimate": [9, 13], "recoveryMin": 34,
+      "equipment": ["bike"], "indoor": false, "focus": ["cardio", "endurance"],
+      "summary": "A long, easy ride. Eat and drink on the way if it’s over 90 min.",
+      "steps": [
+        {"label": "Warm up", "minutes": 10, "zone": 1, "cue": "Easy spin."},
+        {"label": "Long and steady", "fill": true, "zone": 2, "cue": "Even effort on climbs. Drink every 20 min."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Light gear."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1,S8"
+    },
+    {
+      "id": "ride-tempo-block", "name": "Ride with a tempo block", "kind": "ride", "intensity": "moderate",
+      "modes": ["ride"], "minutes": [40, 75], "zones": [2, 3], "strainEstimate": [8, 12], "recoveryMin": 34,
+      "equipment": ["bike"], "indoor": true, "focus": ["cardio"],
+      "summary": "Mostly Zone 2 with one 10-minute Zone 3 block.",
+      "steps": [
+        {"label": "Warm up", "minutes": 10, "zone": 1, "cue": "Easy spin, building gradually."},
+        {"label": "Steady", "fill": true, "zone": 2, "cue": "Conversational effort."},
+        {"label": "Tempo block", "minutes": 10, "zone": 3, "cue": "Comfortably hard. Steady breathing, a few words at a time."},
+        {"label": "Cool down", "minutes": 5, "zone": 1, "cue": "Light gear."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S5,S8"
+    },
+    {
+      "id": "intervals-ride-4x4", "name": "4 × 4 min bike intervals", "kind": "ride", "intensity": "any",
+      "modes": ["ride"], "minutes": [35, 50], "zones": [1, 2, 4, 5], "strainEstimate": [12, 16], "recoveryMin": 67,
+      "equipment": ["bike"], "indoor": true, "focus": ["cardio", "intervals"],
+      "summary": "Four hard four-minute efforts on the bike. Green days only.",
+      "steps": [
+        {"label": "Warm up", "minutes": 10, "zone": 1, "cue": "Easy spin, building to Zone 2."},
+        {"label": "Intervals", "minutes": 25, "zone": 4, "reps": "4 × 4 min hard, 3 min easy", "cue": "Hard but even. Spin easily between efforts."},
+        {"label": "Cool down", "fill": true, "zone": 1, "cue": "Light gear until your breathing settles."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S5"
+    },
+    {
+      "id": "intervals-ride-30-30", "name": "30/30 bike intervals", "kind": "ride", "intensity": "any",
+      "modes": ["ride"], "minutes": [30, 45], "zones": [1, 2, 5], "strainEstimate": [10, 14], "recoveryMin": 67,
+      "equipment": ["bike"], "indoor": true, "focus": ["cardio", "intervals"],
+      "summary": "Two sets of short, fast efforts with equal easy spinning.",
+      "steps": [
+        {"label": "Warm up", "minutes": 10, "zone": 1, "cue": "Easy spin, building gradually."},
+        {"label": "Set 1", "minutes": 8, "zone": 5, "reps": "8 × 30 s fast, 30 s easy", "cue": "Fast cadence, controlled. The last one should match the first."},
+        {"label": "Easy spin", "minutes": 5, "zone": 1, "cue": "Recover fully."},
+        {"label": "Set 2", "minutes": 8, "zone": 5, "reps": "8 × 30 s fast, 30 s easy", "cue": "Same effort. Stop the set early if your form fades."},
+        {"label": "Cool down", "fill": true, "zone": 1, "cue": "Light gear."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S5"
+    },
+    {
+      "id": "row-z2-easy", "name": "Easy Zone 2 row", "kind": "row", "intensity": "easy",
+      "modes": ["row"], "minutes": [15, 45], "zones": [1, 2], "strainEstimate": [4, 8], "recoveryMin": 0,
+      "equipment": ["rower"], "indoor": true, "focus": ["cardio"],
+      "summary": "Steady rowing for whole-body Zone 2.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Arms only, then arms and back, then full strokes."},
+        {"label": "Steady row", "fill": true, "zone": 2, "cue": "Legs, then back, then arms. About 20 strokes a minute, easy enough to talk."},
+        {"label": "Cool down", "minutes": 3, "zone": 1, "cue": "Light, slow strokes."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "cardio-elliptical-z2", "name": "Elliptical, Zone 2", "kind": "cardio", "intensity": "easy",
+      "modes": ["elliptical"], "minutes": [20, 45], "zones": [1, 2], "strainEstimate": [4, 8], "recoveryMin": 0,
+      "equipment": ["gym"], "indoor": true, "focus": ["cardio", "low impact"],
+      "summary": "Low-impact steady cardio, easy on the joints.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Low resistance."},
+        {"label": "Steady", "fill": true, "zone": 2, "cue": "Upright posture, push and pull with the arms. Conversational."},
+        {"label": "Cool down", "minutes": 3, "zone": 1, "cue": "Lowest resistance."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "cardio-indoor-zone2", "name": "Indoor Zone 2, no gear", "kind": "cardio", "intensity": "easy",
+      "modes": ["indoor"], "minutes": [15, 30], "zones": [1, 2], "strainEstimate": [3, 6], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["cardio", "low impact"],
+      "summary": "Low-impact moves at home to raise your heart rate gently. No jumping.",
+      "steps": [
+        {"label": "March in place", "minutes": 3, "zone": 1, "cue": "Swing your arms, lift your knees a little higher each minute."},
+        {"label": "Low-impact circuit", "fill": true, "zone": 2, "reps": "Step-touch, knee lifts, side steps, stair climbs: 1 min each", "cue": "Keep moving at a pace you could talk through."},
+        {"label": "Slow march", "minutes": 2, "zone": 1, "cue": "Bring it down gently."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-bodyweight-a-20", "name": "Bodyweight strength A", "kind": "strength", "intensity": "easy",
+      "modes": ["strength"], "minutes": [15, 30], "zones": [], "strainEstimate": [4, 7], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["full body"],
+      "summary": "Squat, push, hinge, pull and core. Finish every set with 2 or more reps left in the tank.",
+      "steps": [
+        {"label": "Warm up", "minutes": 3, "cue": "March in place, arm circles, 5 easy squats."},
+        {"label": "Squat", "reps": "8–12", "sets": 2, "setSec": 75, "cue": "Sit back to a chair height or lower. Knees follow your toes."},
+        {"label": "Incline push-up", "reps": "6–10", "sets": 2, "setSec": 75, "cue": "Hands on a table or wall. Body in one straight line."},
+        {"label": "Glute bridge", "reps": "10–15", "sets": 2, "setSec": 75, "cue": "Drive through your heels, squeeze at the top."},
+        {"label": "Towel row on a door", "reps": "8–12", "sets": 2, "setSec": 75, "cue": "Loop a towel round a solid door handle, lean back and pull your chest in. Or do reverse snow angels lying face down."},
+        {"label": "Dead bug", "reps": "6 each side", "sets": 2, "setSec": 60, "cue": "Lower back pressed down, slow opposite arm and leg."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1"
+    },
+    {
+      "id": "strength-bodyweight-b-20", "name": "Bodyweight strength B", "kind": "strength", "intensity": "easy",
+      "modes": ["strength"], "minutes": [15, 30], "zones": [], "strainEstimate": [4, 7], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["full body"],
+      "summary": "The partner to session A. Alternate them through the week.",
+      "steps": [
+        {"label": "Warm up", "minutes": 3, "cue": "Leg swings, cat-cow, 5 easy lunges each side."},
+        {"label": "Reverse lunge", "reps": "6–10 each side", "sets": 2, "setSec": 90, "cue": "Step back, both knees bend, front knee over the ankle. Hold a wall if needed."},
+        {"label": "Push-up", "reps": "5–10", "sets": 2, "setSec": 75, "cue": "From the knees or toes. Stop 2 reps before your form slips."},
+        {"label": "Single-leg hip hinge", "reps": "6–8 each side", "sets": 2, "setSec": 90, "cue": "Fingertips on a wall, hinge forward with a flat back, back leg long."},
+        {"label": "Superman", "reps": "8–10", "sets": 2, "setSec": 60, "cue": "Face down, lift arms and chest a little, hold 2 s."},
+        {"label": "Side plank", "holdSec": 20, "sides": true, "sets": 2, "cue": "From the knees or feet. Hips high, body in a line."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1"
+    },
+    {
+      "id": "strength-bodyweight-quick-10", "name": "10-min strength starter", "kind": "strength", "intensity": "easy",
+      "modes": ["strength"], "minutes": [8, 15], "zones": [], "strainEstimate": [2, 5], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["full body", "beginner"],
+      "summary": "Three moves, short and simple. A good start if strength is new.",
+      "steps": [
+        {"label": "Warm up", "minutes": 2, "cue": "March in place and roll your shoulders."},
+        {"label": "Sit-to-stand", "reps": "8–12", "sets": 2, "setSec": 60, "cue": "From a chair, stand up without using your hands, sit down slowly."},
+        {"label": "Wall push-up", "reps": "8–12", "sets": 2, "setSec": 60, "cue": "Hands on a wall at shoulder height, body straight."},
+        {"label": "Glute bridge", "reps": "10–12", "sets": 2, "setSec": 60, "cue": "Feet flat, squeeze your glutes at the top."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1"
+    },
+    {
+      "id": "strength-core-10", "name": "Core strength", "kind": "strength", "intensity": "easy",
+      "modes": ["strength"], "minutes": [8, 15], "zones": [], "strainEstimate": [2, 4], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["core"],
+      "summary": "Slow, controlled core work. No sit-ups.",
+      "steps": [
+        {"label": "Dead bug", "reps": "6 each side", "sets": 2, "setSec": 60, "cue": "Lower back pressed down. Exhale as you reach."},
+        {"label": "Bird dog", "reps": "6 each side", "sets": 2, "setSec": 60, "cue": "On hands and knees, reach opposite arm and leg long. Hips stay level."},
+        {"label": "Front plank", "holdSec": 20, "sets": 2, "cue": "On forearms, from knees or toes. Ribs down, breathe."},
+        {"label": "Side plank", "holdSec": 15, "sides": true, "sets": 2, "cue": "From the knees is fine. Hips high."},
+        {"label": "Glute bridge hold", "holdSec": 20, "sets": 2, "cue": "Hips up, squeeze, breathe slowly."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1"
+    },
+    {
+      "id": "strength-balance-10", "name": "Balance and stability", "kind": "strength", "intensity": "easy",
+      "modes": ["strength"], "minutes": [8, 15], "zones": [], "strainEstimate": [1, 3], "recoveryMin": 0,
+      "equipment": [], "indoor": true, "focus": ["balance", "ankles"],
+      "summary": "Single-leg and slow-control work, close to a wall or chair.",
+      "steps": [
+        {"label": "Single-leg stand", "holdSec": 30, "sides": true, "sets": 2, "cue": "Near a wall or chair. Soft knee, eyes on a fixed point."},
+        {"label": "Heel-to-toe walk", "reps": "10 steps, there and back", "sets": 2, "setSec": 45, "cue": "Along a hallway, one hand near the wall."},
+        {"label": "Calf raise", "reps": "10–15", "sets": 2, "setSec": 60, "cue": "Holding a wall, rise up slowly and lower for 3 s."},
+        {"label": "Split squat", "reps": "6–8 each side", "sets": 2, "setSec": 75, "cue": "Short range, hold a chair."},
+        {"label": "Bird dog", "reps": "5 each side", "sets": 1, "setSec": 60, "cue": "Slow reach, hold 2 s."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1"
+    },
+    {
+      "id": "strength-bodyweight-full-30", "name": "Full-body bodyweight strength", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [25, 45], "zones": [], "strainEstimate": [6, 9], "recoveryMin": 34,
+      "equipment": [], "indoor": true, "focus": ["full body"],
+      "summary": "A fuller session: three sets of the main patterns, 1 to 2 reps in reserve.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "cue": "March, arm circles, cat-cow, 8 easy squats."},
+        {"label": "Squat", "reps": "10–15", "sets": 3, "setSec": 75, "cue": "Slow down for 2 s, stand up with control."},
+        {"label": "Push-up", "reps": "6–12", "sets": 3, "setSec": 75, "cue": "Knees, incline or full. Body in one line."},
+        {"label": "Reverse lunge", "reps": "8 each side", "sets": 3, "setSec": 90, "cue": "Upright chest, front knee over the ankle."},
+        {"label": "Towel row on a door", "reps": "10–12", "sets": 3, "setSec": 75, "cue": "Lean back further to make it harder."},
+        {"label": "Single-leg glute bridge", "reps": "8 each side", "sets": 2, "setSec": 75, "cue": "Hips level, push through the heel."},
+        {"label": "Front plank", "holdSec": 30, "sets": 2, "cue": "Ribs down, glutes tight, breathe."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-bodyweight-legs-15", "name": "Bodyweight legs", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [12, 25], "zones": [], "strainEstimate": [4, 7], "recoveryMin": 34,
+      "equipment": [], "indoor": true, "focus": ["legs"],
+      "summary": "Squats, lunges, hinges and calves. No gear needed.",
+      "steps": [
+        {"label": "Warm up", "minutes": 3, "cue": "Leg swings, hip circles, 8 easy squats."},
+        {"label": "Tempo squat", "reps": "10", "sets": 3, "setSec": 75, "cue": "3 s down, 1 s up."},
+        {"label": "Split squat", "reps": "8 each side", "sets": 3, "setSec": 90, "cue": "Back knee drops toward the floor, chest tall."},
+        {"label": "Single-leg hip hinge", "reps": "8 each side", "sets": 2, "setSec": 90, "cue": "Hand on a wall, flat back."},
+        {"label": "Calf raise", "reps": "15", "sets": 2, "setSec": 60, "cue": "Slow on the way down."},
+        {"label": "Wall sit", "holdSec": 30, "sets": 2, "cue": "Knees about 90 degrees or higher."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-bodyweight-upper-15", "name": "Bodyweight upper body", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [12, 25], "zones": [], "strainEstimate": [3, 6], "recoveryMin": 34,
+      "equipment": [], "indoor": true, "focus": ["upper body"],
+      "summary": "Push, pull and shoulders with what you have at home.",
+      "steps": [
+        {"label": "Warm up", "minutes": 3, "cue": "Arm circles, shoulder rolls, 5 wall push-ups."},
+        {"label": "Push-up", "reps": "6–12", "sets": 3, "setSec": 75, "cue": "Pick the version that leaves 1 to 2 reps in reserve."},
+        {"label": "Towel row on a door", "reps": "10–12", "sets": 3, "setSec": 75, "cue": "Squeeze your shoulder blades together."},
+        {"label": "Pike push-up", "reps": "5–8", "sets": 2, "setSec": 75, "cue": "Hips high, lower the top of your head toward the floor. Hands on a step makes it easier."},
+        {"label": "Reverse snow angel", "reps": "8–10", "sets": 2, "setSec": 60, "cue": "Face down, thumbs up, sweep your arms from hips to overhead."},
+        {"label": "Shoulder tap plank", "reps": "8 each side", "sets": 2, "setSec": 60, "cue": "Feet wide, hips still."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-bodyweight-intervals-20", "name": "Bodyweight intervals", "kind": "strength", "intensity": "any",
+      "modes": ["strength", "intervals"], "minutes": [15, 30], "zones": [3, 4, 5], "strainEstimate": [8, 12], "recoveryMin": 67,
+      "equipment": [], "indoor": true, "focus": ["full body", "intervals"],
+      "summary": "Short hard rounds of strength moves. Green days only.",
+      "steps": [
+        {"label": "Warm up", "minutes": 4, "zone": 1, "cue": "March, arm circles, easy squats and lunges."},
+        {"label": "Squat jumps or fast squats", "reps": "30 s on, 30 s off", "sets": 4, "setSec": 60, "cue": "Land softly. Fast squats without the jump are fine."},
+        {"label": "Push-up", "reps": "30 s on, 30 s off", "sets": 4, "setSec": 60, "cue": "Any version, good form."},
+        {"label": "Mountain climbers", "reps": "30 s on, 30 s off", "sets": 4, "setSec": 60, "cue": "Hands under shoulders, steady rhythm."},
+        {"label": "Cool down walk", "minutes": 3, "zone": 1, "cue": "Walk until your breathing settles."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1,S5"
+    },
+    {
+      "id": "strength-dumbbell-light-20", "name": "Light dumbbell session", "kind": "strength", "intensity": "easy",
+      "modes": ["strength"], "minutes": [15, 30], "zones": [], "strainEstimate": [4, 7], "recoveryMin": 0,
+      "equipment": ["dumbbells"], "indoor": true, "focus": ["full body"],
+      "summary": "Light weights and smooth reps. Stop each set with 3 reps still in reserve.",
+      "steps": [
+        {"label": "Warm up", "minutes": 3, "cue": "March, arm circles, 8 bodyweight squats."},
+        {"label": "Goblet squat", "reps": "10", "sets": 2, "setSec": 75, "cue": "Hold one dumbbell at your chest. Light weight, full control."},
+        {"label": "One-arm row", "reps": "10 each side", "sets": 2, "setSec": 90, "cue": "Hand on a bench or chair, pull to your hip."},
+        {"label": "Romanian deadlift", "reps": "10", "sets": 2, "setSec": 75, "cue": "Soft knees, push your hips back, flat back."},
+        {"label": "Floor press", "reps": "10", "sets": 2, "setSec": 75, "cue": "Lying down, press up, elbows at 45 degrees."},
+        {"label": "Suitcase carry", "minutes": 2, "reps": "4 × 30 s, swap hands", "cue": "One dumbbell at your side, walk tall without leaning."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms"], "source": "S1"
+    },
+    {
+      "id": "strength-dumbbell-full-a-30", "name": "Dumbbell full body A", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [25, 45], "zones": [], "strainEstimate": [6, 9], "recoveryMin": 34,
+      "equipment": ["dumbbells"], "indoor": true, "focus": ["full body"],
+      "summary": "Squat, press, row and hinge. Pick a weight that leaves 1 to 2 reps in reserve.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "cue": "March, arm circles, 8 bodyweight squats, 8 hip hinges."},
+        {"label": "Goblet squat", "reps": "8–12", "sets": 3, "setSec": 90, "cue": "Elbows inside the knees at the bottom, chest tall."},
+        {"label": "Dumbbell bench or floor press", "reps": "8–12", "sets": 3, "setSec": 90, "cue": "Lower slowly, press up smoothly."},
+        {"label": "One-arm row", "reps": "8–12 each side", "sets": 3, "setSec": 105, "cue": "Flat back, pull to your hip."},
+        {"label": "Romanian deadlift", "reps": "8–12", "sets": 3, "setSec": 90, "cue": "Hips back, dumbbells close to your legs."},
+        {"label": "Dead bug", "reps": "6 each side", "sets": 2, "setSec": 60, "cue": "Lower back down, exhale as you reach."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-dumbbell-full-b-30", "name": "Dumbbell full body B", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [25, 45], "zones": [], "strainEstimate": [6, 9], "recoveryMin": 34,
+      "equipment": ["dumbbells"], "indoor": true, "focus": ["full body"],
+      "summary": "The partner to session A: lunges, overhead press, rows and carries.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "cue": "Leg swings, arm circles, 5 lunges each side."},
+        {"label": "Reverse lunge", "reps": "8 each side", "sets": 3, "setSec": 105, "cue": "Dumbbells at your sides, upright chest."},
+        {"label": "Overhead press", "reps": "8–10", "sets": 3, "setSec": 90, "cue": "Seated or standing, ribs down, press straight up."},
+        {"label": "Chest-supported row", "reps": "10–12", "sets": 3, "setSec": 90, "cue": "Chest on an inclined bench, or hinge forward with a flat back."},
+        {"label": "Hip thrust", "reps": "10–12", "sets": 3, "setSec": 90, "cue": "Upper back on a sofa, dumbbell on your hips, squeeze at the top."},
+        {"label": "Farmer carry", "minutes": 3, "reps": "4 × 30 s", "cue": "Heavy dumbbells at your sides, tall posture, short steps."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-dumbbell-upper-20", "name": "Dumbbell upper body", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [15, 30], "zones": [], "strainEstimate": [4, 7], "recoveryMin": 34,
+      "equipment": ["dumbbells"], "indoor": true, "focus": ["upper body"],
+      "summary": "Press, row, shoulders and arms.",
+      "steps": [
+        {"label": "Warm up", "minutes": 3, "cue": "Arm circles, band or light-dumbbell shoulder rotations."},
+        {"label": "Floor or bench press", "reps": "8–12", "sets": 3, "setSec": 90, "cue": "Control the way down."},
+        {"label": "One-arm row", "reps": "10 each side", "sets": 3, "setSec": 105, "cue": "Pull to the hip, no twisting."},
+        {"label": "Overhead press", "reps": "8–10", "sets": 2, "setSec": 90, "cue": "Ribs down, press straight up."},
+        {"label": "Lateral raise", "reps": "10–15", "sets": 2, "setSec": 60, "cue": "Light weight, raise to shoulder height."},
+        {"label": "Biceps curl to press", "reps": "10", "sets": 2, "setSec": 75, "cue": "Smooth, no swinging."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-dumbbell-lower-20", "name": "Dumbbell lower body", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [15, 30], "zones": [], "strainEstimate": [5, 8], "recoveryMin": 34,
+      "equipment": ["dumbbells"], "indoor": true, "focus": ["legs"],
+      "summary": "Squat, hinge, single-leg and calves.",
+      "steps": [
+        {"label": "Warm up", "minutes": 3, "cue": "Leg swings, 8 bodyweight squats, 8 hip hinges."},
+        {"label": "Goblet squat", "reps": "8–12", "sets": 3, "setSec": 90, "cue": "Slow down, drive up."},
+        {"label": "Romanian deadlift", "reps": "8–12", "sets": 3, "setSec": 90, "cue": "Hips back, flat back, feel the hamstrings."},
+        {"label": "Step-up", "reps": "8 each side", "sets": 2, "setSec": 105, "cue": "On a sturdy step or low bench. Push through the top foot."},
+        {"label": "Calf raise", "reps": "12–15", "sets": 2, "setSec": 60, "cue": "Dumbbell in one hand, the other on a wall."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "strength-dumbbell-circuit-25", "name": "Dumbbell power circuit", "kind": "strength", "intensity": "any",
+      "modes": ["strength", "intervals"], "minutes": [20, 35], "zones": [3, 4], "strainEstimate": [8, 12], "recoveryMin": 67,
+      "equipment": ["dumbbells"], "indoor": true, "focus": ["full body", "intervals"],
+      "summary": "A brisk circuit with short rests. Green days only.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "March, squats, hinges and arm circles."},
+        {"label": "Dumbbell thruster", "reps": "10", "sets": 4, "setSec": 75, "cue": "Squat, then press overhead in one movement. Moderate weight."},
+        {"label": "Renegade row", "reps": "6 each side", "sets": 4, "setSec": 75, "cue": "Plank on the dumbbells, feet wide, row without twisting. Knees down is fine."},
+        {"label": "Dumbbell swing", "reps": "15", "sets": 4, "setSec": 60, "cue": "Hinge and snap your hips. The arms just guide the weight."},
+        {"label": "Cool down walk", "minutes": 3, "zone": 1, "cue": "Walk and breathe slowly."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1,S5"
+    },
+    {
+      "id": "strength-gym-machines-30", "name": "Gym machine circuit", "kind": "strength", "intensity": "moderate",
+      "modes": ["strength"], "minutes": [25, 45], "zones": [], "strainEstimate": [5, 8], "recoveryMin": 34,
+      "equipment": ["gym"], "indoor": true, "focus": ["full body"],
+      "summary": "Simple machines for every main muscle group. 1 to 2 reps in reserve.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Bike or cross-trainer, easy."},
+        {"label": "Leg press", "reps": "10–12", "sets": 3, "setSec": 90, "cue": "Feet shoulder width, don’t lock your knees."},
+        {"label": "Chest press", "reps": "10–12", "sets": 3, "setSec": 90, "cue": "Handles at mid-chest, smooth tempo."},
+        {"label": "Lat pulldown", "reps": "10–12", "sets": 3, "setSec": 90, "cue": "Pull the bar to your upper chest, shoulders down."},
+        {"label": "Seated row", "reps": "10–12", "sets": 3, "setSec": 90, "cue": "Chest up, squeeze your shoulder blades."},
+        {"label": "Hamstring curl", "reps": "10–12", "sets": 2, "setSec": 75, "cue": "Slow on the way back."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    },
+    {
+      "id": "cardio-swim-easy", "name": "Easy swim", "kind": "cardio", "intensity": "easy",
+      "modes": ["swim"], "minutes": [15, 40], "zones": [1, 2], "strainEstimate": [4, 8], "recoveryMin": 0,
+      "equipment": ["pool"], "indoor": true, "focus": ["cardio", "low impact"],
+      "summary": "Relaxed, continuous swimming in any stroke you like.",
+      "steps": [
+        {"label": "Warm up", "minutes": 5, "zone": 1, "cue": "Easy lengths, any stroke."},
+        {"label": "Steady swim", "fill": true, "zone": 2, "cue": "Smooth and relaxed. Rest at the wall whenever you want."},
+        {"label": "Cool down", "minutes": 3, "zone": 1, "cue": "Slow, easy lengths."}
+      ],
+      "avoidIf": ["fever", "chestSymptoms", "unwell"], "source": "S1"
+    }
+  ]
+}

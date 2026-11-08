@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MRH1 demo</title>
-<meta name="description" content="Interactive replica of the MRH1 iPhone app, running on synthetic sample data in your browser.">
+<meta name="description" content="Interactive replica of the MRH1 iPhone app, with a scripted preview of the on-device Coach, running on synthetic sample data in your browser.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#EDEBE7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#151413" media="(prefers-color-scheme: dark)">
@@ -247,22 +247,123 @@ canvas.c { display: block; width: 100%; }
 .guide dt { font: 600 15px/21px var(--font-ui); margin-top: 16px; display: flex; align-items: center; gap: 8px; }
 .guide dd { margin: 4px 0 0; }
 
+
+/* ------------------------------------------------------------------ coach (v1.1, DESIGN_SPEC_v1.1 §2–§6) */
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: -1px; }
+.cmark { position: absolute; width: 44px; height: 44px; display: grid; place-items: center; color: var(--graphite2); z-index: 2; border-radius: 50%; transition: color 160ms ease-out, transform 160ms ease-out; }
+.cmark svg { width: 16px; height: 16px; overflow: visible; }
+.cmark:hover, .cmark:active { color: var(--ink); }
+.cmark:active { transform: scale(.97); }
+.cslot { position: relative; display: inline-block; width: 16px; height: 16px; flex: none; }
+.cslot .cmark { left: -14px; top: -14px; }
+.cmw { position: relative; }
+.cmw > .cmark { top: 21px; right: 6px; }
+.cmw > .card > :first-child { padding-right: 28px; }
+.cmw.r > .cmark { top: 5px; right: -14px; }
+.cmw.r > .mrow .top { padding-right: 26px; }
+.cmw.r + .cmw.r > .mrow { border-top: .5px solid var(--hair); }
+.clab { display: flex; align-items: center; gap: 6px; }
+.cg { width: 16px; height: 16px; flex: none; overflow: visible; }
+.cg.sm { width: 14px; height: 14px; color: var(--graphite2); }
+.cnote .row { min-height: 20px; }
+.xbtn { width: 44px; height: 44px; margin: -12px -12px -12px 0; display: grid; place-items: center; color: var(--graphite); border-radius: 50%; }
+.xbtn svg { width: 18px; height: 18px; }
+.askrow .askg { display: grid; place-items: center; width: 20px; height: 20px; color: var(--graphite); }
+.askrow .askg svg { width: 20px; height: 20px; }
+.askrow > .row > svg, .srow > svg { width: 20px; height: 20px; color: var(--graphite2); flex: none; }
+
+.screen.coach { padding-bottom: 208px; }
+.cgreet { margin: 8px 4px 0; color: var(--graphite); }
+.starters { padding-top: 4px; padding-bottom: 4px; }
+.srow { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 12px 0; }
+.srow + .srow { border-top: .5px solid var(--hair); }
+.srow > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cdisc { margin: 8px 4px 0; }
+.thread { margin-top: 24px; }
+.thread:empty { margin-top: 0; }
+.turn + .turn { margin-top: 24px; }
+.turn.c > * + * { margin-top: 12px; }
+.turn.c > .clab + * { margin-top: 4px; }
+.turn.u { display: flex; justify-content: flex-end; }
+.ubub { max-width: 78%; margin: 0; padding: 8px 12px; border-radius: 16px; background: var(--ink); color: var(--paper); font: 400 15px/21px var(--font-ui); overflow-wrap: anywhere; }
+.pills, .cchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 4px 10px; border-radius: 999px; background: var(--card);
+  box-shadow: inset 0 0 0 .5px var(--hair); font: 500 13px/18px var(--font-ui); color: var(--ink); font-variant-numeric: tabular-nums; max-width: 100%; }
+.pill span { min-width: 0; overflow-wrap: anywhere; }
+.pill i { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+button.pill::after { content: ""; position: absolute; inset: -8px 0; }
+.cchip { position: relative; display: inline-flex; align-items: center; min-height: 36px; padding: 8px 16px; border-radius: 999px; background: var(--card);
+  box-shadow: inset 0 0 0 .5px var(--hair); font: 500 13px/18px var(--font-ui); color: var(--ink); transition: transform 160ms ease-out; }
+.cchip::after { content: ""; position: absolute; inset: -4px 0; }
+.cchip:active { transform: scale(.97); }
+.cchip.dim { color: var(--graphite); }
+.think { display: flex; align-items: center; gap: 8px; min-height: 22px; }
+.think-g { width: 20px; height: 20px; color: var(--graphite2); }
+.think-g circle { animation: cdot 960ms ease-in-out infinite both; }
+.think-g .d2 { animation-delay: 160ms; } .think-g .d3 { animation-delay: 320ms; }
+@keyframes cdot { 0%, 100% { opacity: .25; } 40% { opacity: 1; } }
+.anim .fi { animation: cfade 160ms ease-out both; }
+.anim .enter { animation: center 220ms var(--ease-out) both; }
+@keyframes cfade { from { opacity: 0; } }
+@keyframes center { from { opacity: 0; transform: scale(.96); } }
+.notice { display: flex; gap: 12px; background: var(--dangerBg); border-radius: 16px; padding: 16px; }
+.notice .bar { width: 4px; align-self: stretch; border-radius: 999px; background: var(--danger); flex: none; }
+.plan { background: var(--card); border-radius: 16px; padding: 16px; transform-origin: 50% 0; }
+.plan .caption { margin-top: 2px; }
+.pstep { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; min-height: 44px; padding: 4px 0; }
+.pstep .box { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.25px var(--graphite2); display: grid; place-items: center; transition: background 160ms ease-out; }
+.pstep .box svg { width: 14px; height: 14px; }
+.pstep[aria-checked="true"] .box { background: var(--ink); color: var(--paper); box-shadow: none; }
+.pstep .pn { font: 400 15px/21px var(--font-ui); min-width: 0; }
+.pstep[aria-checked="true"] .pn { color: var(--graphite); text-decoration: line-through; text-decoration-color: var(--graphite2); }
+.pstep .pt { color: var(--graphite); }
+.startbtn { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 22px; border-radius: 999px; background: var(--ink); color: var(--paper);
+  font: 500 15px/1 var(--font-ui); transition: transform 160ms ease-out; }
+.startbtn.big { min-width: 160px; height: 52px; }
+.replaced { margin: 0; }
+.composer { position: absolute; left: 16px; right: 16px; bottom: 98px; z-index: 4; display: flex; align-items: flex-end; gap: 8px; min-height: 48px; padding: 4px 4px 4px 18px;
+  border-radius: 24px; background: var(--card); box-shadow: inset 0 0 0 .5px var(--hair), 0 1px 2px rgba(21,20,19,.04), 0 8px 24px rgba(21,20,19,.08); }
+@media (max-width: 500px) { .composer { bottom: calc(env(safe-area-inset-bottom, 0px) + 90px); } }
+.composer textarea { flex: 1; min-width: 0; border: 0; outline: 0; resize: none; background: none; color: var(--ink); font: 400 16px/21px var(--font-ui); padding: 9.5px 0; margin: 0; max-height: 125px; overflow-y: auto; }
+.composer textarea::placeholder { color: var(--graphite); }
+.composer:focus-within { box-shadow: inset 0 0 0 1px var(--ink), 0 1px 2px rgba(21,20,19,.04), 0 8px 24px rgba(21,20,19,.08); }
+.send { width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; flex: none; transition: opacity 160ms ease-out, transform 160ms ease-out; }
+.send svg { width: 20px; height: 20px; }
+.send:disabled { opacity: .35; cursor: default; }
+.send:active:not(:disabled) { transform: scale(.97); }
+.runner { position: absolute; inset: 0; z-index: 20; background: var(--paper); display: flex; flex-direction: column; padding: 54px 20px 40px; animation: fade 200ms ease-out both; }
+@media (max-width: 500px) { .runner { padding-top: calc(env(safe-area-inset-top, 0px) + 16px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); } }
+.rtop { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; }
+.rmid { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 0; }
+.rmid .ring .rv b { font-size: 52px; }
+.rmid .title { max-width: 16em; }
+.rctl { display: flex; justify-content: center; align-items: center; gap: 28px; }
+.rctl .rbtn:disabled { opacity: .35; cursor: default; }
+.playbtn { width: 72px; height: 72px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; transition: transform 160ms ease-out; }
+.playbtn svg { width: 28px; height: 28px; }
+
 @media (prefers-reduced-motion: reduce) {
   .sheet { animation: fade 150ms ease-out both; }
   .ripple.go { animation: none; }
   .rbtn, .card.tap, .sw, .sw::after { transition: none; }
+  .anim .enter { animation-name: cfade; }
+  .think-g circle { animation: none; } .think-g .d2 { opacity: .6; } .think-g .d3 { opacity: .3; }
+  .cmark, .cchip, .startbtn, .send, .playbtn, .pstep .box { transition: none; }
+  .runner { animation: none; }
 }
+body.shot .anim .fi, body.shot .anim .enter, body.shot .runner { animation: none; }
 body.shot .sheet, body.shot .scrim { animation: none; }
 </style>
 </head>
 <body>
   <div class="pagebar"><a href="../">MRH1 home</a><span>Sample data, not a real person</span></div>
   <div class="phone" id="phone"><div id="app"></div></div>
-  <p class="hint">An interactive replica of the iPhone app. Tap the rings, rows and the menu. Every number is synthetic. Wellness estimates, not medical advice.</p>
+  <p class="hint">An interactive replica of the iPhone app. Tap the rings, rows and the menu, or ask the Coach tab (scripted sample answers, no AI runs here). Every number is synthetic. Wellness estimates, not medical advice.</p>
   <script>if (new URLSearchParams(location.search).has('shot')) document.body.classList.add('shot');</script>
   <script src="data.js"></script>
   <script src="orbs.js"></script>
   <script src="charts.js"></script>
+  <script src="coach.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

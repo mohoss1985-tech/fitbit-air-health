@@ -142,11 +142,17 @@ struct LiveView: View {
         let stats = live.summary(live.selectedRange)
         let model = LiveChartModel(stats: stats, shades: shades, usual: usualDailyBand)
         return Card(spacing: Space.l) {
-            VStack(alignment: .leading, spacing: Space.xs) {
-                Text(chartTitle(stats)).typo(.headline).foregroundStyle(Theme.ink)
-                Text(chartSubtitle(live.selectedRange)).typo(.caption).foregroundStyle(Theme.graphite)
+            HStack(alignment: .top, spacing: Space.s) {
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    Text(chartTitle(stats)).typo(.headline).foregroundStyle(Theme.ink)
+                    Text(chartSubtitle(live.selectedRange)).typo(.caption).foregroundStyle(Theme.graphite)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                // v1.1: CoachMark top-right of the heart-rate chart card (no MetricID for live HR → Coach tab).
+                CoachMarkSlot(metric: nil, name: "your heart rate")
+                    .padding(.top, 3)
             }
-            .accessibilityElement(children: .combine)
 
             ZStack {
                 if model.hasData {

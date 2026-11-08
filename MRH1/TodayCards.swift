@@ -10,6 +10,8 @@ private struct CardTitle: View {
     var trailing: String? = nil
     var info: (() -> Void)? = nil
     var infoLabel: String = "More about this"
+    /// v1.1: CoachMark at the far right of the title row (hidden while the coach is off).
+    var coach: CoachTarget? = nil
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: Space.s) {
@@ -31,8 +33,18 @@ private struct CardTitle: View {
             if let trailing {
                 Text(trailing).typo(.label).foregroundStyle(Theme.ink2)
             }
+            if let coach {
+                CoachMarkSlot(metric: coach.metric, name: coach.name)
+                    .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 5 }  // glyph centred on the cap height
+            }
         }
     }
+}
+
+/// What a card's CoachMark asks about: a metric (sheet) or nil (Coach tab), with its spoken name.
+struct CoachTarget {
+    let metric: MetricID?
+    let name: String
 }
 
 private func tierDot(_ tier: StatusTier) -> some View {
@@ -43,13 +55,15 @@ private func tierDot(_ tier: StatusTier) -> some View {
 
 struct StrainTargetCard: View {
     @Environment(HealthStore.self) private var health
+    @Environment(AppNav.self) private var nav
 
     var body: some View {
         let target = Scores.strainTarget(health.recovery)
         let now = health.strain?.value ?? 0
         Card {
             CardTitle(title: "Strain target",
-                      trailing: String(format: "%.1f of %.0f–%.0f", locale: .current, now, target.lowerBound, target.upperBound))
+                      trailing: String(format: "%.1f of %.0f–%.0f", locale: .current, now, target.lowerBound, target.upperBound),
+                      coach: CoachTarget(metric: nil, name: "Strain target"))
             StrainGauge(value: now, target: target)
                 .padding(.vertical, Space.xs)
             HStack {
@@ -62,6 +76,7 @@ struct StrainTargetCard: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityElement(children: .combine)
+        .coachAccessibilityAction { nav.openCoach(about: nil) }
     }
 
     private func advice(now: Double, target: ClosedRange<Double>) -> String {
@@ -83,7 +98,8 @@ struct StressCard: View {
         Card {
             CardTitle(title: "Stress today",
                       trailing: current.map { "\(Insights.stressWord($0)) now, \($0.formatted(.number.precision(.fractionLength(0...1)))) of 3" },
-                      info: { showInfo = true }, infoLabel: "What is stress?")
+                      info: { showInfo = true }, infoLabel: "What is stress?",
+                      coach: CoachTarget(metric: nil, name: "Stress today"))
             if hours.isEmpty {
                 NotSentLabel(kind: .waiting)
                 Text("Hours appear once Google Health syncs today’s heart rate.")
@@ -190,13 +206,15 @@ struct StressCard: View {
 
 struct PanelsStrip: View {
     @Environment(HealthStore.self) private var health
+    @Environment(AppNav.self) private var nav
     let open: () -> Void
 
     var body: some View {
         let watch = Panel.allCases.flatMap(\.metrics).filter { health.state($0).isConcern }.count
         Button(action: open) {
             Card {
-                CardTitle(title: "Body panels", trailing: watch == 0 ? "All in range" : "\(watch) to watch")
+                CardTitle(title: "Body panels", trailing: watch == 0 ? "All in range" : "\(watch) to watch",
+                          coach: CoachTarget(metric: nil, name: "Body panels"))
                 HStack(spacing: Space.s) {
                     ForEach(Panel.allCases) { p in
                         let t = tier(p)
@@ -216,6 +234,7 @@ struct PanelsStrip: View {
         .buttonStyle(PressStyle())
         .accessibilityElement(children: .combine)
         .accessibilityHint("Opens the Body tab")
+        .coachAccessibilityAction { nav.openCoach(about: nil) }
     }
 
     /// Worst tier among the panel's metrics; nil when nothing in the panel has data.
@@ -291,7 +310,8 @@ struct HealthMonitorCard: View {
         let shared = states.filter(\.hasData)
         Card {
             CardTitle(title: "Health monitor",
-                      trailing: shared.isEmpty ? "Waiting for sync" : "\(shared.count - drifting.count) of \(shared.count) in range")
+                      trailing: shared.isEmpty ? "Waiting for sync" : "\(shared.count - drifting.count) of \(shared.count) in range",
+                      coach: CoachTarget(metric: nil, name: "Health monitor"))
             Text(drifting.isEmpty ? "Your vitals sat in their usual range this week." : "Alerts you when 2 or more vitals drift on the same night.")
                 .typo(.body).foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
@@ -365,13 +385,15 @@ struct HealthMonitorCard: View {
 
 struct LastNightCard: View {
     @Environment(HealthStore.self) private var health
+    @Environment(AppNav.self) private var nav
     let session: SleepSession
 
     var body: some View {
         NavigationLink(value: Route.score(.sleep)) {
             Card {
                 CardTitle(title: health.isSleepFresh ? "Last night" : "Latest night synced, \(health.sleepDayText)",
-                          trailing: "\(session.start.formatted(date: .omitted, time: .shortened))–\(session.end.formatted(date: .omitted, time: .shortened))")
+                          trailing: "\(session.start.formatted(date: .omitted, time: .shortened))–\(session.end.formatted(date: .omitted, time: .shortened))",
+                          coach: CoachTarget(metric: .sleepTotal, name: "Last night"))
                 ValueText(value: MetricID.sleepTotal.format(session.asleepMinutes), unit: "asleep", size: .metric)
                 StageBar(session: session)
                     .frame(height: 12)
@@ -391,6 +413,7 @@ struct LastNightCard: View {
         .buttonStyle(PressStyle())
         .accessibilityElement(children: .combine)
         .accessibilityHint("Shows sleep details")
+        .coachAccessibilityAction { nav.openCoach(about: .sleepTotal) }
     }
 
     private func stage(_ name: String, _ s: SleepStage) -> some View {
@@ -433,6 +456,12 @@ struct SleepBalanceCard: View {
                      tag: .consistency)
             }
             .fixedSize(horizontal: false, vertical: true)
+        }
+        // CoachMark top-right, level with the tile titles (the right tile's title is leading, so the corner is free).
+        .overlay(alignment: .topTrailing) {
+            CoachMarkSlot(metric: .sleepTotal, name: "Sleep debt and consistency")
+                .padding(.top, Space.gutter + 1)
+                .padding(.trailing, Space.gutter)
         }
         .sheet(item: $info) { tag in
             if tag == .debt {

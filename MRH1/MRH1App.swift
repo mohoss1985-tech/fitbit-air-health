@@ -6,6 +6,8 @@ struct MRH1App: App {
     @State private var live = LiveStore()
     @State private var journal = JournalStore()
     @State private var nav = AppNav()
+    /// v1.1: one on-device coach for the whole app (configured with the stores in ContentView).
+    @State private var coach = CoachEngine()
 
     init() {
         // Wake up when Google Health writes new nights/vitals, to send the morning summary.
@@ -19,6 +21,7 @@ struct MRH1App: App {
                 .environment(live)
                 .environment(journal)
                 .environment(nav)
+                .environment(coach)
                 // Follows the system appearance; `-uiLight` / `-uiDark` pin it for screenshots.
                 .preferredColorScheme(Self.forcedScheme)
         }

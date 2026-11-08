@@ -1,6 +1,6 @@
-/* MRH1 v1.0 web demo — browser replica of the iOS app on synthetic data (data.js).
- * Tabs: Today · Live · Body · Trends. Menu (results guide) top-left, + journal on Today.
- * Query: ?tab=today|live|body|trends  &open=menu|journal|recovery|strain|sleep|metric:<id>
+/* MRH1 v1.1 web demo — browser replica of the iOS app on synthetic data (data.js).
+ * Tabs: Today · Live · Body · Trends · Coach (scripted, coach.js). Menu (results guide) top-left, + journal on Today.
+ * Query: ?tab=today|live|body|trends|coach  &open=menu|journal|recovery|strain|sleep|metric:<id>  &ask=<answer keys, comma-separated>  &coach=off
  *        &theme=dark|light  &range=live|1h|24h|7d|30d  &panel=heart|lungs|sleep|activity  &shot (screenshot mode)
  */
 (function () {
@@ -164,7 +164,8 @@
 
   // ---------------------------------------------------------------- state
   var state = {
-    tab: ['today', 'live', 'body', 'trends'].indexOf(Q.get('tab')) >= 0 ? Q.get('tab') : 'today',
+    tab: ['today', 'live', 'body', 'trends', 'coach'].indexOf(Q.get('tab')) >= 0 ? Q.get('tab') : 'today',
+    coachOn: Q.get('coach') !== 'off',
     range: ['live', '1h', '24h', '7d', '30d'].indexOf(Q.get('range')) >= 0 ? Q.get('range') : 'live',
     panel: ['heart', 'lungs', 'sleep', 'activity'].indexOf(Q.get('panel')) >= 0 ? Q.get('panel') : 'heart',
     sheet: Q.get('open') || null,
@@ -188,10 +189,18 @@
       '<p class="caption">Wellness estimates, not medical advice.</p><p class="caption">Sample data. Not a real person.</p></div>';
   }
   function tabs() {
-    return '<nav class="tabs" aria-label="Tabs">' + [['today', 'Today'], ['live', 'Live'], ['body', 'Body'], ['trends', 'Trends']].map(function (t) {
-      return '<button class="tab' + (state.tab === t[0] ? ' on' : '') + '" data-tab="' + t[0] + '"' + (state.tab === t[0] ? ' aria-current="page"' : '') + '><span class="ic">' + I[t[0]] + '</span>' + t[1] + '</button>';
+    var list = [['today', 'Today'], ['live', 'Live'], ['body', 'Body'], ['trends', 'Trends']];
+    if (state.coachOn) list.push(['coach', 'Coach']);
+    return '<nav class="tabs" aria-label="Tabs" style="grid-template-columns:repeat(' + list.length + ',1fr)">' + list.map(function (t) {
+      var on = state.tab === t[0], ic = t[0] === 'coach' ? CO.tabIcon(on) : I[t[0]];
+      return '<button class="tab' + (on ? ' on' : '') + '" data-tab="' + t[0] + '"' + (on ? ' aria-current="page"' : '') + '><span class="ic">' + ic + '</span>' + t[1] + '</button>';
     }).join('') + '</nav>';
   }
+  // Coach entry points vanish when the coach is switched off (v1.0 exactly).
+  function cmSlot(topic) { return state.coachOn ? CO.slot(topic) : ''; }
+  function cmWrap(html, topic, cls) { return state.coachOn ? CO.wrap(html, topic, cls) : html; }
+  function cmAbs(topic, style) { return state.coachOn ? CO.mark(topic, style) : ''; }
+  function cmAsk(topic) { return state.coachOn ? CO.askRow(topic) : ''; }
   function cv(name, arg, cls, label) { return '<canvas class="c ' + (cls || '') + '" data-draw="' + name + '"' + (arg != null ? ' data-arg="' + esc(arg) + '"' : '') + ' role="img" aria-label="' + esc(label || '') + '"></canvas>'; }
 
   // ================================================================ TODAY
@@ -237,7 +246,7 @@
       '</div>' +
 
       // hero rings
-      '<div class="card" id="hero"><div class="rings">' +
+      '<div class="card" id="hero">' + cmAbs('recovery', 'top:6px;right:6px') + '<div class="rings">' +
         '<button class="ringcell press" data-sheet="recovery" aria-label="Recovery ' + S.recovery + ' percent, ' + TIER[recFlag] + '"><span class="ring" style="width:128px;height:128px">' +
           tickRing(128, S.recovery / 100, 'var(--' + recFlag + ')', { animate: ringAnimate }) +
           '<span class="rv"><b class="metric">' + S.recovery + '<span class="unit">%</span></b></span></span><span class="label">Recovery</span></button>' +
@@ -249,20 +258,23 @@
       '<div class="signals">' + chip(recFlag, TIER[recFlag] + ', above your usual') + '<span class="chip ' + fresh + '">Synced ' + D.syncedMinAgo + ' min ago</span></div>' +
       '<p class="caption" style="margin-top:12px">Recovery uses 3 of 4 signals. HRV is not sent by Google Health.</p></div>' +
 
+      // coach note (rule-based, no model)
+      (state.coachOn ? CO.note() : '') +
+
       // strain target
-      '<button class="card tap" data-sheet="strain"><div class="row"><p class="headline">Strain target</p><span class="label"><b class="ink num">' + S.strain + '</b> of ' + D.strainTarget[0] + '–' + D.strainTarget[1] + '</span></div>' +
+      cmWrap('<button class="card tap" data-sheet="strain"><div class="row"><p class="headline">Strain target</p><span class="label"><b class="ink num">' + S.strain + '</b> of ' + D.strainTarget[0] + '–' + D.strainTarget[1] + '</span></div>' +
       '<div style="margin-top:16px">' + cv('capsule', null, '', 'Strain ' + S.strain + ' of 21, target 12 to 15').replace('class="c ', 'style="height:22px" class="c ') + '</div>' +
       '<div class="row" style="margin-top:4px"><span class="caption num">0</span><span class="caption">Target ' + D.strainTarget[0] + '–' + D.strainTarget[1] + '</span><span class="caption num">21</span></div>' +
-      '<p class="body" style="margin-top:12px">About 30 minutes of brisk walking reaches the low end of your target.</p></button>' +
+      '<p class="body" style="margin-top:12px">About 30 minutes of brisk walking reaches the low end of your target.</p></button>', 'strain') +
 
       // stress
-      '<div class="card"><div class="row"><p class="headline">Stress today</p><span class="label">Mostly low</span></div>' +
+      '<div class="card"><div class="row center"><p class="headline">Stress today</p><span class="row center" style="gap:12px"><span class="label">Mostly low</span>' + cmSlot('stress') + '</span></div>' +
       cv('stress', null, '', 'Hourly stress today. High from 9 to 11, moving at noon, low otherwise.').replace('class="c ', 'style="height:72px;margin-top:16px" class="c ') +
       '<div class="row" style="margin-top:4px"><span class="caption num">00</span><span class="caption num">06</span><span class="caption num">12</span><span class="caption num">18</span><span class="caption num">24</span></div>' +
       '<div class="legend"><span class="caption"><i style="background:var(--good)"></i>Low</span><span class="caption"><i style="background:var(--limit)"></i>Raised</span><span class="caption"><i style="background:var(--danger)"></i>High</span><span class="caption"><i style="background:var(--graphite2)"></i>Moving</span></div></div>' +
 
       // panels strip
-      '<div class="card"><div class="row"><p class="headline">Body panels</p><span class="label">' + (watchN ? watchN + ' to watch' : 'All in range') + '</span></div><div class="panels">' +
+      '<div class="card"><div class="row center"><p class="headline">Body panels</p><span class="row center" style="gap:12px"><span class="label">' + (watchN ? watchN + ' to watch' : 'All in range') + '</span>' + cmSlot('panels') + '</span></div><div class="panels">' +
       pf.map(function (p) {
         return '<button class="press" data-goto="' + p.id + '" aria-label="' + p.name + ', ' + TIER[p.f.flag] + '"><span class="cap" style="background:var(--' + p.f.flag + ')"></span><span class="label ink">' + p.name + '</span><span class="caption">' + TIER[p.f.flag] + '</span></button>';
       }).join('') + '</div></div>' +
@@ -274,11 +286,11 @@
         '<p class="caption">One night rarely means much. Rest if you feel run down.</p></div></div></button>' : '') +
 
       // health monitor
-      '<div class="card"><p class="headline">Health monitor</p><p class="caption">Last 7 nights against your usual range</p><div class="heat">' + heat + '</div>' +
+      '<div class="card">' + cmAbs('monitor', 'top:9px;right:6px') + '<p class="headline">Health monitor</p><p class="caption">Last 7 nights against your usual range</p><div class="heat">' + heat + '</div>' +
       '<div class="legend"><span class="caption"><i style="background:var(--good);opacity:.55"></i>In range</span><span class="caption"><i style="background:var(--limit)"></i>Watch</span><span class="caption"><i style="background:var(--danger)"></i>Out of range</span></div></div>' +
 
       // last night
-      '<button class="card tap" data-sheet="sleep"><div class="row"><p class="headline">Last night</p><span class="val">' + valHTML('sleepTotal', night.asleep, 'headline num') + '</span></div>' +
+      cmWrap('<button class="card tap" data-sheet="sleep"><div class="row"><p class="headline">Last night</p><span class="val">' + valHTML('sleepTotal', night.asleep, 'headline num') + '</span></div>' +
       '<div class="stagebar" aria-hidden="true">' + night.segments.map(function (sg) {
         var col = { deep: 'var(--stageDeep)', light: 'var(--stageCore)', rem: 'var(--stageREM)', awake: 'var(--stageAwake)' }[sg.stage];
         return '<span style="flex:' + ((sg.end - sg.start) / 6e4).toFixed(1) + ';background:' + col + '"></span>';
@@ -286,10 +298,10 @@
       '<div class="row" style="margin-top:4px"><span class="caption num">' + hhmm(night.start) + '</span><span class="caption num">' + hhmm(night.end) + '</span></div>' +
       '<div class="legend">' + [['deep', 'Deep', 'stageDeep'], ['light', 'Core', 'stageCore'], ['rem', 'REM', 'stageREM'], ['awake', 'Awake', 'stageAwake']].map(function (s) {
         return '<span class="caption"><i style="background:var(--' + s[2] + ')"></i>' + s[1] + ' <b class="ink num" style="font-weight:500">' + hm(stageMin[s[0]]) + '</b></span>';
-      }).join('') + '</div></button>' +
+      }).join('') + '</div></button>', 'sleep') +
 
       // sleep balance
-      '<div class="card"><div class="rings" style="grid-template-columns:1fr 1fr;align-items:start;gap:16px">' +
+      '<div class="card">' + cmAbs('metric:sleepTotal', 'top:6px;right:6px') + '<div class="rings" style="grid-template-columns:1fr 1fr;align-items:start;gap:16px">' +
       '<div class="gap4"><p class="label">Sleep debt</p><p><b class="metric" style="font-size:28px">' + hm(debt).replace(/ (h|min) ?/g, '<span class="unit">$1</span> ') + '</b></p><p class="caption">Last 7 nights against 8 h</p></div>' +
       '<div class="gap4"><p class="label">Bedtime consistency</p><p><b class="metric" style="font-size:28px">±' + consist + '<span class="unit">min</span></b></p><p class="caption">' + (consist <= 45 ? 'Steady. Under ±45 min helps.' : 'Varies a lot. Under ±45 min helps.') + '</p></div></div></div>' +
 
@@ -341,8 +353,8 @@
       '<div class="card"><div class="row"><p class="headline">Last night</p><span class="label">' + hhmm(D.lastNight.start) + '–' + hhmm(D.lastNight.end) + '</span></div>' +
       ['breathing', 'spo2'].map(function (id) {
         var st = stats(id);
-        return '<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + M[id].label + '</p><p class="caption">' + esc(usual(id)) + '</p></div>' +
-          '<div class="gap4" style="text-align:right"><span class="val">' + valHTML(id, st.v) + '</span><div>' + chip(st.flag) + '</div></div></div><div style="margin-top:12px">' + ribbon(id) + '</div></button>';
+        return cmWrap('<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + M[id].label + '</p><p class="caption">' + esc(usual(id)) + '</p></div>' +
+          '<div class="gap4" style="text-align:right"><span class="val">' + valHTML(id, st.v) + '</span><div>' + chip(st.flag) + '</div></div></div><div style="margin-top:12px">' + ribbon(id) + '</div></button>', 'metric:' + id, 'r');
       }).join('') + '</div>' +
       footer('Readings arrive in batches from Google Health. Fitbit Air has no blood-pressure sensor.') + '</div>';
   }
@@ -364,7 +376,7 @@
       return '<button data-range="' + o[0] + '" aria-pressed="' + (r === o[0]) + '">' + o[1] + '</button>';
     }).join('') + '</div>' +
       '<div class="chartwrap">' + cv('live', null, '', 'Heart rate chart, ' + r + ', min ' + mn + ', max ' + mx + ' bpm').replace('class="c ', 'style="height:184px" class="c ') + '<span class="ripple" id="ripple"></span></div>' +
-      '<p class="caption" style="margin-top:8px">' + note + '</p>' +
+      '<div class="row center" style="margin-top:8px;min-height:16px"><p class="caption">' + note + '</p>' + cmSlot('live') + '</div>' +
       '<div class="mam"><div><b>' + mn + '</b><span class="caption">Min</span></div><div><b>' + Math.round(mean(ys)) + '</b><span class="caption">Average</span></div><div><b>' + mx + '</b><span class="caption">Max</span></div></div>';
   }
 
@@ -382,13 +394,14 @@
     var rows = Object.keys(M).filter(function (id) { return M[id].panel === p; }).map(function (id) {
       var m = M[id];
       if (m.notSent) {
-        return '<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + m.label + '</p><p class="caption">' + esc(m.short || '') + '</p></div>' + nsChip() + '</div>' +
+        var ns = '<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + m.label + '</p><p class="caption">' + esc(m.short || '') + '</p></div>' + nsChip() + '</div>' +
           '<p class="caption" style="margin-top:8px">Google Health does not send this to Apple Health yet.</p></button>';
+        return state.coachOn ? '<div class="cmw r nm">' + ns + '</div>' : ns;
       }
       var st = stats(id);
-      return '<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + m.label + '</p><p class="caption">' + esc(usual(id)) + '</p></div>' +
+      return cmWrap('<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + m.label + '</p><p class="caption">' + esc(usual(id)) + '</p></div>' +
         '<div class="gap4" style="text-align:right"><span class="val">' + valHTML(id, st.v) + '</span><div>' + chip(st.flag) + '</div></div></div>' +
-        '<div class="bot">' + (m.vital || m.dir === 'lower' && m.unit === 'bpm' ? cv('strip', id, 'strip', 'Range strip') : ribbon(id)) + cv('spark', id, 'spark', '7-day trend') + '</div></button>';
+        '<div class="bot">' + (m.vital || m.dir === 'lower' && m.unit === 'bpm' ? cv('strip', id, 'strip', 'Range strip') : ribbon(id)) + cv('spark', id, 'spark', '7-day trend') + '</div></button>', 'metric:' + id, 'r');
     }).join('');
     return '<div class="card"><div class="row center"><p class="headline">' + name + '</p>' + (pf.watch ? chip(pf.flag, pf.watch + ' to watch') : chip('good', 'All in range')) + '</div>' + rows + '</div>';
   }
@@ -416,10 +429,10 @@
       '<div class="section" style="margin-top:20px"><p class="label">Changed</p>' +
       changed.map(function (t) {
         var m = M[t.id];
-        return '<button class="card tap" data-sheet="metric:' + t.id + '"><p class="headline">' + esc(sentence(t)) + '</p>' +
+        return cmWrap('<button class="card tap" data-sheet="metric:' + t.id + '"><p class="headline">' + esc(sentence(t)) + '</p>' +
           '<p class="caption" style="margin-top:4px">Last 7 days averaged ' + esc(fmtV(t.id, t.nu)) + (m.unit && m.fmt !== hm ? ' ' + m.unit : '') + ', ' + (t.nu > t.old ? 'up' : 'down') + ' from ' + esc(fmtV(t.id, t.old)) + '.</p>' +
           cv('trend', t.id, 'tchart', 'Daily values, last ' + t.vals.length + ' days') +
-          '<div class="tkey"><span class="caption"><i style="border-color:var(--graphite);border-top-style:dashed"></i>Before</span><span class="caption"><i style="border-color:var(--ember)"></i>Last 7 days</span></div></button>';
+          '<div class="tkey"><span class="caption"><i style="border-color:var(--graphite);border-top-style:dashed"></i>Before</span><span class="caption"><i style="border-color:var(--ember)"></i>Last 7 days</span></div></button>', 'metric:' + t.id);
       }).join('') + '</div>' +
       '<div class="section"><p class="label">All metrics</p><div class="card" style="padding-top:4px;padding-bottom:4px">' +
       rest.map(function (t) {
@@ -457,6 +470,9 @@
         '<div><span class="body">Apple Health</span><span class="caption">Read-only access</span></div>' +
         '<div><span class="body">MRH1</span><span class="caption">Scores on your iPhone</span></div></div>' +
         '<p class="caption" style="margin:8px 4px 0">No servers, no account, no analytics. Nothing leaves the phone.</p></div>' +
+        '<div class="section"><p class="label">Coach</p><div class="card" style="padding-top:8px;padding-bottom:8px">' +
+        '<button class="toggle" role="switch" aria-checked="' + state.coachOn + '" data-coachtoggle="1"><span class="body">Coach</span><span class="sw"></span></button></div>' +
+        '<p class="caption" style="margin:8px 4px 0">On the iPhone the coach runs on this device with Apple Intelligence: free, private, no internet. Off brings back v1.0: no Coach tab, notes or marks. In this demo the answers are scripted.</p></div>' +
         '<div class="section"><p class="label">Notifications</p><div class="card" style="padding-top:8px;padding-bottom:8px">' +
         [['morning', 'Morning recovery'], ['drift', 'Signals outside your usual range'], ['strain', 'Strain target reached']].map(function (n) {
           return '<button class="toggle" role="switch" aria-checked="' + state.notif[n[0]] + '" data-notif="' + n[0] + '"><span class="body">' + n[1] + '</span><span class="sw"></span></button>';
@@ -486,7 +502,7 @@
         }).join('') +
         '<p class="caption" style="margin-top:8px">Right of the line helped your score, left pulled it down. Percentages are the weights. HRV is not sent, so its weight moves to the others.</p></div>' +
         '<div class="card"><div class="row"><p class="headline">Last 14 days</p><span class="caption">0–100</span></div>' + cv('rec14', null, '', '14-day recovery').replace('class="c ', 'style="height:140px;margin-top:12px" class="c ') + '</div>' +
-        '<div class="card"><p class="headline">How it’s computed</p><p class="body" style="margin-top:8px">Each signal is compared with your own last 30 days and scaled by how much it usually varies. The weighted sum maps to 0–100. 67 and up is green, 34 to 66 yellow, below 34 red.</p></div>';
+        '<div class="card"><p class="headline">How it’s computed</p><p class="body" style="margin-top:8px">Each signal is compared with your own last 30 days and scaled by how much it usually varies. The weighted sum maps to 0–100. 67 and up is green, 34 to 66 yellow, below 34 red.</p></div>' + cmAsk('recovery');
     } else if (key === 'strain') {
       title = 'Strain'; sub = 'Today so far';
       var zn = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5'], zmax = Math.max.apply(null, D.zones);
@@ -495,7 +511,7 @@
         '<div class="card"><div class="row"><p class="headline">Heart rate today</p><span class="caption">bpm</span></div>' + cv('strainhr', null, '', 'Heart rate from 07:00, run at 12:10').replace('class="c ', 'style="height:168px;margin-top:12px" class="c ') + '</div>' +
         '<div class="card"><p class="headline">Time in zones</p>' + D.zones.map(function (z, i) {
           return '<div class="factor" style="grid-template-columns:64px minmax(0,1fr) 52px"><span class="label">' + zn[i] + '</span><span class="zbar" style="background:var(--track)"><span style="left:0;width:' + (z / zmax * 100) + '%;background:' + C.oklabMix('#F3A79E', '#F0582A', i / 4) + '"></span></span><span class="label num ink" style="text-align:right">' + z + ' min</span></div>';
-        }).join('').replace(/zbar"/g, 'zbar nz"') + '<p class="caption" style="margin-top:8px">Run at ' + hhmm(D.workoutsToday[0].start) + ', ' + D.workoutsToday[0].minutes + ' min.</p></div>';
+        }).join('').replace(/zbar"/g, 'zbar nz"') + '<p class="caption" style="margin-top:8px">Run at ' + hhmm(D.workoutsToday[0].start) + ', ' + D.workoutsToday[0].minutes + ' min.</p></div>' + cmAsk('strain');
     } else if (key === 'sleep') {
       var n = D.lastNight;
       title = 'Sleep'; sub = hhmm(n.start) + '–' + hhmm(n.end);
@@ -505,20 +521,20 @@
         '<div class="card" style="padding-top:4px;padding-bottom:4px">' + ['sleepTotal', 'deepSleep', 'remSleep', 'awake'].map(function (id) {
           var st = stats(id);
           return '<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + M[id].label + '</p><p class="caption">' + esc(usual(id)) + '</p></div><div class="gap4" style="text-align:right"><span class="val">' + valHTML(id, st.v) + '</span><div>' + chip(st.flag) + '</div></div></div></button>';
-        }).join('') + '</div>';
+        }).join('') + '</div>' + cmAsk('sleep');
     } else if (key.indexOf('metric:') === 0) {
       var id = key.slice(7), m = M[id];
       if (!m) return '';
       title = m.label; sub = m.short || PANELS.filter(function (p) { return p[0] === m.panel; })[0][1];
       if (m.notSent) {
-        body = '<div class="card"><div class="row"><b class="metric">—</b>' + nsChip('Not sent by Google Health') + '</div><p class="body" style="margin-top:12px">' + esc(m.what) + '</p></div>';
+        body = '<div class="card"><div class="row"><b class="metric">—</b>' + nsChip('Not sent by Google Health') + '</div><p class="body" style="margin-top:12px">' + esc(m.what) + '</p></div>' + cmAsk(key);
       } else {
         var st = stats(id);
         body = '<div class="card"><div class="row center"><span class="val">' + valHTML(id, st.v, 'display') + '</span><span>' + chip(st.flag) + '</span></div>' +
           '<p class="caption" style="margin-top:8px">' + esc(usual(id)) + '. Today is ' + st.dirWord + '.</p>' +
           cv('strip', id + '|big', 'strip big', 'Range strip').replace('class="c ', 'style="margin-top:16px" class="c ') + '</div>' +
           '<div class="card"><div class="row"><p class="headline">Last ' + Math.min(14, m.s.length) + ' days</p><span class="caption">Band: your usual</span></div>' + cv('m14', id, '', '14-day chart').replace('class="c ', 'style="height:140px;margin-top:12px" class="c ') + '</div>' +
-          '<div class="card stack"><p class="headline">What it is</p><p class="body">' + esc(m.what) + '</p><div class="gap4"><p class="label">If it’s higher than usual</p><p class="body">' + esc(m.hi) + '</p></div><div class="gap4"><p class="label">If it’s lower than usual</p><p class="body">' + esc(m.lo) + '</p></div></div>';
+          '<div class="card stack"><p class="headline">What it is</p><p class="body">' + esc(m.what) + '</p><div class="gap4"><p class="label">If it’s higher than usual</p><p class="body">' + esc(m.hi) + '</p></div><div class="gap4"><p class="label">If it’s lower than usual</p><p class="body">' + esc(m.lo) + '</p></div></div>' + cmAsk(key);
       }
     }
     return '<div class="scrim" data-close="1"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><div class="grab"></div>' +
@@ -622,6 +638,13 @@
     }); });
   }
 
+  // ================================================================ coach (scripted, coach.js)
+  var CO = window.MRHCoach({ D: D, S: S, M: M, Q: Q, SHOT: SHOT, RM: RM, I: I, app: app, state: state, esc: esc, stats: stats, fmtV: fmtV, hm: hm, hhmm: hhmm,
+    mean: mean, sdev: sdev, WD: WD, TIER: TIER, recFlag: recFlag, tierOf: tierOf, partOfDay: partOfDay, tickRing: tickRing, topbar: topbar,
+    rerender: function () { renderScreen(); }, renderSheet: function () { renderSheet(); } });
+  if (!state.coachOn && state.tab === 'coach') state.tab = 'today';
+  if (Q.has('test')) window.__coach = CO;   // test hook (routing checks)
+
   // ================================================================ render
   function mountOrbs() {
     if (orbs) { orbs.destroy(); orbs = null; }
@@ -633,13 +656,14 @@
       fadeStart: function (H) { return H * 0.55; }, fadeEnd: function (H) { return H; } });
   }
   function renderScreen() {
-    var view = { today: viewToday, live: viewLive, body: viewBody, trends: viewTrends }[state.tab]();
-    app.innerHTML = '<div class="scroll" id="scroll">' + view + '</div>' + tabs() + '<div id="sheetLayer"></div>';
+    var view = { today: viewToday, live: viewLive, body: viewBody, trends: viewTrends, coach: CO.view }[state.tab]();
+    app.innerHTML = '<div class="scroll" id="scroll">' + view + '</div>' + (state.tab === 'coach' ? CO.composer() : '') + tabs() + '<div id="sheetLayer"></div><div id="runnerLayer"></div>';
     mountOrbs();
     hydrate();
     lightRings();
     renderSheet();
     if (state.tab === 'live') updateTicker();
+    if (state.tab === 'coach') CO.mounted();
   }
   var lastFocus = null;
   function renderSheet() {
@@ -653,7 +677,7 @@
   }
 
   app.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-tab],[data-sheet],[data-close],[data-range],[data-panel],[data-goto],[data-tag],[data-notif]');
+    var t = e.target.closest('[data-tab],[data-sheet],[data-close],[data-range],[data-panel],[data-goto],[data-tag],[data-notif],[data-coachtoggle]');
     if (!t) return;
     var ds = t.dataset;
     if (ds.tab) { if (ds.tab !== state.tab) { state.tab = ds.tab; state.sheet = null; renderScreen(); } else document.getElementById('scroll').scrollTo({ top: 0 }); }
@@ -664,6 +688,14 @@
     else if (ds.goto) { state.tab = 'body'; state.panel = ds.goto; renderScreen(); }
     else if (ds.tag) { state.tags[ds.tag] = !state.tags[ds.tag]; t.setAttribute('aria-pressed', state.tags[ds.tag]); }
     else if (ds.notif) { state.notif[ds.notif] = !state.notif[ds.notif]; t.setAttribute('aria-checked', state.notif[ds.notif]); }
+    else if (ds.coachtoggle) {
+      state.coachOn = !state.coachOn;
+      if (!state.coachOn && state.tab === 'coach') state.tab = 'today';
+      var sb = app.querySelector('.sheet .sb'), y = sb ? sb.scrollTop : 0;
+      renderScreen();
+      var sb2 = app.querySelector('.sheet .sb'); if (sb2) sb2.scrollTop = y;
+      var tg = app.querySelector('[data-coachtoggle]'); if (tg) tg.focus({ preventScroll: true });
+    }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && state.sheet) { state.sheet = null; renderSheet(); } });
 

@@ -265,12 +265,12 @@
 
     function destroy() {
       if (raf) cancelAnimationFrame(raf); raf = 0; clearTimeout(lostTimer);
-      ro.disconnect(); io.disconnect();
+      if (ro) ro.disconnect(); if (io) io.disconnect();   // undefined when WebGL was unavailable (CSS fallback)
       document.removeEventListener('visibilitychange', onVis);
       if (mq) mq.removeEventListener('change', onMotion);
       canvas.removeEventListener('webglcontextlost', onLost);
       canvas.removeEventListener('webglcontextrestored', onRestored);
-      var ext = gl.getExtension('WEBGL_lose_context'); if (ext) ext.loseContext();
+      var ext = gl && gl.getExtension('WEBGL_lose_context'); if (ext) ext.loseContext();
       dead = true;
     }
 

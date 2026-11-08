@@ -5,6 +5,7 @@ import Charts
 /// Score transparency (research/02 Decision 8): every input shows its z-score and its weight.
 struct ScoreDetailView: View {
     @Environment(HealthStore.self) private var health
+    @Environment(AppNav.self) private var nav
     @Environment(\.dynamicTypeSize) private var typeSize
     let kind: ScoreKind
 
@@ -21,6 +22,9 @@ struct ScoreDetailView: View {
                 case .strain: strainBody
                 case .sleep: sleepBody
                 }
+                // v1.1: "Ask about this" at the foot (hidden while the coach is off).
+                AskCoachRow(name: title) { nav.openCoachSheet(about: kind == .sleep ? .sleepTotal : nil) }
+                    .padding(.top, Space.l)
                 SheetDisclaimer()
                     .padding(.horizontal, Space.xs)
                     .padding(.top, Space.l)

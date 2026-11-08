@@ -6,6 +6,25 @@
 
 Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google, Fitbit or Apple.
 
+## New in v1.1 · Coach
+
+A free AI coach that runs **entirely on your iPhone** (Apple's on-device model, no internet code). Ask about your
+own numbers, tap one of 3 suggested follow-ups, get a workout from a reviewed library with a step timer. A small
+speech-bubble mark on every card opens the coach about that metric.
+
+<p align="center">
+  <img src="screenshots/v1.1/dark-coach.png" width="200" alt="Coach tab">
+  <img src="screenshots/v1.1/light-today.png" width="200" alt="Today with coach note">
+  <img src="screenshots/v1.1/dark-body.png" width="200" alt="Body with coach marks">
+</p>
+
+- **On-device, free:** Apple Foundation Models with 9 read-only tools over your data; a rule-based coach takes over on iPhones without Apple Intelligence.
+- **Grounded:** 22 evidence-based rules set today's intensity cap; the AI explains them. It may only quote numbers the app gives it.
+- **Safe:** emergency, crisis and medical questions get fixed replies written in code, never generated. 18+, wellness only, chat kept on the phone for 30 days.
+- **Turn it off** in Menu → Coach to get the exact v1.0 app back.
+
+## v1.0
+
 <p align="center">
   <img src="screenshots/v1/light-today.png" width="200" alt="Today">
   <img src="screenshots/v1/light-live.png" width="200" alt="Live">
@@ -29,8 +48,8 @@ Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Go
 Fitbit Air ──► Google Health ──► Apple Health ──► MRH1 (on this iPhone)
 ```
 
-- Native iOS 17+, SwiftUI, Swift Charts, HealthKit (read-only), Metal shaders for the header and chart texture.
-- No networking code, no analytics, no third-party packages. Baselines come from your own last 30 days.
+- Native iOS 17+ (Coach AI on iOS 26+ with Apple Intelligence), SwiftUI, Swift Charts, HealthKit (read-only), Metal shaders for the header and chart texture.
+- No networking code, no analytics, no third-party packages, including the coach. Baselines come from your own last 30 days.
 - Google Health writes to Apple Health in batches, so "Live" is as fresh as the latest sync, and the app always shows how old it is.
 
 ## Build
@@ -48,8 +67,10 @@ Screenshot launch arguments: `-tab today|live|body|trends`, `-open recovery|stra
 | `MRH1/` | App source |
 | `docs/` | GitHub Pages: landing page and browser demo (WebGL2), synthetic data |
 | `DESIGN_SPEC.md` | Design system: tokens, type, charts, motion, copy rules |
+| `DESIGN_SPEC_v1.1.md`, `GOAL_v1.1.md` | Coach spec and goal |
+| `MRH1/Coach/` | Coach: rules, workout library, on-device engine, tools, safety, UI |
 | `research/` | Research behind the design (brands, competitors, UI craft, live data, graphics, market) |
-| `screenshots/v1/` | Simulator screenshots, light and dark |
+| `screenshots/v1/`, `screenshots/v1.1/` | Simulator screenshots, light and dark |
 
 ---
 

@@ -7,7 +7,10 @@ import SwiftUI
 struct TodayView: View {
     @Environment(HealthStore.self) private var health
     @Environment(AppNav.self) private var nav
+    @Environment(JournalStore.self) private var journal
     @Environment(\.dynamicTypeSize) private var typeSize
+    @AppStorage(CoachPrefs.Key.enabled) private var coachOn = CoachPrefs.defaultEnabled
+    @AppStorage(CoachPrefs.Key.proactive) private var proactive = CoachPrefs.defaultProactive.rawValue
 
     /// Ticks light up one by one only on the first open of the day (decided once per view life).
     @State private var animateRings = TickRingGate.firstOpenToday("today.rings")
@@ -23,6 +26,7 @@ struct TodayView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     header(proxy)
                     VStack(alignment: .leading, spacing: Space.cardGap) {
+                        if let note = coachNote { CoachNoteCard(note: note) }
                         StrainTargetCard()
                         StressCard()
                         PanelsStrip { nav.tab = .body }
@@ -57,6 +61,22 @@ struct TodayView: View {
         .toolbar(.hidden, for: .navigationBar)
     }
 
+    // MARK: Coach note (v1.1, rule-based, under the freshness chips)
+
+    /// One proactive note from `CoachRules` (no model), only with the coach on and notes allowed.
+    /// "Important only" waits until a signal is outside its usual range or Recovery is red.
+    private var coachNote: CoachNote? {
+        guard coachOn else { return nil }
+        let mode = CoachPrefs.Proactive(rawValue: proactive) ?? CoachPrefs.defaultProactive
+        guard mode != .off else { return nil }
+        if mode == .important {
+            let drifting = HealthMonitorCard.vitals.contains { health.state($0).isConcern }
+            let red = (health.recovery?.score ?? 100) < 34
+            guard drifting || red else { return nil }
+        }
+        return CoachRules.evaluate(health, journal: journal).note
+    }
+
     // MARK: Header (the only place with orbs)
 
     private func header(_ proxy: ScrollViewProxy) -> some View {
@@ -73,6 +93,10 @@ struct TodayView: View {
                 .contentTransition(.opacity)
                 .accessibilityAddTraits(.isHeader)
             rings
+                // One gentle CoachMark for the three scores, in the free top-right corner.
+                .overlay(alignment: .topTrailing) {
+                    CoachMarkSlot(metric: nil, name: "today’s scores")
+                }
             statusLines
         }
         .padding(.horizontal, Space.gutter)

@@ -43,9 +43,16 @@ struct MenuButton: View {
     }
 }
 
-/// Menu content: Results guide, Data sources, Notifications, Bluetooth (beta), About.
+/// Menu content: Results guide, Data sources, Coach, Notifications, Bluetooth (beta), About.
 struct MenuList: View {
     @Environment(LiveStore.self) private var live
+    @Environment(CoachEngine.self) private var coach
+    @AppStorage(CoachPrefs.Key.enabled) private var coachOn = CoachPrefs.defaultEnabled
+    @AppStorage(CoachPrefs.Key.proactive) private var proactive = CoachPrefs.defaultProactive.rawValue
+    @AppStorage(CoachPrefs.Key.style) private var style = CoachPrefs.defaultStyle.rawValue
+    @State private var confirmDelete = false
+    @State private var deleted = false
+    @Environment(\.dynamicTypeSize) private var typeSize
     @AppStorage(AppSettings.Key.morning) private var morning = AppSettings.Default.morning
     @AppStorage(AppSettings.Key.drift) private var drift = AppSettings.Default.drift
     @AppStorage(AppSettings.Key.bleEnabled) private var bleOn = AppSettings.Default.bleEnabled
@@ -57,6 +64,41 @@ struct MenuList: View {
                     link(.guide, "Results guide", "What each score, result and colour means")
                     divider
                     link(.sources, "Data sources", "What Apple Health has from the last 7 days")
+                }
+
+                section("Coach") {
+                    Card(spacing: Space.l) {
+                        toggle("Coach", "Explains your numbers and suggests what to do next. Runs on this iPhone. Off, MRH1 works exactly as before.",
+                               isOn: $coachOn)
+                        if coachOn {
+                            pickerRow("Proactive notes", CoachPrefs.Proactive(rawValue: proactive)?.detail ?? "",
+                                      selection: $proactive,
+                                      options: CoachPrefs.Proactive.allCases.map { ($0.rawValue, $0.title) })
+                            pickerRow("Style", styleDetail, selection: $style,
+                                      options: CoachPrefs.Style.allCases.map { ($0.rawValue, $0.title) })
+                            Button { confirmDelete = true } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: Space.xs) {
+                                        Text("Delete coach history").typo(.headline).foregroundStyle(Theme.dangerText)
+                                        Text(deleted ? "Deleted from this iPhone." : "Chats are kept on this iPhone for 30 days.")
+                                            .typo(.caption).foregroundStyle(Theme.graphite)
+                                    }
+                                    Spacer()
+                                }
+                                .frame(minHeight: 44)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PressStyle())
+                            .confirmationDialog("Delete all coach chats from this iPhone?", isPresented: $confirmDelete,
+                                                titleVisibility: .visible) {
+                                Button("Delete coach history", role: .destructive) {
+                                    coach.deleteAll()
+                                    deleted = true
+                                }
+                                Button("Cancel", role: .cancel) {}
+                            }
+                        }
+                    }
                 }
 
                 section("Notifications") {
@@ -93,9 +135,9 @@ struct MenuList: View {
                         HStack(alignment: .firstTextBaseline) {
                             Text("MRH1").typo(.headline).foregroundStyle(Theme.ink)
                             Spacer()
-                            Text("Version 1.0").typo(.label).foregroundStyle(Theme.graphite)
+                            Text("Version 1.1").typo(.label).foregroundStyle(Theme.graphite)
                         }
-                        Text("Everything is computed on this iPhone. MRH1 reads Apple Health, has no internet code and sends nothing anywhere.")
+                        Text("Everything, including the coach, runs on this iPhone. No internet code. MRH1 reads Apple Health and sends nothing anywhere.")
                             .typo(.body).foregroundStyle(Theme.ink)
                         Text("Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google.")
                             .typo(.body).foregroundStyle(Theme.graphite)
@@ -151,6 +193,44 @@ struct MenuList: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PressStyle())
+    }
+
+    private var styleDetail: String {
+        switch CoachPrefs.Style(rawValue: style) ?? CoachPrefs.defaultStyle {
+        case .direct: "Short and to the point."
+        case .supportive: "Warmer wording, same facts."
+        case .numbers: "Plain data sentences, no suggestions."
+        }
+    }
+
+    /// Title + caption on the left, a menu picker on the right (wraps under at large type sizes).
+    private func pickerRow(_ title: String, _ sub: String, selection: Binding<String>,
+                           options: [(String, String)]) -> some View {
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Space.s))
+            : AnyLayout(HStackLayout(alignment: .center, spacing: Space.m))
+        return layout {
+            pickerLabel(title, sub)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            pickerMenu(title, selection: selection, options: options)
+        }
+    }
+
+    private func pickerLabel(_ title: String, _ sub: String) -> some View {
+        VStack(alignment: .leading, spacing: Space.xs) {
+            Text(title).typo(.headline).foregroundStyle(Theme.ink)
+            Text(sub).typo(.caption).foregroundStyle(Theme.graphite)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func pickerMenu(_ title: String, selection: Binding<String>, options: [(String, String)]) -> some View {
+        Picker(title, selection: selection) {
+            ForEach(options, id: \.0) { Text($0.1).tag($0.0) }
+        }
+        .pickerStyle(.menu)
+        .tint(Theme.ink)
+        .frame(minHeight: 44)
     }
 
     private func toggle(_ title: String, _ sub: String, isOn: Binding<Bool>) -> some View {

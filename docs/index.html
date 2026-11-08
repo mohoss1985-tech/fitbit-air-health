@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MRH1, recovery and sleep for Fitbit Air</title>
-<meta name="description" content="MRH1 is an iPhone app that turns the data your Fitbit Air sends to Apple Health into recovery, strain, sleep and stress you can read. On-device, no subscription, no account.">
+<meta name="description" content="MRH1 is an iPhone app that turns the data your Fitbit Air sends to Apple Health into recovery, strain, sleep and stress you can read, with a free on-device coach. No subscription, no account.">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,13 +76,26 @@ td.ns { color: var(--graphite); }
 .legal b { color: var(--ink); font-weight: 500; }
 footer { padding: 40px 0 56px; color: var(--graphite); font-size: 14px; border-top: .5px solid var(--hair); }
 footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.coach { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 48px; align-items: center; }
+.newchip { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; padding: 6px 12px 6px 10px; border-radius: 999px; background: var(--card); box-shadow: inset 0 0 0 .5px var(--hair); font: 500 13px/1.3 var(--font-ui); margin-bottom: 16px; }
+.newchip svg { width: 16px; height: 16px; color: var(--graphite2); flex: none; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.two .card { padding: 20px; }
+.two .card h3 { display: flex; align-items: center; gap: 8px; }
+.ask { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+.ask li { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 16px; border-radius: 999px; background: var(--card); box-shadow: inset 0 0 0 .5px var(--hair); font: 500 14px/1.3 var(--font-ui); }
+.coach .cta { margin-top: 28px; }
+.coach .phones .shot:nth-child(2) { margin-top: 56px; }
 @media (max-width: 900px) {
+  .coach { grid-template-columns: 1fr; gap: 40px; }
   .hero .wrap { grid-template-columns: 1fr; gap: 40px; }
   .three, .flow { grid-template-columns: 1fr; }
   .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 480px) {
   nav.top a.hide-s { display: none; }
+  .two { grid-template-columns: 1fr; }
+  .coach .phones .shot:nth-child(2) { margin-top: 32px; }
   .phones { gap: 12px; } .phones .shot:nth-child(2) { margin-top: 32px; }
   .shot img { border-radius: 24px; }
   section { padding: 56px 0; }
@@ -96,7 +109,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <div class="hero">
   <canvas id="orbs" aria-hidden="true"></canvas>
   <div class="wrap" style="display:block;padding-top:0;padding-bottom:0">
-    <nav class="top"><b>MRH1</b><span><a href="#how" class="hide-s">How it works</a><a href="#privacy" class="hide-s">Privacy</a><a href="demo/">Demo</a></span></nav>
+    <nav class="top"><b>MRH1</b><span><a href="#coach" class="hide-s">Coach</a><a href="#how" class="hide-s">How it works</a><a href="#privacy" class="hide-s">Privacy</a><a href="demo/">Demo</a></span></nav>
   </div>
   <div class="wrap">
     <div>
@@ -125,6 +138,29 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
   </div>
 </section>
 
+<section id="coach">
+  <div class="wrap coach">
+    <div>
+      <span class="newchip"><svg viewBox="-1 -1 18 18" fill="none" aria-hidden="true"><path d="M4.48 0H11.52A4.48 4.48 0 0 1 16 4.48V8.32A4.48 4.48 0 0 1 11.52 12.8H7.36Q4.8 13.92 2.56 16Q3.52 13.44 4.48 12.8A4.48 4.48 0 0 1 0 8.32V4.48A4.48 4.48 0 0 1 4.48 0Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><circle cx="8" cy="6.4" r="2.18" fill="var(--ember)"/></svg>New in version 1.1</span>
+      <h2>A coach that lives on your iPhone.</h2>
+      <p class="sub" style="margin-bottom:28px">Ask about your own numbers and get a short, plain answer: a headline, a few sentences, the readings it used and three questions to ask next. It runs on Apple Intelligence, on the device, so it is free and nothing is sent anywhere.</p>
+      <div class="two">
+        <div class="card"><h3>On-device</h3><p>Apple’s on-device model, with no cloud and no internet code. It works in flight mode.</p></div>
+        <div class="card"><h3>Free</h3><p>No subscription, no unlock and no account. The coach is part of the app.</p></div>
+        <div class="card"><h3>Private</h3><p>It reads only what MRH1 reads from Apple Health. Chats stay on the phone for 30 days, outside backups.</p></div>
+        <div class="card"><h3>Useful, not chatty</h3><p>It explains a score, plans a session that fits today’s target with a step timer, and builds a wind-down for tonight.</p></div>
+      </div>
+      <ul class="ask" aria-label="Example questions"><li>Why is RHR up?</li><li>Plan my workout today</li><li>Help me sleep better</li><li>Weekly review</li></ul>
+      <div class="cta"><a class="btn primary" href="demo/?tab=coach">Try the Coach demo</a><a class="btn ghost" href="demo/">Open the full demo</a></div>
+      <p class="small">The web demo uses scripted sample answers on synthetic data; no AI runs in the browser. Each data card has a small speech-bubble mark that opens the coach about that number. Needs an iPhone with Apple Intelligence; without it, MRH1 shows rule-based notes instead. General wellness suggestions, not medical advice. Symptoms always get “That’s one for a doctor.” Switch the coach off in the menu and the app is exactly as before.</p>
+    </div>
+    <div class="phones">
+      <figure class="shot"><img src="screenshots-v1/coach.png" width="390" height="844" loading="lazy" alt="Coach tab: a greeting with today's numbers and four starter questions, on sample data."><figcaption>Coach, sample data</figcaption></figure>
+      <figure class="shot"><img src="screenshots-v1/coach-plan.png" width="390" height="844" loading="lazy" alt="Coach reply with a 30-minute brisk walk plan, checkboxes, a Start button and three follow-up questions, on sample data."><figcaption>A plan with a step timer</figcaption></figure>
+    </div>
+  </div>
+</section>
+
 <section id="how">
   <div class="wrap">
     <h2>How it works</h2>
@@ -140,7 +176,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
 <section>
   <div class="wrap">
-    <h2>Four tabs, one calm read.</h2>
+    <h2>Five tabs, one calm read.</h2>
     <p class="sub">Warm paper, ink type and one ember accent. Green, yellow and red only ever mean a result. Screens from the web replica, on synthetic sample data.</p>
     <div class="gallery">
       <figure class="shot"><img src="screenshots-v1/today.png" width="390" height="844" loading="lazy" alt="Today screen on sample data."><figcaption>Today<span>Recovery, strain and sleep, with a verdict for the time of day.</span></figcaption></figure>
@@ -176,9 +212,10 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <section id="privacy">
   <div class="wrap">
     <h2>Private by construction</h2>
-    <p class="sub">The app has no networking code. It reads Apple Health read-only, keeps its history and journal on the device, and makes its notifications there too.</p>
+    <p class="sub">The app has no networking code. It reads Apple Health read-only, keeps its history, journal and coach chats on the device, and makes its notifications there too. The coach runs on Apple’s on-device model.</p>
     <div class="legal">
       <p><b>Wellness estimates, not medical advice.</b> MRH1 is not a medical device and does not diagnose anything. See a doctor about any symptoms.</p>
+      <p>MRH1 Coach gives general wellness and fitness suggestions based on your own Apple Health data. It is not a medical device and does not diagnose, treat or prevent any condition. Check with a doctor before making health decisions. AI answers can be wrong.</p>
       <p>Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google. Fitbit and Fitbit Air are trademarks of Google LLC.</p>
       <p>The demo and screenshots use synthetic sample data.</p>
     </div>

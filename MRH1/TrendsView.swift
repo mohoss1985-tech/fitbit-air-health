@@ -169,6 +169,7 @@ struct TrendsView: View {
         Button { sheet = health.state(t.id) } label: { TrendCard(trend: t) }
             .buttonStyle(PressStyle())
             .accessibilityHint("Opens \(t.id.info.name) details")
+            .coachAccessibilityAction { nav.openCoach(about: t.id) }
     }
 
     // MARK: Tags vs recovery (journal discoveries)
@@ -255,6 +256,9 @@ struct TrendCard: View {
                         Text(TrendCopy.word(t)).typo(.label).foregroundStyle(Theme.ink)
                     }
                 }
+                // v1.1: CoachMark top-right of each change card, right of the trend chip.
+                CoachMarkSlot(metric: t.id)
+                    .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 4 }
             }
 
             (Text(TrendCopy.sentence(t)).foregroundStyle(Theme.ink)

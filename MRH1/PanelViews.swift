@@ -199,6 +199,7 @@ private struct PanelResults: View {
 // MARK: - Result row (label · value + unit · chip · ribbon/strip · 7-day line)
 
 private struct ResultRow: View {
+    @Environment(AppNav.self) private var nav
     let state: MetricState
     let missing: NotSentKind?
     let onTap: () -> Void
@@ -227,6 +228,10 @@ private struct ResultRow: View {
                             NotSentLabel(kind: missing ?? .noReading)
                         }
                     }
+
+                    // v1.1: CoachMark at the row's top-right, level with the value.
+                    CoachMarkSlot(metric: state.id)
+                        .padding(.top, 4)
                 }
 
                 if state.hasData {
@@ -250,6 +255,7 @@ private struct ResultRow: View {
         .accessibilityLabel(BodyCopy.accessibility(state, missing: missing))
         .accessibilityHint("Opens what this result means")
         .accessibilityAddTraits(.isButton)
+        .coachAccessibilityAction { nav.openCoach(about: state.id) }
     }
 }
 

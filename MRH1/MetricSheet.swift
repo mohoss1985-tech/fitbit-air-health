@@ -9,6 +9,7 @@ struct MetricSheet: View {
 
     @State private var range: Int = 7
     @State private var selected: Date?
+    @State private var showCoach = false
 
     private var info: MetricInfo { state.id.info }
     private var unit: String { info.unit }
@@ -41,6 +42,9 @@ struct MetricSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
                 directionTiles
                 trendSection
+                // v1.1: "Ask about this". This view is itself a sheet, so the coach stacks on top of it
+                // (the app-level coach sheet can't present while another sheet is up); closing it returns here.
+                AskCoachRow(name: info.name) { showCoach = true }
                 SheetDisclaimer()
             }
             .padding(.horizontal, Space.gutter)
@@ -52,6 +56,7 @@ struct MetricSheet: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.card)
         .presentationCornerRadius(Radius.card)
+        .sheet(isPresented: $showCoach) { CoachSheet(metric: state.id) }
     }
 
     // MARK: Header
