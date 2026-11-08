@@ -31,6 +31,9 @@ struct CoachConversation: View {
     @State private var chipTaps = 0
     @FocusState private var composerFocused: Bool
 
+    /// Height of the floating tab bar (icon 44 + label + paddings) plus its bottom margin.
+    static let tabBarClearance: CGFloat = 84
+
     static let footer = "AI coach on this iPhone · can be wrong · wellness, not medical advice."
 
     private var busy: Bool { engine.isThinking || sendTask != nil }
@@ -98,6 +101,12 @@ struct CoachConversation: View {
             HStack(alignment: .center, spacing: Space.m) {
                 switch context {
                 case .tab:
+                    // Back to the start screen (greeting + 4 starter questions). The chat is kept in history.
+                    if !engine.messages.isEmpty {
+                        RoundIconButton(systemName: "chevron.left", label: "Back to Coach start") {
+                            stop(); composerFocused = false; engine.newChat()
+                        }
+                    }
                     Text("Coach")
                         .typo(.title)
                         .foregroundStyle(Theme.ink)
@@ -249,6 +258,9 @@ struct CoachConversation: View {
         .padding(.horizontal, Space.gutter)
         .padding(.top, Space.s)
         .padding(.bottom, Space.s)
+        // In the tab, the floating tab bar sits over this bar (the stack's safe-area inset doesn't reach it on iOS 27),
+        // so lift composer + footer above it. The tab bar hides while typing, so no gap then.
+        .padding(.bottom, context == .tab && !composerFocused ? Self.tabBarClearance : 0)
         .background(Theme.paper)
         .overlay(alignment: .top) { Rectangle().fill(Theme.hair).frame(height: 0.5) }
     }
