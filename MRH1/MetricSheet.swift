@@ -41,6 +41,7 @@ struct MetricSheet: View {
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
                 directionTiles
+                if state.id == .workoutMinutes { WeekWorkoutsList() }
                 trendSection
                 // v1.1: "Ask about this". This view is itself a sheet, so the coach stacks on top of it
                 // (the app-level coach sheet can't present while another sheet is up); closing it returns here.
@@ -378,6 +379,59 @@ struct MetricSheet: View {
         case .notSent: return .notSent
         case .waiting: return .waiting
         default: return state.id.isNotSentByGoogle ? .notSent : .noReading
+        }
+    }
+}
+
+/// Workout time sheet: every session of the last 7 days with the app that wrote it, so surprising
+/// totals can be traced (e.g. a long auto-detected activity, or two apps logging the same run).
+private struct WeekWorkoutsList: View {
+    @Environment(HealthStore.self) private var health
+
+    static func status(_ w: HealthStore.WorkoutItem) -> String {
+        if w.isWalk { return " · not counted" }
+        if w.excluded { return " · not a workout" }
+        if w.lowEffort { return " · low effort, not counted" }
+        return ""
+    }
+
+    static func caption(_ w: HealthStore.WorkoutItem) -> String {
+        var parts: [String] = [w.start.formatted(.dateTime.weekday(.abbreviated).day().hour().minute())]
+        if let hr = w.avgHR { parts.append("avg \(Int(hr.rounded())) bpm") }
+        if !w.source.isEmpty { parts.append(w.source) }
+        return parts.joined(separator: " · ")
+    }
+
+    var body: some View {
+        let items = health.weekWorkouts.sorted { $0.start > $1.start }
+        VStack(alignment: .leading, spacing: Space.s) {
+            Text("Last 7 days").typo(.headline).foregroundStyle(Theme.ink)
+            Text("Google Health detects these on its own. Tap one that wasn’t a real workout to stop counting it; tap again to undo. Walks count as steps.")
+                .typo(.caption).foregroundStyle(Theme.graphite).fixedSize(horizontal: false, vertical: true)
+            if items.isEmpty {
+                Text("No workouts in Apple Health this week.").typo(.caption).foregroundStyle(Theme.graphite)
+            }
+            ForEach(items) { w in
+                Button { if !w.isWalk { health.toggleWorkout(w) } } label: {
+                HStack(alignment: .firstTextBaseline, spacing: Space.s) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(w.name + Self.status(w))
+                            .typo(.body).foregroundStyle(w.counts ? Theme.ink : Theme.graphite)
+                        Text(Self.caption(w))
+                            .typo(.caption).foregroundStyle(Theme.graphite)
+                    }
+                    Spacer(minLength: Space.s)
+                    Text("\(Int(w.minutes.rounded())) min").typo(.label).monospacedDigit()
+                        .foregroundStyle(w.counts ? Theme.ink : Theme.graphite)
+                        .strikethrough(!w.counts && !w.isWalk)
+                }
+                .contentShape(Rectangle())
+                }
+                .buttonStyle(PressStyle())
+                .disabled(w.isWalk)
+                .accessibilityHint(w.isWalk ? "" : (w.excluded ? "Double tap to count it again" : "Double tap to mark it not a workout"))
+                .accessibilityElement(children: .combine)
+            }
         }
     }
 }

@@ -24,6 +24,18 @@ final class HealthStore {
         let minutes: Double
         /// Walks are usually auto-detected by the band, not logged; they don't count as workout time.
         var isWalk: Bool = false
+        /// App that wrote it (Google Health, Apple Watch, Strava…), so odd minutes can be traced.
+        var source: String = ""
+        /// Average heart rate during the session (nil when no samples cover it).
+        var avgHR: Double? = nil
+        /// Auto-detected session whose heart rate never showed effort (everyday movement).
+        var lowEffort: Bool = false
+        /// You marked it "Not a workout" (Google Health auto-detects every session, real or not).
+        var excluded: Bool = false
+        /// Stable key for the "Not a workout" choice: start time to the second.
+        var key: String { String(Int(start.timeIntervalSince1970)) }
+        /// Counts toward workout time: not a walk, not marked by you, and the heart rate showed effort.
+        var counts: Bool { !isWalk && !lowEffort && !excluded }
     }
 
     private let store = HKHealthStore()
@@ -40,6 +52,17 @@ final class HealthStore {
     var sleepScore: Int?
     var todayHeartRate: [HRPoint] = []
     var todayWorkouts: [WorkoutItem] = []
+    /// Every workout of the last 7 days, walks included (Workout time sheet).
+    var weekWorkouts: [WorkoutItem] = []
+    /// Sessions you marked "Not a workout" (keys = start time). Kept on this iPhone.
+    var excludedWorkouts: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "mrh1.excludedWorkouts") ?? [])
+
+    /// Marks / unmarks a session as "Not a workout", then recomputes workout time, strain inputs and the coach.
+    func toggleWorkout(_ w: WorkoutItem) {
+        if excludedWorkouts.contains(w.key) { excludedWorkouts.remove(w.key) } else { excludedWorkouts.insert(w.key) }
+        UserDefaults.standard.set(Array(excludedWorkouts), forKey: "mrh1.excludedWorkouts")
+        Task { await refresh() }
+    }
     var stepsToday: Double?
     /// Active energy so far today, kcal (HealthKit de-duplicated). nil = no reading yet.
     var activeEnergyToday: Double?
@@ -57,6 +80,10 @@ final class HealthStore {
     var bloodPressure: [BPReading] = []
 
     var isAvailable: Bool { Demo.isOn || HKHealthStore.isHealthDataAvailable() }
+
+    /// Average heart rate during a workout must reach this share of heart-rate reserve to count
+    /// (lower than strain's 30 % floor: strength sets sit lower than cardio).
+    static let workoutEffortFloor = 0.25
 
     /// Days covered by `history`.
     static let historyDays = 14
@@ -162,7 +189,7 @@ final class HealthStore {
         let stepsAll = await steps
         let energyAll = await energy
         let sessions = await nights
-        let workoutAll = await workouts
+        let workoutAllRaw = await workouts
         let wristAll = await wrist
         let bodyAll = await body
 
@@ -189,24 +216,13 @@ final class HealthStore {
         new[.remSleep] = .make(.remSleep, series: staged.map { DayValue(date: Calendar.current.startOfDay(for: $0.end), value: $0.minutes(.rem)) })
         new[.awake] = .make(.awake, series: nightly { $0.minutes(.awake) })
 
-        // Workouts: rolling 7-day total, per day.
-        var weekly: [DayValue] = []
-        for offset in stride(from: 30, through: 0, by: -1) {
-            guard let day = Calendar.current.date(byAdding: .day, value: -offset, to: today),
-                  let from = Calendar.current.date(byAdding: .day, value: -6, to: day),
-                  let to = Calendar.current.date(byAdding: .day, value: 1, to: day) else { continue }
-            let total = workoutAll.filter { !$0.isWalk && $0.start >= from && $0.start < to }.reduce(0) { $0 + $1.minutes }
-            weekly.append(DayValue(date: day, value: total))
-        }
-        new[.workoutMinutes] = .make(.workoutMinutes, series: workoutAll.isEmpty ? [] : weekly)
-        todayWorkouts = workoutAll.filter { $0.start >= today }
-
         // Last night = the most recent main sleep that ended in the last 30 hours.
         let recent = main.last(where: { $0.end > Date().addingTimeInterval(-30 * 3600) })
         lastSleep = recent
 
         // One heart-rate fetch for the whole history window (was ~21 sequential queries in v0.4).
-        let hrFrom = Calendar.current.date(byAdding: .day, value: -(Self.historyDays + 1), to: today) ?? today
+        // 37 days: the 14-day history plus every workout behind the 31-day rolling workout total.
+        let hrFrom = Calendar.current.date(byAdding: .day, value: -37, to: today) ?? today
         let hrAll = await heartRate(from: hrFrom, to: Date())
         // Binary search on the time-sorted samples (a linear filter here cost ~100 ms per refresh on the main thread).
         func firstIndex(atOrAfter d: Date) -> Int {
@@ -219,6 +235,36 @@ final class HealthStore {
             return a < b ? Array(hrAll[a..<b]) : []
         }
         latestSampleDate = hrAll.last?.date
+
+        // Workouts: the band auto-detects "Strength" / "Elliptical" / "Workout" from everyday movement
+        // (one owner week: 19 sessions in 4 days, one 139 min). A session only counts when its average
+        // heart rate shows effort; walks never count (they are in steps).
+        let restForWorkouts = new[.restingHR]?.latest?.value ?? 60
+        let reserveForWorkouts = max(maxHeartRate() - restForWorkouts, 40)
+        let workoutAll: [WorkoutItem] = workoutAllRaw.map { w in
+            var w = w
+            w.excluded = excludedWorkouts.contains(w.key)
+            let pts = hrSlice(w.start, w.start.addingTimeInterval(w.minutes * 60))
+            if !pts.isEmpty {
+                let avg = pts.reduce(0) { $0 + $1.bpm } / Double(pts.count)
+                w.avgHR = avg
+                w.lowEffort = (avg - restForWorkouts) / reserveForWorkouts < Self.workoutEffortFloor
+            }
+            return w
+        }
+        var weekly: [DayValue] = []
+        for offset in stride(from: 30, through: 0, by: -1) {
+            guard let day = Calendar.current.date(byAdding: .day, value: -offset, to: today),
+                  let from = Calendar.current.date(byAdding: .day, value: -6, to: day),
+                  let to = Calendar.current.date(byAdding: .day, value: 1, to: day) else { continue }
+            let total = workoutAll.filter { $0.counts && $0.start >= from && $0.start < to }.reduce(0) { $0 + $1.minutes }
+            weekly.append(DayValue(date: day, value: total))
+        }
+        new[.workoutMinutes] = .make(.workoutMinutes, series: workoutAll.isEmpty ? [] : weekly)
+        todayWorkouts = workoutAll.filter { $0.start >= today }
+        let weekFrom = Calendar.current.date(byAdding: .day, value: -6, to: today) ?? today
+        weekWorkouts = workoutAll.filter { $0.start >= weekFrom }
+
 
         // Heart rate during sleep, from the raw heart-rate samples of that session.
         if let s = recent {
@@ -394,7 +440,8 @@ final class HealthStore {
             guard w.endDate > start else { continue }
             items.append(WorkoutItem(name: w.workoutActivityType.displayName, start: w.startDate,
                                      minutes: w.endDate.timeIntervalSince(start) / 60,
-                                     isWalk: w.workoutActivityType == .walking))
+                                     isWalk: w.workoutActivityType == .walking,
+                                     source: w.sourceRevision.source.name))
             lastEnd = max(lastEnd ?? w.endDate, w.endDate)
         }
         return items

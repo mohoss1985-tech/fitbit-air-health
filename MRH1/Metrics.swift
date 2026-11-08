@@ -239,7 +239,7 @@ enum MetricID: String, CaseIterable, Identifiable {
             return MetricInfo(
                 name: "Workout time", sub: "Recorded workouts, last 7 days", unit: "min",
                 typicalText: "150+ min a week of moderate effort", typical: 150...600, floorSD: 30,
-                what: "Total time of the workouts you logged in the last 7 days. Auto-detected walks count as steps, not workouts.",
+                what: "Total time of your workouts in the last 7 days. Walks count as steps, and auto-detected sessions count only when your heart rate shows real effort.",
                 ifHigh: "A big training week: watch your recovery.",
                 ifLow: "An easy week. Aim for 150+ minutes a week.",
                 panel: .activity)

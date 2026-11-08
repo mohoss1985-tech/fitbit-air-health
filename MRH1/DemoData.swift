@@ -202,7 +202,8 @@ extension HealthStore {
         let rest = new[.restingHR]?.latest?.value ?? 60
         strain = hrToday.isEmpty ? nil : Scores.strain(points: hrToday, restingHR: rest, maxHR: d.maxHR)
         let workoutStart = today.addingTimeInterval(Double(d.workoutStartMinute) * 60)
-        todayWorkouts = workoutStart <= now ? [WorkoutItem(name: "Run", start: workoutStart, minutes: d.workoutMinutes)] : []
+        todayWorkouts = workoutStart <= now ? [WorkoutItem(name: "Run", start: workoutStart, minutes: d.workoutMinutes, source: "Google Health (sample data)")] : []
+        weekWorkouts = todayWorkouts
         stepsToday = d.series[.steps]?.last.map { ($0.value * dayShare).rounded() }
         activeEnergyToday = d.series[.energy]?.last.map { ($0.value * dayShare).rounded() }
 

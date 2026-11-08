@@ -144,6 +144,9 @@ struct StrainResult {
 
 extension Scores {
     /// All-day cardiovascular load (TRIMP), squashed to Whoop's 0 – 21 scale.
+    /// Share of heart-rate reserve below which a minute adds no strain (standing, desk work, slow walking).
+    static let effortFloor = 0.30
+
     static func strain(points: [HRPoint], restingHR: Double, maxHR: Double) -> StrainResult {
         var trimp = 0.0
         var zones = [Double](repeating: 0, count: 5)
@@ -154,7 +157,9 @@ extension Scores {
             let minutes = min(sorted[i + 1].date.timeIntervalSince(p.date) / 60, 5)
             guard minutes > 0 else { continue }
             let r = (p.bpm - restingHR) / reserve
-            if r > 0 { trimp += minutes * r * 0.64 * exp(1.92 * r) }
+            // Only effort counts: from 30 % of heart-rate reserve (≈ a brisk walk) upward. Counting every
+            // beat above resting turned a desk day into strain 13+ and two ordinary days into "two hard days".
+            if r >= Self.effortFloor { trimp += minutes * r * 0.64 * exp(1.92 * r) }
             let pct = p.bpm / maxHR
             if pct >= 0.5 {
                 let zone = min(Int((pct - 0.5) / 0.1), 4)
