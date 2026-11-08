@@ -389,6 +389,55 @@
       }).join('') + '</div></div><div id="bodyPanel">' + bodyPanel() + '</div>' +
       footer(sent + ' of ' + total + ' results arrive from Google Health. The rest are not sent yet.') + '</div>';
   }
+  // v1.2: home-cuff blood pressure (sample) + metabolic health signals (lifestyle only, never a glucose number).
+  var BP = (function () {
+    var v = [[118, 76], [124, 79], [121, 77], [126, 81], [119, 75], [123, 78], [122, 77], [127, 80], [120, 76], [124, 78], [121, 77], [125, 79]];
+    var now = new Date(), out = v.map(function (x, i) {
+      var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (v.length - 1 - i) * 2, 7, 30);
+      return { d: d, sys: x[0], dia: x[1] };
+    });
+    return out;
+  })();
+  function bpBand(s, d) {
+    if (s >= 180 || d >= 120) return ['danger', 'Very high'];
+    if (s >= 130 || d >= 80) return ['danger', 'High'];
+    if (s >= 120) return ['limit', 'Elevated'];
+    return ['good', 'Normal'];
+  }
+  function bpSummary() {
+    var last = BP[BP.length - 1], cut = Date.now() - 30 * 864e5, w = BP.filter(function (r) { return r.d.getTime() >= cut; });
+    var as = mean(w.map(function (r) { return r.sys; })), ad = mean(w.map(function (r) { return r.dia; }));
+    return { last: last, avg: Math.round(as) + '/' + Math.round(ad), n: w.length, band: bpBand(as, ad) };
+  }
+  function dayFmt(d) { return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); }
+  function bpRow() {
+    var b = bpSummary();
+    return '<button class="mrow" data-sheet="bp"><div class="top"><div><p class="body">Blood pressure</p><p class="caption">30-day average ' + b.avg + ' · ' + b.n + ' readings</p></div>' +
+      '<div class="gap4" style="text-align:right"><span class="val"><b class="metric">' + b.last.sys + '/' + b.last.dia + '</b><span class="unit">mmHg</span></span><div>' + chip(b.band[0], b.band[1]) + '</div></div></div>' +
+      '<p class="caption" style="margin-top:8px">Latest ' + dayFmt(b.last.d) + ' · Home cuff (sample data). Measured by your cuff, not the Fitbit Air.</p></button>';
+  }
+  function metabolicCard() {
+    var st = M.steps.s.slice(-7).map(function (p) { return p.value; }), steps = mean(st);
+    var ex = stats('workoutMinutes').v;
+    var sl = mean(M.sleepTotal.s.slice(-7).map(function (p) { return p.value; }));
+    var spread = 41;
+    var rh = M.restingHR.s.map(function (p) { return p.value; }), rNew = mean(rh.slice(-7)), rOld = mean(rh.slice(0, -7)), diff = rNew - rOld;
+    var sig = [
+      ['Daily steps', n0(steps) + ' a day', '7 000+', steps >= 7000, 'Walking after meals helps your muscles use sugar.'],
+      ['Exercise', n0(ex) + ' min this week', '150+ min', ex >= 150, 'Regular exercise is the strongest habit for insulin sensitivity.'],
+      ['Sleep length', hm(sl) + ' a night', '7 h+', sl >= 420, 'Short nights make the body handle sugar less well the next day.'],
+      ['Bedtime regularity', '±' + spread + ' min', '±45 min or less', spread <= 45, 'A steady body clock keeps your metabolism in rhythm.'],
+      ['Resting heart rate trend', Math.round(rNew) + ' bpm · ' + (Math.abs(diff) < 1 ? 'steady' : (diff > 0 ? '+' : '−') + Math.round(Math.abs(diff)) + ' bpm'), 'Steady or falling', diff < 2, 'A resting heart rate that creeps up often follows less fitness or sleep.']
+    ];
+    var good = sig.filter(function (x) { return x[3]; }).length;
+    return '<div class="card" style="margin-top:16px"><div class="row center"><p class="headline">Metabolic health signals</p><span class="label">' + good + ' of ' + sig.length + ' on track</span></div>' +
+      '<p class="caption" style="margin-top:4px">Habits research links to insulin sensitivity. Not a blood-sugar or insulin measurement.</p>' +
+      sig.map(function (x) {
+        return '<details class="mrow" style="display:block"><summary style="list-style:none;cursor:pointer"><div class="top" style="align-items:center"><p class="body"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:middle;background:var(--' + (x[3] ? 'good' : 'limit') + ')"></i>' + x[0] + '</p>' +
+          '<span class="label" style="color:var(--ink)">' + esc(x[1]) + '</span></div><p class="caption" style="margin-left:15px">Goal ' + esc(x[2]) + '</p></summary>' +
+          '<p class="caption" style="margin:4px 0 0 15px">' + esc(x[4]) + '</p></details>';
+      }).join('') + '</div>';
+  }
   function bodyPanel() {
     var p = state.panel, name = PANELS.filter(function (x) { return x[0] === p; })[0][1], pf = panelFlag(p);
     var rows = Object.keys(M).filter(function (id) { return M[id].panel === p; }).map(function (id) {
@@ -403,7 +452,8 @@
         '<div class="gap4" style="text-align:right"><span class="val">' + valHTML(id, st.v) + '</span><div>' + chip(st.flag) + '</div></div></div>' +
         '<div class="bot">' + (m.vital || m.dir === 'lower' && m.unit === 'bpm' ? cv('strip', id, 'strip', 'Range strip') : ribbon(id)) + cv('spark', id, 'spark', '7-day trend') + '</div></button>', 'metric:' + id, 'r');
     }).join('');
-    return '<div class="card"><div class="row center"><p class="headline">' + name + '</p>' + (pf.watch ? chip(pf.flag, pf.watch + ' to watch') : chip('good', 'All in range')) + '</div>' + rows + '</div>';
+    if (p === 'heart') rows += bpRow();
+    return '<div class="card"><div class="row center"><p class="headline">' + name + '</p>' + (pf.watch ? chip(pf.flag, pf.watch + ' to watch') : chip('good', 'All in range')) + '</div>' + rows + '</div>' + metabolicCard();
   }
 
   // ================================================================ TRENDS
@@ -522,6 +572,17 @@
           var st = stats(id);
           return '<button class="mrow" data-sheet="metric:' + id + '"><div class="top"><div><p class="body">' + M[id].label + '</p><p class="caption">' + esc(usual(id)) + '</p></div><div class="gap4" style="text-align:right"><span class="val">' + valHTML(id, st.v) + '</span><div>' + chip(st.flag) + '</div></div></div></button>';
         }).join('') + '</div>' + cmAsk('sleep');
+    } else if (key === 'bp') {
+      var b = bpSummary();
+      title = 'Blood pressure'; sub = 'From your home cuff';
+      body = '<div class="card"><p class="headline">' + b.band[1] + '</p><p class="body" style="margin-top:8px">' +
+        ({ Normal: 'Under 120/80, the range guidelines call normal.', Elevated: 'Top number 120–129. Movement, less salt and good sleep help.', High: '130/80 or more on average. Worth discussing with a doctor.', 'Very high': '180/120 or more. Measure again after 5 min of rest. If it stays this high or you feel unwell, get medical help now.' })[b.band[1]] + '</p></div>' +
+        '<div class="card"><p class="headline">Last readings</p>' + BP.slice(-10).reverse().map(function (r) {
+          var bb = bpBand(r.sys, r.dia);
+          return '<div class="row center" style="margin-top:8px"><span class="caption">' + dayFmt(r.d) + '</span><span class="body">' + r.sys + '/' + r.dia + ' mmHg ' + chip(bb[0], bb[1]) + '</span></div>';
+        }).join('') + '</div>' +
+        '<div class="card"><p class="headline">How to read it</p><p class="body" style="margin-top:8px">Top number (systolic): pressure while your heart beats. Bottom (diastolic): between beats. Under 120/80 normal · 120–129 elevated · 130/80 or more high. One reading swings a lot; the 30-day average matters more.</p>' +
+        '<p class="caption" style="margin-top:8px">Sit 5 minutes, feet flat, arm at heart level, same time each day. Wellness information, not medical advice.</p></div>';
     } else if (key.indexOf('metric:') === 0) {
       var id = key.slice(7), m = M[id];
       if (!m) return '';
