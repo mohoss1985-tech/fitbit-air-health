@@ -241,37 +241,21 @@
     return '<div class="screen"><div class="hdr" id="hdr"><canvas class="orbs" id="orbs" aria-hidden="true"></canvas>' +
       topbar(greet, WD[d.getDay()] + ' ' + d.getDate() + ' ' + MO[d.getMonth()], '<button class="rbtn press" data-sheet="journal" aria-label="Add journal tags">' + I.plus + '</button>') +
       '<div class="chips"><span class="chip plain">Sample data</span></div>' +
-      '<div class="week" aria-label="Recovery, last 7 days">' + week + '</div>' +
       '<p class="title verdict">' + esc(verdict) + '</p>' +
       '</div>' +
 
       // hero rings
-      '<div class="card" id="hero">' + cmAbs('recovery', 'top:6px;right:6px') + '<div class="rings">' +
+      '<div class="card" id="hero">' + cmAbs('recovery', 'top:6px;right:6px') + '<div class="rings" style="grid-template-columns:1fr 1.35fr 1fr">' +
+        '<button class="ringcell press" data-sheet="sleep" aria-label="Sleep score ' + S.sleep + '"><span class="ring" style="width:84px;height:84px">' +
+          tickRing(84, S.sleep / 100, 'var(--iris)', { tl: 6, animate: ringAnimate }) + '<span class="rv"><b class="headline num">' + S.sleep + '</b></span></span><span class="label">Sleep</span></button>' +
         '<button class="ringcell press" data-sheet="recovery" aria-label="Recovery ' + S.recovery + ' percent, ' + TIER[recFlag] + '"><span class="ring" style="width:128px;height:128px">' +
           tickRing(128, S.recovery / 100, 'var(--' + recFlag + ')', { animate: ringAnimate }) +
           '<span class="rv"><b class="metric">' + S.recovery + '<span class="unit">%</span></b></span></span><span class="label">Recovery</span></button>' +
         '<button class="ringcell press" data-sheet="strain" aria-label="Strain ' + S.strain + ' of 21"><span class="ring" style="width:84px;height:84px">' +
           tickRing(84, S.strain / 21, 'var(--ember)', { tl: 6, animate: ringAnimate }) + '<span class="rv"><b class="headline num">' + S.strain + '</b></span></span><span class="label">Strain</span></button>' +
-        '<button class="ringcell press" data-sheet="sleep" aria-label="Sleep score ' + S.sleep + '"><span class="ring" style="width:84px;height:84px">' +
-          tickRing(84, S.sleep / 100, 'var(--iris)', { tl: 6, animate: ringAnimate }) + '<span class="rv"><b class="headline num">' + S.sleep + '</b></span></span><span class="label">Sleep</span></button>' +
       '</div>' +
       '<div class="signals">' + chip(recFlag, TIER[recFlag] + ', above your usual') + '<span class="chip ' + fresh + '">Synced ' + D.syncedMinAgo + ' min ago</span></div>' +
       '<p class="caption" style="margin-top:12px">Recovery uses 3 of 4 signals. HRV is not sent by Google Health.</p></div>' +
-
-      // coach note (rule-based, no model)
-      (state.coachOn ? CO.note() : '') +
-
-      // strain target
-      cmWrap('<button class="card tap" data-sheet="strain"><div class="row"><p class="headline">Strain target</p><span class="label"><b class="ink num">' + S.strain + '</b> of ' + D.strainTarget[0] + '–' + D.strainTarget[1] + '</span></div>' +
-      '<div style="margin-top:16px">' + cv('capsule', null, '', 'Strain ' + S.strain + ' of 21, target 12 to 15').replace('class="c ', 'style="height:22px" class="c ') + '</div>' +
-      '<div class="row" style="margin-top:4px"><span class="caption num">0</span><span class="caption">Target ' + D.strainTarget[0] + '–' + D.strainTarget[1] + '</span><span class="caption num">21</span></div>' +
-      '<p class="body" style="margin-top:12px">About 30 minutes of brisk walking reaches the low end of your target.</p></button>', 'strain') +
-
-      // stress
-      '<div class="card"><div class="row center"><p class="headline">Stress today</p><span class="row center" style="gap:12px"><span class="label">Mostly low</span>' + cmSlot('stress') + '</span></div>' +
-      cv('stress', null, '', 'Hourly stress today. High from 9 to 11, moving at noon, low otherwise.').replace('class="c ', 'style="height:72px;margin-top:16px" class="c ') +
-      '<div class="row" style="margin-top:4px"><span class="caption num">00</span><span class="caption num">06</span><span class="caption num">12</span><span class="caption num">18</span><span class="caption num">24</span></div>' +
-      '<div class="legend"><span class="caption"><i style="background:var(--good)"></i>Low</span><span class="caption"><i style="background:var(--limit)"></i>Raised</span><span class="caption"><i style="background:var(--danger)"></i>High</span><span class="caption"><i style="background:var(--graphite2)"></i>Moving</span></div></div>' +
 
       // panels strip
       '<div class="card"><div class="row center"><p class="headline">Body panels</p><span class="row center" style="gap:12px"><span class="label">' + (watchN ? watchN + ' to watch' : 'All in range') + '</span>' + cmSlot('panels') + '</span></div><div class="panels">' +
@@ -279,26 +263,24 @@
         return '<button class="press" data-goto="' + p.id + '" aria-label="' + p.name + ', ' + TIER[p.f.flag] + '"><span class="cap" style="background:var(--' + p.f.flag + ')"></span><span class="label ink">' + p.name + '</span><span class="caption">' + TIER[p.f.flag] + '</span></button>';
       }).join('') + '</div></div>' +
 
-      // drift banner
-      (drift.length ? '<button class="card tap" data-sheet="metric:' + drift[0] + '"><div class="banner"><span class="bar" style="background:var(--' + stats(drift[0]).flag + ')"></span><div class="gap4">' +
-        '<p class="headline">' + (drift.length > 1 ? drift.length + ' signals are outside your usual range' : M[drift[0]].label + ' is ' + stats(drift[0]).dirWord.replace('your usual', 'your usual range')) + '</p>' +
-        '<p class="body">' + esc(fmtV(drift[0], stats(drift[0]).v) + ' ' + M[drift[0]].unit) + ' last night. ' + esc(usual(drift[0])) + '. Everything else is in range.</p>' +
-        '<p class="caption">One night rarely means much. Rest if you feel run down.</p></div></div></button>' : '') +
-
-      // health monitor
-      '<div class="card">' + cmAbs('monitor', 'top:9px;right:6px') + '<p class="headline">Health monitor</p><p class="caption">Last 7 nights against your usual range</p><div class="heat">' + heat + '</div>' +
-      '<div class="legend"><span class="caption"><i style="background:var(--good);opacity:.55"></i>In range</span><span class="caption"><i style="background:var(--limit)"></i>Watch</span><span class="caption"><i style="background:var(--danger)"></i>Out of range</span></div></div>' +
-
-      // last night
-      cmWrap('<button class="card tap" data-sheet="sleep"><div class="row"><p class="headline">Last night</p><span class="val">' + valHTML('sleepTotal', night.asleep, 'headline num') + '</span></div>' +
-      '<div class="stagebar" aria-hidden="true">' + night.segments.map(function (sg) {
-        var col = { deep: 'var(--stageDeep)', light: 'var(--stageCore)', rem: 'var(--stageREM)', awake: 'var(--stageAwake)' }[sg.stage];
-        return '<span style="flex:' + ((sg.end - sg.start) / 6e4).toFixed(1) + ';background:' + col + '"></span>';
-      }).join('') + '</div>' +
-      '<div class="row" style="margin-top:4px"><span class="caption num">' + hhmm(night.start) + '</span><span class="caption num">' + hhmm(night.end) + '</span></div>' +
-      '<div class="legend">' + [['deep', 'Deep', 'stageDeep'], ['light', 'Core', 'stageCore'], ['rem', 'REM', 'stageREM'], ['awake', 'Awake', 'stageAwake']].map(function (s) {
-        return '<span class="caption"><i style="background:var(--' + s[2] + ')"></i>' + s[1] + ' <b class="ink num" style="font-weight:500">' + hm(stageMin[s[0]]) + '</b></span>';
-      }).join('') + '</div></button>', 'sleep') +
+      // v1.3: pinned mini gauges + Today | Week switch
+      '<div class="pin" id="pin"><div class="mini" aria-hidden="true">' +
+        [['sleep', S.sleep, S.sleep / 100, 'var(--iris)', 'Sleep', ''], ['recovery', S.recovery, S.recovery / 100, 'var(--' + recFlag + ')', 'Recovery', '%'], ['strain', S.strain, S.strain / 21, 'var(--ember)', 'Strain', '']].map(function (g) {
+          return '<button class="press" data-sheet="' + g[0] + '" tabindex="-1"><span class="ring" style="width:32px;height:32px">' + tickRing(32, g[2], g[3], { ticks: 24, tw: 1.5, tl: 4 }) + '</span><span><b class="num">' + g[1] + g[5] + '</b><span class="caption">' + g[4] + '</span></span></button>';
+        }).join('') + '</div>' +
+      '<div class="seg" role="group" aria-label="Today or week">' + [['today', 'Today'], ['week', 'Week']].map(function (o) {
+        return '<button class="press" data-seg="' + o[0] + '" aria-pressed="' + (state.seg === o[0]) + '">' + o[1] + '</button>';
+      }).join('') + '</div></div>' +
+      (state.seg === 'week' ? '' +
+      // day circles (moved down from the header in v1.3)
+      '<div class="card"><div class="row"><p class="headline">Recovery by day</p><span class="label">Last 7 days</span></div><div class="week" aria-label="Recovery, last 7 days">' + week + '</div></div>' +
+      // weekly report
+      '<div class="card"><div class="row"><p class="headline">Weekly report</p><span class="label">Last 7 days</span></div>' +
+      '<div class="rings" style="grid-template-columns:repeat(3,1fr);margin-top:16px;align-items:start">' +
+      '<div class="gap4"><b class="metric" style="font-size:28px">' + wkRec + '<span class="unit">%</span></b><p class="caption">Recovery</p></div>' +
+      '<div class="gap4"><b class="metric" style="font-size:28px">' + (wkSleep / 60).toFixed(1) + '<span class="unit">h</span></b><p class="caption">Sleep a night</p></div>' +
+      '<div class="gap4"><b class="metric" style="font-size:28px">' + (mean(last7.map(function (h) { return h.steps; })) / 1000).toFixed(1) + '<span class="unit">k</span></b><p class="caption">Steps a day</p></div></div>' +
+      '<p class="body" style="margin-top:16px">Resting heart rate ' + (rhrNew < rhrOld ? 'eased' : 'rose') + ' ' + Math.abs(rhrNew - rhrOld).toFixed(1) + ' bpm against the week before.</p></div>' +
 
       // sleep balance
       '<div class="card">' + cmAbs('metric:sleepTotal', 'top:6px;right:6px') + '<div class="rings" style="grid-template-columns:1fr 1fr;align-items:start;gap:16px">' +
@@ -314,19 +296,49 @@
           '<span class="num">' + h.strain.toFixed(1) + '</span><span class="num">' + (h.sleep / 60).toFixed(1) + ' h</span></div>';
       }).join('') + '</div></div>' +
 
-      // weekly report
-      '<div class="card"><div class="row"><p class="headline">Weekly report</p><span class="label">Last 7 days</span></div>' +
-      '<div class="rings" style="grid-template-columns:repeat(3,1fr);margin-top:16px;align-items:start">' +
-      '<div class="gap4"><b class="metric" style="font-size:28px">' + wkRec + '<span class="unit">%</span></b><p class="caption">Recovery</p></div>' +
-      '<div class="gap4"><b class="metric" style="font-size:28px">' + (wkSleep / 60).toFixed(1) + '<span class="unit">h</span></b><p class="caption">Sleep a night</p></div>' +
-      '<div class="gap4"><b class="metric" style="font-size:28px">' + (mean(last7.map(function (h) { return h.steps; })) / 1000).toFixed(1) + '<span class="unit">k</span></b><p class="caption">Steps a day</p></div></div>' +
-      '<p class="body" style="margin-top:16px">Resting heart rate ' + (rhrNew < rhrOld ? 'eased' : 'rose') + ' ' + Math.abs(rhrNew - rhrOld).toFixed(1) + ' bpm against the week before.</p></div>' +
+      '' : '' +
+      // coach note (rule-based, no model)
+      (state.coachOn ? CO.note() : '') +
 
+      // strain target
+      cmWrap('<button class="card tap" data-sheet="strain"><div class="row"><p class="headline">Strain target</p><span class="label"><b class="ink num">' + S.strain + '</b> of ' + D.strainTarget[0] + '–' + D.strainTarget[1] + '</span></div>' +
+      '<div style="margin-top:16px">' + cv('capsule', null, '', 'Strain ' + S.strain + ' of 21, target 12 to 15').replace('class="c ', 'style="height:22px" class="c ') + '</div>' +
+      '<div class="row" style="margin-top:4px"><span class="caption num">0</span><span class="caption">Target ' + D.strainTarget[0] + '–' + D.strainTarget[1] + '</span><span class="caption num">21</span></div>' +
+      '<p class="body" style="margin-top:12px">About 30 minutes of brisk walking reaches the low end of your target.</p></button>', 'strain') +
+
+      // last night
+      cmWrap('<button class="card tap" data-sheet="sleep"><div class="row"><p class="headline">Last night</p><span class="val">' + valHTML('sleepTotal', night.asleep, 'headline num') + '</span></div>' +
+      '<div class="stagebar" aria-hidden="true">' + night.segments.map(function (sg) {
+        var col = { deep: 'var(--stageDeep)', light: 'var(--stageCore)', rem: 'var(--stageREM)', awake: 'var(--stageAwake)' }[sg.stage];
+        return '<span style="flex:' + ((sg.end - sg.start) / 6e4).toFixed(1) + ';background:' + col + '"></span>';
+      }).join('') + '</div>' +
+      '<div class="row" style="margin-top:4px"><span class="caption num">' + hhmm(night.start) + '</span><span class="caption num">' + hhmm(night.end) + '</span></div>' +
+      '<div class="legend">' + [['deep', 'Deep', 'stageDeep'], ['light', 'Core', 'stageCore'], ['rem', 'REM', 'stageREM'], ['awake', 'Awake', 'stageAwake']].map(function (s) {
+        return '<span class="caption"><i style="background:var(--' + s[2] + ')"></i>' + s[1] + ' <b class="ink num" style="font-weight:500">' + hm(stageMin[s[0]]) + '</b></span>';
+      }).join('') + '</div></button>', 'sleep') +
+
+      // stress
+      '<div class="card"><div class="row center"><p class="headline">Stress today</p><span class="row center" style="gap:12px"><span class="label">Mostly low</span>' + cmSlot('stress') + '</span></div>' +
+      cv('stress', null, '', 'Hourly stress today. High from 9 to 11, moving at noon, low otherwise.').replace('class="c ', 'style="height:72px;margin-top:16px" class="c ') +
+      '<div class="row" style="margin-top:4px"><span class="caption num">00</span><span class="caption num">06</span><span class="caption num">12</span><span class="caption num">18</span><span class="caption num">24</span></div>' +
+      '<div class="legend"><span class="caption"><i style="background:var(--good)"></i>Low</span><span class="caption"><i style="background:var(--limit)"></i>Raised</span><span class="caption"><i style="background:var(--danger)"></i>High</span><span class="caption"><i style="background:var(--graphite2)"></i>Moving</span></div></div>' +
+
+      // drift banner
+      (drift.length ? '<button class="card tap" data-sheet="metric:' + drift[0] + '"><div class="banner"><span class="bar" style="background:var(--' + stats(drift[0]).flag + ')"></span><div class="gap4">' +
+        '<p class="headline">' + (drift.length > 1 ? drift.length + ' signals are outside your usual range' : M[drift[0]].label + ' is ' + stats(drift[0]).dirWord.replace('your usual', 'your usual range')) + '</p>' +
+        '<p class="body">' + esc(fmtV(drift[0], stats(drift[0]).v) + ' ' + M[drift[0]].unit) + ' last night. ' + esc(usual(drift[0])) + '. Everything else is in range.</p>' +
+        '<p class="caption">One night rarely means much. Rest if you feel run down.</p></div></div></button>' : '') +
+
+      // health monitor
+      (drift.length || state.monitorOpen ? '' : '<button class="card tap" data-monitor="1" aria-expanded="false"><div class="row center"><p class="headline">Health monitor</p><span class="label">All vitals in your usual range ›</span></div></button>') +
+      (drift.length || state.monitorOpen ? '<div class="card">' + cmAbs('monitor', 'top:9px;right:6px') + '<p class="headline">Health monitor</p><p class="caption">Last 7 nights against your usual range</p><div class="heat">' + heat + '</div>' +
+      '<div class="legend"><span class="caption"><i style="background:var(--good);opacity:.55"></i>In range</span><span class="caption"><i style="background:var(--limit)"></i>Watch</span><span class="caption"><i style="background:var(--danger)"></i>Out of range</span></div></div>' : '') +
       // journal discoveries
       '<button class="card tap" data-sheet="journal"><div class="row"><p class="headline">What your tags show</p><span class="label">11 tagged days</span></div>' +
       '<p class="body" style="margin-top:8px">On days you tagged late caffeine, your sleep score averaged 9 points lower.</p>' +
       '<p class="caption" style="margin-top:8px">Tap + to tag today.</p></button>' +
 
+      '') +
       footer() + '</div>';
   }
 
@@ -704,6 +716,7 @@
     mean: mean, sdev: sdev, WD: WD, TIER: TIER, recFlag: recFlag, tierOf: tierOf, partOfDay: partOfDay, tickRing: tickRing, topbar: topbar,
     rerender: function () { renderScreen(); }, renderSheet: function () { renderSheet(); } });
   if (!state.coachOn && state.tab === 'coach') state.tab = 'today';
+  state.seg = Q.get('seg') || (D.today.getDay() === 1 ? 'week' : 'today'); state.monitorOpen = false;
   if (Q.has('test')) window.__coach = CO;   // test hook (routing checks)
 
   // ================================================================ render
@@ -725,6 +738,12 @@
     renderSheet();
     if (state.tab === 'live') updateTicker();
     if (state.tab === 'coach') CO.mounted();
+    if (state.tab === 'today') { document.getElementById('scroll').addEventListener('scroll', pinWatch, { passive: true }); pinWatch(); }
+  }
+  function pinWatch() {
+    var sc = document.getElementById('scroll'), hero = document.getElementById('hero'), pin = document.getElementById('pin');
+    if (!sc || !hero || !pin) return;
+    pin.classList.toggle('on', hero.getBoundingClientRect().bottom - sc.getBoundingClientRect().top < 40);
   }
   var lastFocus = null;
   function renderSheet() {
@@ -738,10 +757,12 @@
   }
 
   app.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-tab],[data-sheet],[data-close],[data-range],[data-panel],[data-goto],[data-tag],[data-notif],[data-coachtoggle]');
+    var t = e.target.closest('[data-tab],[data-sheet],[data-close],[data-range],[data-panel],[data-goto],[data-tag],[data-notif],[data-coachtoggle],[data-seg],[data-monitor]');
     if (!t) return;
     var ds = t.dataset;
-    if (ds.tab) { if (ds.tab !== state.tab) { state.tab = ds.tab; state.sheet = null; renderScreen(); } else document.getElementById('scroll').scrollTo({ top: 0 }); }
+    if (ds.tab) { if (ds.tab !== state.tab) { state.tab = ds.tab; state.sheet = null; renderScreen(); } else { var sc = document.getElementById('scroll'); if (sc.scrollTop < 4 && state.tab === 'today' && state.seg !== 'today') { state.seg = 'today'; renderScreen(); } else sc.scrollTo({ top: 0, behavior: RM.matches ? 'auto' : 'smooth' }); } }
+    else if (ds.seg) { var pin = document.getElementById('pin'), pinned = pin && pin.classList.contains('on'), keep = document.getElementById('scroll').scrollTop; state.seg = ds.seg; renderScreen(); var sc3 = document.getElementById('scroll'); sc3.scrollTop = pinned ? document.getElementById('pin').offsetTop : keep; pinWatch(); }
+    else if (ds.monitor) { var k = document.getElementById('scroll').scrollTop; state.monitorOpen = true; renderScreen(); document.getElementById('scroll').scrollTop = k; }
     else if (ds.close) { state.sheet = null; renderSheet(); }
     else if (ds.sheet) { state.sheet = ds.sheet; renderSheet(); }
     else if (ds.range) { state.range = ds.range; var lc = document.getElementById('liveCard'); lc.innerHTML = liveCard(); hydrate(lc); }
@@ -800,5 +821,6 @@
 
   // fonts change metrics: draw once now, again when Geist arrives
   renderScreen();
+  if (Q.get('y')) { document.getElementById('scroll').scrollTop = +Q.get('y'); pinWatch(); }   // screenshot hook
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { hydrate(); });
 })();

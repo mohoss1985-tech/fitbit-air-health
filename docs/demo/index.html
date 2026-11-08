@@ -353,6 +353,21 @@ button.pill::after { content: ""; position: absolute; inset: -8px 0; }
 }
 body.shot .anim .fi, body.shot .anim .enter, body.shot .runner { animation: none; }
 body.shot .sheet, body.shot .scrim { animation: none; }
+
+/* v1.3 pinned mini gauges + Today | Week switch */
+.pin { position: sticky; top: 0; z-index: 5; margin: 12px -20px 0; padding: 0 20px 8px; background: var(--paper); }
+.pin .mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; height: 0; overflow: hidden; opacity: 0; transform: scale(.92); transition: height .25s ease, opacity .25s ease, transform .25s ease; }
+.pin.on { padding-top: 48px; }
+@media (max-width: 500px) { .pin.on { padding-top: calc(env(safe-area-inset-top, 0px) + 8px); } }
+.pin.on .mini { height: 48px; opacity: 1; transform: none; }
+.pin .mini button { display: flex; align-items: center; gap: 8px; }
+.pin .mini .ring { position: relative; display: inline-block; flex: none; }
+.pin .mini .ring svg { position: absolute; inset: 0; }
+.pin .mini b { display: block; font: 600 15px/1.1 var(--font-num); color: var(--ink); text-align: left; }
+.pin .mini .caption { display: block; text-align: left; }
+.pin .seg { margin-top: 4px; }
+.pin .seg button { height: 44px; }
+@media (prefers-reduced-motion: reduce) { .pin .mini { transition: opacity .2s; transform: none; } }
 </style>
 </head>
 <body>
