@@ -23,6 +23,7 @@ struct LiveView: View {
             .padding(.bottom, Space.xxl)
         }
         .scrollIndicators(.hidden)
+        .scrollsToTopOnReselect(.live)
         .background(Theme.paper.ignoresSafeArea())
         .refreshable {
             live.attach(health: health)

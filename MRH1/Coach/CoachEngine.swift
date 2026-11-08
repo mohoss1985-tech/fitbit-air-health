@@ -129,10 +129,12 @@ final class CoachEngine {
 
     /// Starts a chat about a metric (CoachMark / "Ask about this"): a new chat with an instant opener
     /// built from real data (no model), and 3 metric chips. nil = plain new chat.
-    func start(about metric: MetricID?) {
+    /// `opener: false` (v1.3) starts the chat without the instant opener, e.g. when a question is sent right away
+    /// (Coach note chips → `AppNav.coachPrompt`).
+    func start(about metric: MetricID?, opener withOpener: Bool = true) {
         if !messages.isEmpty { newChat() }
         focusMetric = metric
-        guard let metric, let ctx = context else { return }
+        guard withOpener, let metric, let ctx = context else { return }
         messages.append(.coach(opener(for: metric, ctx: ctx)))
         save()
     }
@@ -196,7 +198,12 @@ final class CoachEngine {
     func send(_ text: String, about metric: MetricID? = nil) async {
         let question = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !question.isEmpty, !isThinking else { return }
-        let about = metric ?? focusMetric
+        // v1.3 B2: a topic named in the question beats the chat's metric ("Why is recovery low?" in a sleep sheet
+        // is about recovery). Generic questions ("What does this mean?") keep the chat's metric.
+        let chatMetric = metric ?? focusMetric
+        let focus = CoachRules.focus(for: question, context: chatMetric)
+        let about = Self.focusedMetric(focus, context: chatMetric)
+        let topic = Self.topicName(focus)
         if let metric { focusMetric = metric }
         messages.append(.user(question, about: metric))
         save()
@@ -230,6 +237,8 @@ final class CoachEngine {
         }
         ctx.beginTurn()
         ctx.allow(question)
+        // v1.3 B5: tools only quote journal tags that can affect what this turn is about.
+        ctx.setFocus(metric: about, allowedTags: Self.allowedTags(focus, metric: about))
 
         isThinking = true
         statusText = "Reading your data…"
@@ -248,7 +257,7 @@ final class CoachEngine {
             let id = UUID()
             messages.append(CoachMessage(id: id, role: .coach,
                                          reply: CoachReply(headline: "", body: "", isSample: isSample, isStreaming: true)))
-            let reply = await modelReply(question, metric: about, ctx: ctx, messageID: id,
+            let reply = await modelReply(question, metric: about, topic: topic, ctx: ctx, messageID: id,
                                          guidance: CoachSafety.modelGuidance(for: category))
             update(id) { $0 = reply }
             save()
@@ -265,8 +274,67 @@ final class CoachEngine {
         r.isTemplate = true
         r.isSample = isSample
         r.isStreaming = false
-        r.chips = Self.cleanChips(r.chips, maxWords: 6)   // reviewed copy from CoachRules: only fix the count
+        r.chips = Self.cleanChips(Self.fixRecoveryChips(r.chips, score: ctx.health.recovery?.score),
+                                  maxWords: 6)   // reviewed copy from CoachRules: only fix the count
         return r
+    }
+
+    // MARK: - Focus (v1.3 B2 / B5)
+
+    /// The metric a turn is about, from `CoachRules.focus`: a named metric wins; a sleep question keeps a sleep
+    /// chat's metric; other named topics (recovery, strain, plan, week) drop the chat's metric; generic keeps it.
+    static func focusedMetric(_ focus: Focus, context: MetricID?) -> MetricID? {
+        switch focus {
+        case .metric(let m): return m
+        case .sleep: return context.flatMap { $0.info.panel == .sleep ? $0 : nil }
+        case .general: return context
+        case .recovery, .strain, .plan, .week: return nil
+        }
+    }
+
+    /// Convenience: the focused metric for a question asked in a chat about `context`.
+    static func focusedMetric(for question: String, context: MetricID?) -> MetricID? {
+        focusedMetric(CoachRules.focus(for: question, context: context), context: context)
+    }
+
+    /// Plain topic word for the model prompt when the turn is not about one metric.
+    static func topicName(_ focus: Focus) -> String? {
+        switch focus {
+        case .recovery: return "recovery"
+        case .sleep: return "sleep"
+        case .strain: return "strain and training load"
+        case .plan: return "a workout plan"
+        case .week: return "this week"
+        case .metric, .general: return nil
+        }
+    }
+
+    /// Journal tags the tools may quote this turn (nil = all tags, e.g. a general or planning question).
+    static func allowedTags(_ focus: Focus, metric: MetricID?) -> Set<String>? {
+        if let m = metric { return CoachRules.relevantTags(for: m) }
+        switch focus {
+        case .sleep: return CoachRules.relevantTags(for: .sleepTotal)
+        case .recovery: return CoachRules.recoveryTags
+        default: return nil
+        }
+    }
+
+    // MARK: - Recovery chip (v1.3 B3)
+
+    /// Rewrites any chip that claims a recovery direction ("Why is recovery low?", "Why is my recovery high?")
+    /// to the tier-correct chip from `CoachRules.recoveryChip`, then drops duplicates.
+    static func fixRecoveryChips(_ chips: [String], score: Int?) -> [String] {
+        var out: [String] = []
+        for c in chips {
+            let l = c.lowercased()
+            let claimsDirection = l.contains("recover")
+                && ["low", "high", "down", "up", "poor", "bad", "good", "red", "green"].contains { w in
+                    l.split(whereSeparator: { !$0.isLetter }).contains { $0 == Substring(w) }
+                }
+            let t = claimsDirection ? CoachRules.recoveryChip(score) : c
+            if !out.contains(where: { $0.caseInsensitiveCompare(t) == .orderedSame }) { out.append(t) }
+        }
+        return out
     }
 
     private func update(_ id: UUID, _ change: (inout CoachReply) -> Void) {
@@ -451,6 +519,8 @@ final class CoachEngine {
         - Never diagnose or name diseases, medication, supplements, doses, diets or calorie targets. \
         Say "outside your usual range", never "abnormal" or "danger". Causes are only "possible".
         - chips: exactly 3 questions the user could ask next, at most 4 words each.
+        - Never link a journal tag to a metric it doesn't affect (caffeine never explains blood oxygen). \
+        Only cite tags getJournal lists.
         - Reply in the user's language.
         """
         switch UserDefaults.standard.string(forKey: Self.styleKey) {
@@ -484,10 +554,10 @@ final class CoachEngine {
     }
 
     @available(iOS 26, *)
-    private func modelReply(_ question: String, metric: MetricID?, ctx: CoachToolContext, messageID: UUID,
-                            guidance: String? = nil) async -> CoachReply {
+    private func modelReply(_ question: String, metric: MetricID?, topic: String? = nil, ctx: CoachToolContext,
+                            messageID: UUID, guidance: String? = nil) async -> CoachReply {
         if sessionTurns >= Self.turnsPerSession { rollSession() }
-        var prompt = Self.prompt(question, metric: metric)
+        var prompt = Self.prompt(question, metric: metric, topic: topic)
         if let g = guidance { prompt = g + "\n" + prompt }
         var overflowRetried = false
 
@@ -533,11 +603,18 @@ final class CoachEngine {
     static let retryPrompt = "Your last answer broke a rule: a number no tool returned, or a medical word. Answer the same question again using only numbers from tool results and plain wellness words."
 
     static func prompt(_ question: String, metric: MetricID?) -> String {
+        prompt(question, metric: metric, topic: nil)
+    }
+
+    /// `topic` (v1.3 B2): the focused topic when the turn is not about one metric ("recovery"), so the model
+    /// does not answer about the chat's earlier metric.
+    static func prompt(_ question: String, metric: MetricID?, topic: String?) -> String {
         let when = Demo.now.formatted(.dateTime.weekday(.wide))
         let h = Calendar.current.component(.hour, from: Demo.now)
         let part = h < 12 ? "morning" : (h < 18 ? "afternoon" : "evening")
         var p = "(\(when) \(part)"
         if let m = metric { p += ", about \(m.info.name), metric id \(m.rawValue)" }
+        else if let t = topic { p += ", about \(t)" }
         return p + ") " + question
     }
 
@@ -576,7 +653,7 @@ final class CoachEngine {
         return CoachReply(headline: headline.isEmpty ? "Here is what your data shows." : headline,
                           body: body,
                           pills: pills,
-                          chips: Self.cleanChips(turn?.chips ?? []),
+                          chips: Self.cleanChips(Self.fixRecoveryChips(turn?.chips ?? [], score: ctx.health.recovery?.score)),
                           plan: ctx.plan(id: turn?.planID),
                           isTemplate: false,
                           isSample: isSample,

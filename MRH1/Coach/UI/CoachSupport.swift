@@ -43,8 +43,10 @@ enum CoachStarterSource {
     static func make(_ health: HealthStore) -> [CoachStarter] {
         let q = CoachRules.starters(health: health)
         guard q.count == 4 else { return fallback(health) }
+        // v1.3 B3: the recovery starter always follows the tier (never "low" at 63 %).
+        let recovery = CoachEngine.fixRecoveryChips([q[0]], score: health.recovery?.score).first ?? q[0]
         return [
-            CoachStarter(topic: "Recovery", question: q[0], metric: nil),
+            CoachStarter(topic: "Recovery", question: recovery, metric: nil),
             CoachStarter(topic: "Sleep", question: q[1], metric: .sleepTotal),
             CoachStarter(topic: "Strain", question: q[2], metric: nil),
             CoachStarter(topic: "Plan", question: q[3], metric: nil),
@@ -59,9 +61,7 @@ enum CoachStarterSource {
 
         let recovery: String = {
             guard let score else { return "How does Recovery work?" }
-            if score < 34 { return "Why is my recovery low today?" }
-            if score < 67 { return "What would help me recover more?" }
-            return "How hard can I train today?"
+            return CoachRules.recoveryChip(score)   // v1.3 B3: red · yellow · green wording
         }()
         let sleep: String = {
             if sleepMin <= 0 { return "How was my sleep this week?" }

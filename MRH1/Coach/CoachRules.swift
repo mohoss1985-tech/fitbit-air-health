@@ -13,8 +13,14 @@ struct CoachSignal: Identifiable, Hashable {
     let cap: IntensityCap?
 }
 
+/// v1.3 (DESIGN_SPEC_v1.3 §8) · What a Coach question is about. A topic named in the question beats the chat's metric.
+enum Focus: Hashable {
+    case recovery, sleep, strain, metric(MetricID), plan, week, general
+}
+
 @MainActor
 enum CoachRules {
+    typealias Focus = MRH1.Focus
 
     // MARK: - Public API
 
@@ -25,7 +31,7 @@ enum CoachRules {
         let fired = run(ctx)
         let cap = fired.reduce(IntensityCap.any) { acc, f in f.signal.cap.map { acc.capped(at: $0) } ?? acc }
         if fired.contains(where: { $0.restDay }) { Memory.markRest(ctx.dayKey) } else { Memory.unmarkRest(ctx.dayKey) }
-        let note = pickNote(fired, ctx: ctx)
+        let note = pickNote(fired, ctx: ctx, cap: cap)
         return CoachRuleResult(fired: fired.map(\.signal.id), cap: cap, note: note)
     }
 
@@ -44,12 +50,7 @@ enum CoachRules {
     /// Four data-generated starter questions: Recovery, Sleep, Strain, Plan.
     static func starters(health: HealthStore) -> [String] {
         let hour = Calendar.current.component(.hour, from: Demo.now)
-        let recovery: String = {
-            guard let r = health.recovery else { return "What is recovery?" }
-            if r.score < 34 { return "Why is recovery low?" }
-            if r.score >= 67 { return "Why is recovery high?" }
-            return "What affects my recovery?"
-        }()
+        let recovery = recoveryChip(health.recovery?.score)
         let sleep: String = {
             guard let s = health.lastSleep else { return "Help me sleep better" }
             if s.asleepMinutes < 420 || (health.sleepScore ?? 100) < 70 { return "Why was sleep poor?" }
@@ -81,6 +82,107 @@ enum CoachRules {
         reply.headline = Self.limitWords(reply.headline, 14)
         return reply
     }
+
+    // MARK: - v1.3 shared API (DESIGN_SPEC_v1.3 §5, §8 · owner B)
+
+    /// B2 · What a question is about. A topic named in the question wins over the chat's metric
+    /// ("Why is recovery low?" asked in a Total sleep chat is about recovery). A metric named in the
+    /// question wins over everything. Generic questions ("Show 30 days") keep the chat's metric.
+    nonisolated static func focus(for text: String, context: MetricID?) -> Focus {
+        let q = text.lowercased()
+        func any(_ words: [String]) -> Bool { words.contains { q.contains($0) } }
+        if let named = metricNamed(in: q) { return .metric(named) }
+        if any(["recovery", "recover", "should i train", "readiness"]) { return .recovery }
+        if any(["strain", "how hard", "done enough", "target", "go easy"]) { return .strain }
+        if any(["my week", "next week", "weekly", "review", "this week", "plan my week"]) { return .week }
+        if any(["plan", "workout", "session", "exercise", "strength", "training"]) { return .plan }
+        if any(["sleep", "slept", "night", "bedtime", "nap"]) {
+            // Inside a sleep-metric chat a sleep question stays on that metric.
+            if let m = context, m.info.panel == .sleep { return .metric(m) }
+            return .sleep
+        }
+        if let m = context { return .metric(m) }
+        return .general
+    }
+
+    /// The metric a question names, if any (shared by the router and `focus`).
+    nonisolated static func metricNamed(in text: String) -> MetricID? {
+        let q = text.lowercased()
+        let map: [(String, MetricID)] = [
+            ("rhr", .restingHR), ("resting", .restingHR), ("hrv", .hrv), ("variability", .hrv),
+            ("sleeping hr", .sleepingHR), ("heart rate during sleep", .sleepingHR),
+            ("breathing rate", .breathing), ("both up", .breathing), ("respirat", .breathing),
+            ("oxygen", .spo2), ("spo2", .spo2), ("wear it", .spo2), ("last nights", .spo2),
+            ("skin temp", .skinTemp), ("temperature", .skinTemp),
+            ("deep", .deepSleep), ("awake", .awake), ("wake", .awake),
+            ("active energy", .energy), ("calorie", .energy), ("workout time", .workoutMinutes),
+        ]
+        if let hit = map.first(where: { q.contains($0.0) }) { return hit.1 }
+        // "rem" only as a whole word (not "remember", "remind").
+        if q.range(of: "\\brem\\b", options: .regularExpression) != nil { return .remSleep }
+        return nil
+    }
+
+    /// B3 · Recovery starter / chip that follows the tier: red (< 34) · yellow · green (≥ 67). nil → neutral.
+    nonisolated static func recoveryChip(_ score: Int?) -> String {
+        guard let s = score else { return "What affects my recovery?" }
+        if s < 34 { return "Why is recovery low?" }
+        if s < 67 { return "What affects my recovery?" }
+        return "What helped recovery?"
+    }
+
+    /// B5 · Journal tags (ids as in `JournalStore.defaultTags`) that may be quoted as a possible cause for
+    /// `metric`. nil (general / no metric) → every tag. Never caffeine for SpO2.
+    nonisolated static func relevantTags(for metric: MetricID?) -> Set<String> {
+        guard let m = metric else { return Set(allTags) }
+        return Set(tagOrder.filter { tagMetrics[$0]?.contains(m) == true })
+    }
+
+    /// True when `tag` may be quoted for `metric`. nil metric → always true (custom tags included).
+    nonisolated static func isRelevant(_ tag: String, for metric: MetricID?) -> Bool {
+        guard let m = metric else { return true }
+        return tagMetrics[tag]?.contains(m) == true
+    }
+
+    /// Tags relevant to the Recovery score (hard workout, stress, travel, unwell + the resting-HR links).
+    nonisolated static var recoveryTags: Set<String> {
+        relevantTags(for: .restingHR).union(["Hard workout", "Stressful day", "Travel", "Feeling unwell"])
+    }
+
+    /// Strongest relevant tag in `tagged` for `metric`, in link-strength order (nil metric → any tag).
+    nonisolated static func linkedTag(in tagged: Set<String>, for metric: MetricID?) -> String? {
+        if metric == nil { return tagOrder.first { tagged.contains($0) } ?? tagged.sorted().first }
+        return tagOrder.first { tagged.contains($0) && isRelevant($0, for: metric) }
+    }
+
+    /// All known tags (JournalStore.defaultTags, mirrored so this stays nonisolated).
+    nonisolated static let allTags = [
+        "Alcohol", "Late meal", "Caffeine after 2 pm", "Hard workout", "Stressful day",
+        "Screen in bed", "Travel", "Feeling unwell", "Meditation", "Nap"
+    ]
+    /// Link-strength order for quoting.
+    nonisolated private static let tagOrder = [
+        "Alcohol", "Feeling unwell", "Caffeine after 2 pm", "Late meal", "Hard workout",
+        "Stressful day", "Screen in bed", "Travel", "Nap"
+    ]
+    /// DESIGN_SPEC_v1.3 §5: caffeine/screen/late meal → sleep, RHR, sleep HR · alcohol → sleep, RHR, sleep HR,
+    /// SpO2, breathing · hard workout → RHR, recovery (HRV), strain (workouts/energy) · stress/travel/unwell → RHR,
+    /// recovery (HRV), sleep. HRV stands in for "recovery" as a metric; unwell also links breathing and skin temp.
+    nonisolated private static let tagMetrics: [String: Set<MetricID>] = {
+        let sleep: Set<MetricID> = [.sleepTotal, .deepSleep, .remSleep, .awake]
+        let heartSleep: Set<MetricID> = sleep.union([.restingHR, .sleepingHR])
+        return [
+            "Caffeine after 2 pm": heartSleep,
+            "Screen in bed": heartSleep,
+            "Late meal": heartSleep,
+            "Alcohol": heartSleep.union([.spo2, .breathing]),
+            "Hard workout": [.restingHR, .hrv, .workoutMinutes, .energy],
+            "Stressful day": sleep.union([.restingHR, .hrv]),
+            "Travel": sleep.union([.restingHR, .hrv]),
+            "Feeling unwell": sleep.union([.restingHR, .hrv, .breathing, .skinTemp]),
+            "Nap": sleep,
+        ]
+    }()
 
     // MARK: - Rule ids
 
@@ -434,7 +536,7 @@ enum CoachRules {
                 let prior = [v[n - 7], v[n - 14], v[n - 21], v[n - 28]]
                 let chronic = prior.reduce(0, +) / 4
                 if chronic >= 30, latest / chronic > 1.5 {
-                    add("L2", "Big jump vs your usual week: \(m) min vs about \(Int(chronic.rounded())) a week before. Ease in.", [.workoutMinutes],
+                    add("L2", "Big jump vs your usual week: \(m) min vs about \(Int(chronic.rounded())) a week before. Ease in.", [.workoutMinutes], cap: .easy,
                         note: Draft(headline: "Big jump vs your usual week: ease in.",
                                     body: "\(m) min in 7 days vs about \(Int(chronic.rounded())) a week before. Keep the next sessions easy while your body adapts.",
                                     metric: .workoutMinutes,
@@ -457,11 +559,11 @@ enum CoachRules {
         if trained, c.zoneMinutes.count == 5 {
             let z3 = c.zoneMinutes[2], z12 = c.zoneMinutes[0] + c.zoneMinutes[1]
             if z3 >= 20, z3 > z12 {
-                add("L3", "Today’s training sat mostly in Zone 3 (\(Int(z3.rounded())) min vs \(Int(z12.rounded())) in Zones 1–2).", [],
+                add("L3", "Today’s training sat mostly in Zone 3 (\(Int(z3.rounded())) min vs \(Int(z12.rounded())) in Zones 1–2). Steady effort next, no intervals.", [], cap: .moderate,
                     note: Draft(headline: "Today’s effort sat mostly in Zone 3.",
-                                body: "\(Int(z3.rounded())) min in Zone 3 vs \(Int(z12.rounded())) in Zones 1–2. Make your next session truly easy, at a pace you could chat at.",
+                                body: "\(Int(z3.rounded())) min in Zone 3 vs \(Int(z12.rounded())) in Zones 1–2. Keep your next session in Zones 1–2, at a pace you could chat at.",
                                 metric: nil,
-                                chips: ["What are my zones?", "Plan an easy session", "Explain my strain"],
+                                chips: ["What are my zones?", "Plan a Zone 2 session", "Explain my strain"],
                                 key: "L3.zone3"))
             }
         }
@@ -492,7 +594,7 @@ enum CoachRules {
 
     private enum Slot: String { case morning, workout, evening }
 
-    private static func pickNote(_ fired: [Fired], ctx c: Context) -> CoachNote? {
+    private static func pickNote(_ fired: [Fired], ctx c: Context, cap: IntensityCap) -> CoachNote? {
         // Proactive notes setting (Menu → Coach): off · important · daily (default, morning card kept all day) · every (3 slots).
         let mode = UserDefaults.standard.string(forKey: "coach.proactive") ?? "daily"
         if mode == "off" { return nil }
@@ -513,6 +615,8 @@ enum CoachRules {
         let withNotes = fired.filter { $0.note != nil && (mode != "important" || importantRules.contains($0.signal.id)) }
         for id in order {
             guard let f = withNotes.first(where: { $0.signal.id == id }), let d = f.note else { continue }
+            // B1: the "green light" note never shows once another rule (L2, L3, …) tightened the cap.
+            if id == "R4", cap != .any { continue }
             // Decision 19: same observation at most once in 3 days (but keep showing it on the day it was raised).
             if let last = Memory.lastShown(d.key), last != c.dayKey, Memory.daysBetween(last, c.dayKey) < 3 { continue }
             let noteID = "\(id).\(slot.rawValue).\(c.dayKey)"
@@ -520,12 +624,45 @@ enum CoachRules {
             let shownToday = Memory.notesShown(on: c.dayKey)
             if !shownToday.contains(noteID), shownToday.count >= 3 { return nil }
             Memory.recordNote(noteID, key: d.key, day: c.dayKey)
-            return CoachNote(id: noteID, headline: limitWords(d.headline, 14),
-                             body: fitBody(headline: d.headline, body: d.body, limit: 40),
-                             metric: d.metric, chips: cleanChips(d.chips))
+            let note = CoachNote(id: noteID, headline: limitWords(d.headline, 14),
+                                 body: fitBody(headline: d.headline, body: d.body, limit: 40),
+                                 metric: d.metric, chips: cleanChips(d.chips))
+            #if DEBUG
+            assertNoteMatchesCap(note, cap: cap, target: cap.strainTarget(c.target))
+            #endif
+            return note
         }
         return nil
     }
+
+    /// B1 · True when a note's advice asks to ease off ("ease in", "keep today easy", "Plan an easy session").
+    /// Words matched (DESIGN_SPEC "ease"/"easy"): ease in/off, go easy, keep … easy, easy session/day, truly easy.
+    nonisolated static func noteAdvisesEasing(_ note: CoachNote) -> Bool {
+        let text = (note.headline + " " + note.body + " " + note.chips.joined(separator: " ")).lowercased()
+        // Advice to ease off, not a mention ("yesterday was easy", "two easy 30-min sessions", "an easy walk is fine").
+        let pattern = "\\bease (in|off|up|back)\\b|\\bgo easy\\b|\\bkeep [^.]*\\beasy\\b|\\beasy (session|day)\\b|\\btruly easy\\b|\\btoday is easy\\b"
+        return text.range(of: pattern, options: .regularExpression) != nil
+    }
+
+    /// B1 · nil when the note and the cap agree, else a description of the conflict: a note that says
+    /// "ease"/"easy" must never sit under cap `.any` or a 10–14 (moderate) target. Gentle-mode notes show
+    /// no strain target, so they are exempt. Used by the DEBUG assert below and by scripted checks.
+    nonisolated static func noteCapConflict(_ note: CoachNote?, cap: IntensityCap, target: ClosedRange<Double>) -> String? {
+        guard let n = note, noteAdvisesEasing(n), !n.id.hasPrefix("GENTLE") else { return nil }
+        if cap.libraryRank > IntensityCap.easy.libraryRank || target.upperBound > 8 {
+            return "note \(n.id) asks to ease off but cap is \(cap.rawValue), target \(fmtRange(target))"
+        }
+        return nil
+    }
+
+    #if DEBUG
+    /// DEBUG-only guard for B1 (DESIGN_SPEC_v1.3 §5).
+    nonisolated static func assertNoteMatchesCap(_ note: CoachNote?, cap: IntensityCap, target: ClosedRange<Double>) {
+        if let problem = noteCapConflict(note, cap: cap, target: target) {
+            assertionFailure("CoachRules B1: " + problem)
+        }
+    }
+    #endif
 
     /// Today's intensity cap from the rules (no note bookkeeping). Coach off → `.any` (exact v1.0 behaviour).
     static func todayCap(_ health: HealthStore) -> IntensityCap {
@@ -569,9 +706,9 @@ enum CoachRules {
         return out
     }
 
-    fileprivate static func fmt0(_ v: Double) -> String { String(format: "%.0f", locale: .current, v) }
+    nonisolated fileprivate static func fmt0(_ v: Double) -> String { String(format: "%.0f", locale: .current, v) }
     fileprivate static func fmt1(_ v: Double) -> String { String(format: "%.1f", locale: .current, v) }
-    fileprivate static func fmtRange(_ r: ClosedRange<Double>) -> String { "\(fmt0(r.lowerBound))–\(fmt0(r.upperBound))" }
+    nonisolated fileprivate static func fmtRange(_ r: ClosedRange<Double>) -> String { "\(fmt0(r.lowerBound))–\(fmt0(r.upperBound))" }
     fileprivate static func fmtMin(_ m: Double) -> String { MetricID.sleepTotal.format(m) }
     fileprivate static func clock(_ minutesAfterMidnight: Int) -> String {
         var c = DateComponents()
@@ -706,7 +843,13 @@ enum CoachRules {
             if any("debt", "pay back") { return debt() }
             if any("caffeine") { return caffeine() }
             if any("regularity", "bedtime") { return regularity() }
-            if let m = metric ?? mentionedMetric(q) { return explain(m, q) }
+            // B2: a topic named in the question beats the chat's metric.
+            switch CoachRules.focus(for: question, context: metric) {
+            case .metric(let m): return explain(m, q)
+            case .recovery: return recovery(q)
+            case .strain: return hardness()
+            case .sleep, .plan, .week, .general: break
+            }
             if any("sleep better", "help me sleep", "sleep tips") { return sleepBetter() }
             if any("sleep", "slept", "night") { return sleepWhy() }
             if any("recovery", "recover", "should i train", "what helps") { return recovery(q) }
@@ -717,18 +860,7 @@ enum CoachRules {
             return today()
         }
 
-        func mentionedMetric(_ q: String) -> MetricID? {
-            let map: [(String, MetricID)] = [
-                ("rhr", .restingHR), ("resting", .restingHR), ("hrv", .hrv), ("variability", .hrv),
-                ("sleeping hr", .sleepingHR), ("heart rate during sleep", .sleepingHR),
-                ("breathing rate", .breathing), ("both up", .breathing), ("respirat", .breathing),
-                ("oxygen", .spo2), ("spo2", .spo2), ("wear it", .spo2), ("last nights", .spo2),
-                ("skin temp", .skinTemp), ("temperature", .skinTemp),
-                ("deep", .deepSleep), ("rem", .remSleep), ("awake", .awake), ("wake", .awake),
-                ("active energy", .energy), ("calorie", .energy), ("workout time", .workoutMinutes),
-            ]
-            return map.first { q.contains($0.0) }?.1
-        }
+        func mentionedMetric(_ q: String) -> MetricID? { CoachRules.metricNamed(in: q) }
 
         // MARK: Pills
 
@@ -784,9 +916,11 @@ enum CoachRules {
             if has("W2") { return "2 signals are outside your usual range, so keep it easy." }
             if has("W1") { return "Resting heart rate is up 2 nights running, so keep it easy." }
             if has("R5") { return "Two hard days in a row, so today stays easy." }
+            if has("L2") && cap == .easy { return "A big jump vs your usual week, so keep it easy." }
             if has("S-a") && cap == .easy { return "A short night, so Zone 1–2 only." }
             if has("R2") { return "Recovery is \(c.recovery?.score ?? 0) %, so Zone 1–2 and no intervals." }
             if has("GENTLE") { return "Gentle mode is on, so no strain targets." }
+            if has("L3") && cap == .moderate { return "Today sat mostly in Zone 3, so keep the next one steady." }
             if has("R3") { return "Recovery is \(c.recovery?.score ?? 0) %, so steady effort fits." }
             if has("R7") { return "Your baseline is still young, so it stays moderate." }
             if cap == .any, let r = c.recovery { return "Recovery is \(r.score) % after an easy day, so a hard session fits." }
@@ -802,7 +936,7 @@ enum CoachRules {
             if let st = c.strainNow { s.append("Strain \(fmt1(st)) so far" + (c.gentle ? "." : ", target \(fmtRange(c.target)).")) }
             return reply(Scores.verdict(c.recovery), [s.joined(separator: " "), capReason],
                          pills: [pill(.restingHR), sleepPill()],
-                         chips: [c.recovery.map { $0.score < 34 ? "Why is recovery low?" : "Why is recovery high?" } ?? "What is recovery?",
+                         chips: [CoachRules.recoveryChip(c.recovery?.score),
                                  "Plan my workout", "Help me sleep better"])
         }
 
@@ -824,7 +958,11 @@ enum CoachRules {
                 s.append("\(m.label) \(m.valueText) vs \(normal).")
                 pills.append(m.id == .sleepTotal ? sleepPill() : pill(m.id))
             }
-            if let tag = c.tagsYesterday.sorted().first, low { s.append("You tagged \(tag.lowercased()) yesterday.") }
+            // B5: only a tag linked to the main drag (or to resting HR) is quoted.
+            if low, let tag = CoachRules.linkedTag(in: c.tagsYesterday, for: main?.id ?? .restingHR)
+                ?? CoachRules.linkedTag(in: c.tagsYesterday, for: .restingHR) {
+                s.append("You tagged \(tag.lowercased()) yesterday.")
+            }
             if let sig = r.signalsText { s.append("Based on \(sig): HRV is not sent by Google Health.") }
             for k in r.contributors.map(\.id) where k != main?.id && pills.count < 3 {
                 pills.append(k == .sleepTotal ? sleepPill() : pill(k))
@@ -852,7 +990,7 @@ enum CoachRules {
             if q.contains("what helps") || q.contains("should i train") {
                 return reply(low ? "Today: easy movement, water and an earlier night." : "You can train today.",
                              [capReason, low ? "An earlier bedtime helps tomorrow’s score the most." : ""],
-                             pills: pills, chips: ["Plan my workout", "Help me sleep better", "Why is recovery low?"])
+                             pills: pills, chips: ["Plan my workout", "Help me sleep better", CoachRules.recoveryChip(r.score)])
             }
             return reply(head, s, pills: pills, chips: chips)
         }
@@ -864,7 +1002,7 @@ enum CoachRules {
                 let miss = s.missing ?? .noReading
                 let instead = id == .hrv ? "Recovery uses resting HR, breathing and sleep instead." : "Coach works from your other signals instead."
                 return reply("\(info.name): \(miss.text).", [instead],
-                             pills: [pill(.restingHR)], chips: ["Why is recovery low?", "What can you see?", "Plan my workout"])
+                             pills: [pill(.restingHR)], chips: [CoachRules.recoveryChip(c.recovery?.score), "What can you see?", "Plan my workout"])
             }
             let unit = info.unit.isEmpty || id == .steps ? "" : " " + info.unit
             let dir: String
@@ -878,7 +1016,8 @@ enum CoachRules {
             if s.isConcern {
                 let causes = s.flag == .high ? info.ifHigh : info.ifLow
                 sentences.append("Possible causes: " + lowerFirst(causes))
-                if let tag = c.tagsYesterday.sorted().first { sentences.append("You tagged \(tag.lowercased()) yesterday.") }
+                // B5: only tags that can affect this metric (never caffeine for SpO2).
+                if let tag = CoachRules.linkedTag(in: c.tagsYesterday, for: id) { sentences.append("You tagged \(tag.lowercased()) yesterday.") }
             } else if let e = s.earlyReadText, s.baseline != nil {
                 sentences.append(e)
             } else {
@@ -906,7 +1045,7 @@ enum CoachRules {
                 case .deepSleep, .remSleep, .awake: return ["Help me sleep better", "What do tags show?", "Why was sleep poor?"]
                 case .steps: return ["Plan a walk", "What’s my step goal?", "Weekly review"]
                 case .workoutMinutes: return ["Plan my week", "Training too much?", "Weekly review"]
-                default: return ["Why is recovery low?", "Plan my workout", "Weekly review"]
+                default: return [CoachRules.recoveryChip(c.recovery?.score), "Plan my workout", "Weekly review"]
                 }
             }()
             let head = "\(short == "RHR" ? "Resting HR" : info.name) \(s.valueText)\(unit) is \(dir)."
@@ -961,7 +1100,7 @@ enum CoachRules {
             }
             guard let plan = plans.first else {
                 return reply("An easy walk is the best fit today.", [capReason],
-                             chips: ["Help me sleep better", "Why is recovery low?", "Weekly review"])
+                             chips: ["Help me sleep better", CoachRules.recoveryChip(c.recovery?.score), "Weekly review"])
             }
             var sentences = [capReason]
             if (q.contains("hard") || q.contains("interval")) && cap != .any {
@@ -1023,7 +1162,7 @@ enum CoachRules {
             s.append("\(fmtMin(n.asleepMinutes)) asleep out of \(fmtMin(n.inBedMinutes)) in bed (\(eff) %).")
             let awake = c.state(.awake)
             if awake.isConcern { s.append("Awake time \(awake.valueText) was above your normal \(awake.yourRangeText).") }
-            if let tag = c.tagsYesterday.sorted().first { s.append("You tagged \(tag.lowercased()) yesterday.") }
+            if let tag = CoachRules.linkedTag(in: c.tagsYesterday, for: .sleepTotal) { s.append("You tagged \(tag.lowercased()) yesterday.") }
             else if let sp = c.spread, sp > 45 { s.append("Your bedtime varies by ±\(Int(sp.rounded())) min.") }
             let score = c.sleepScore.map { "Sleep score \($0)" } ?? "Last night"
             let good = (c.sleepScore ?? 0) >= 80

@@ -278,9 +278,12 @@ struct DriftBanner: View {
 
 // MARK: - Health monitor: vitals × 7 nights heat map
 
+/// v1.3: folds to one row ("All vitals in your usual range" + chevron) while no vital is a concern;
+/// opens by itself when one drifts. Open/closed is remembered per scene.
 struct HealthMonitorCard: View {
     @Environment(HealthStore.self) private var health
     @State private var sheet: MetricState?
+    @SceneStorage("today.monitor.open") private var open = false
 
     static let vitals: [MetricID] = [.restingHR, .hrv, .breathing, .spo2, .skinTemp]
 
@@ -311,11 +314,67 @@ struct HealthMonitorCard: View {
     var body: some View {
         let states = Self.vitals.map { health.state($0) }
         let drifting = states.filter(\.isConcern)
+        Group {
+            if open || !drifting.isEmpty {
+                expanded(states, drifting: drifting)
+            } else {
+                folded(states)
+            }
+        }
+        .sheet(item: $sheet) { MetricSheet(state: $0) }
+        // Auto-open on drift; stays open after it settles until folded again.
+        .onChange(of: drifting.isEmpty, initial: true) { _, quiet in
+            if !quiet && !open { open = true }
+        }
+    }
+
+    /// Quiet state: one row, tap to unfold in place.
+    private func folded(_ states: [MetricState]) -> some View {
         let shared = states.filter(\.hasData)
-        Card {
-            CardTitle(title: "Health monitor",
-                      trailing: shared.isEmpty ? "Waiting for sync" : "\(shared.count - drifting.count) of \(shared.count) in range",
-                      coach: CoachTarget(metric: nil, name: "Health monitor"))
+        return Button { Motion.animate(Motion.crossfade) { open = true } } label: {
+            Card {
+                HStack(spacing: Space.s) {
+                    if !shared.isEmpty { tierDot(.inRange) }
+                    Text(shared.isEmpty ? "Health monitor is waiting for sync" : "All vitals in your usual range")
+                        .typo(.headline).foregroundStyle(Theme.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: Space.s)
+                    Image(systemName: "chevron.down")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.graphite)
+                        .accessibilityHidden(true)
+                }
+                .frame(minHeight: 44)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PressStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Health monitor. " + (shared.isEmpty ? "Waiting for sync" : "All vitals in your usual range"))
+        .accessibilityHint("Shows the last 7 nights for each vital")
+    }
+
+    private func expanded(_ states: [MetricState], drifting: [MetricState]) -> some View {
+        let shared = states.filter(\.hasData)
+        return Card {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                CardTitle(title: "Health monitor",
+                          trailing: shared.isEmpty ? "Waiting for sync" : "\(shared.count - drifting.count) of \(shared.count) in range",
+                          coach: CoachTarget(metric: nil, name: "Health monitor"))
+                if drifting.isEmpty {
+                    Button { Motion.animate(Motion.crossfade) { open = false } } label: {
+                        Image(systemName: "chevron.up")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Theme.graphite)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PressStyle())
+                    .padding(.vertical, -Space.m)
+                    .padding(.trailing, -Space.m)
+                    .accessibilityLabel("Fold health monitor")
+                }
+            }
             Text(drifting.isEmpty ? "Your vitals sat in their usual range this week." : "Alerts you when 2 or more vitals drift on the same night.")
                 .typo(.body).foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
@@ -356,7 +415,6 @@ struct HealthMonitorCard: View {
                 .typo(.caption).foregroundStyle(Theme.graphite)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .sheet(item: $sheet) { MetricSheet(state: $0) }
     }
 
     @ViewBuilder private func square(_ c: Cell) -> some View {

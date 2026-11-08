@@ -54,6 +54,13 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
     var showMenu = false
     var showJournal = false
     var paths: [AppTab: [Route]] = [:]
+    /// Bumped when the already-selected tab is tapped again on its root screen: that tab scrolls to the top.
+    var scrollTopTick: [AppTab: Int] = [:]
+
+    /// Tapping the current tab again (standard iOS): first back to the tab's start screen, then to the top.
+    func reselect(_ tab: AppTab) {
+        if !(paths[tab] ?? []).isEmpty { paths[tab] = [] } else { scrollTopTick[tab, default: 0] += 1 }
+    }
     /// v1.1 Coach: metric the coach sheet was opened about (CoachMark / "Ask about this").
     var coachMetric: MetricID? = nil
     var showCoachSheet = false
@@ -63,6 +70,25 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
     func openCoach(about metric: MetricID?) {
         guard CoachPrefs.isEnabled else { return }
         if let metric { coachMetric = metric; showCoachSheet = true } else { tab = .coach }
+    }
+
+    /// v1.3: question to send once when the Coach opens (Coach note chips). The Coach tab / sheet sends it
+    /// when it appears, then clears it (`takeCoachPrompt()`).
+    var coachPrompt: String? = nil
+
+    /// Opens the coach like `openCoach(about:)` and sends `question` once it is on screen.
+    /// Does nothing while the coach is switched off in Menu (v1.0 behaviour).
+    func openCoach(about metric: MetricID?, asking question: String?) {
+        guard CoachPrefs.isEnabled else { return }
+        let q = question?.trimmingCharacters(in: .whitespacesAndNewlines)
+        coachPrompt = (q?.isEmpty ?? true) ? nil : q
+        openCoach(about: metric)
+    }
+
+    /// Returns the pending `coachPrompt` and clears it (nil while the coach is off).
+    func takeCoachPrompt() -> String? {
+        defer { coachPrompt = nil }
+        return CoachPrefs.isEnabled ? coachPrompt : nil
     }
 
     /// Always opens the coach as a sheet over the current screen, also without a metric
@@ -168,5 +194,36 @@ enum CoachPrefs {
     }
     static var style: Style {
         UserDefaults.standard.string(forKey: Key.style).flatMap(Style.init(rawValue:)) ?? defaultStyle
+    }
+}
+
+
+// MARK: - Tap the tab again → top
+
+extension View {
+    /// Scrolls this tab's root scroll view to the top when its tab is tapped again.
+    func scrollsToTopOnReselect(_ tab: AppTab) -> some View { modifier(ReselectScrollTop(tab: tab)) }
+}
+
+private struct ReselectScrollTop: ViewModifier {
+    let tab: AppTab
+    func body(content: Content) -> some View {
+        if #available(iOS 18, *) { content.modifier(ReselectScrollTop18(tab: tab)) } else { content }
+    }
+}
+
+@available(iOS 18, *)
+private struct ReselectScrollTop18: ViewModifier {
+    let tab: AppTab
+    @Environment(AppNav.self) private var nav
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var position = ScrollPosition(edge: .top)
+
+    func body(content: Content) -> some View {
+        content
+            .scrollPosition($position)
+            .onChange(of: nav.scrollTopTick[tab]) { _, _ in
+                withAnimation(reduceMotion ? nil : .smooth(duration: 0.35)) { position.scrollTo(edge: .top) }
+            }
     }
 }

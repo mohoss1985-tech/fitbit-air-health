@@ -26,6 +26,16 @@ final class CoachToolContext {
     private(set) var plans: [String: CoachPlan] = [:]
     /// Tool names called this turn (debug / tests).
     private(set) var calls: [String] = []
+    /// v1.3 B5: metric this turn is about (from `CoachRules.focus`), nil = general / recovery / plan.
+    private(set) var focusMetric: MetricID?
+    /// v1.3 B5: journal tags tools may quote this turn (nil = all). Set by the engine each turn.
+    private(set) var allowedTags: Set<String>?
+
+    /// Sets what this turn is about (call after `beginTurn()`).
+    func setFocus(metric: MetricID?, allowedTags: Set<String>?) {
+        focusMetric = metric
+        self.allowedTags = allowedTags
+    }
 
     init(health: HealthStore, journal: JournalStore, profile: CoachProfile = .saved) {
         self.health = health
@@ -40,6 +50,8 @@ final class CoachToolContext {
         profile = .saved
         numbers = []
         calls = []
+        focusMetric = nil
+        allowedTags = nil
     }
 
     /// Adds every number in `text` to the allowed set (e.g. numbers the user typed).
@@ -202,6 +214,10 @@ final class CoachToolContext {
         if let tr = Insights.trend(s) { out += "; \(tr.sentence)" }
         if s.isConcern {
             out += "; possible causes if high: \(id.info.ifHigh)"
+            // v1.3 B5: which journal tags can affect this metric (the model must not link any other tag).
+            let tags = CoachRules.relevantTags(for: id)
+            out += tags.isEmpty ? "; no journal tag affects this"
+                                : "; journal tags that can affect this: " + tags.sorted().joined(separator: ", ")
         }
         let n = max(3, min(days, 14))
         let series = s.series.suffix(n).map { "\(dayWord($0.date)) \(id.format($0.value))" }
@@ -292,13 +308,28 @@ final class CoachToolContext {
         let cal = Calendar.current
         let today = cal.startOfDay(for: Demo.now)
         var rows: [String] = []
+        var hidden = false
         for ago in (0..<n).reversed() {
             guard let d = cal.date(byAdding: .day, value: -ago, to: today) else { continue }
-            let tags = journal.entries(for: d)
+            var tags = journal.entries(for: d)
+            // v1.3 B5: only tags that can affect what this turn is about.
+            if let allowed = allowedTags {
+                let kept = tags.intersection(allowed)
+                if kept.count != tags.count { hidden = true }
+                tags = kept
+            }
             if !tags.isEmpty { rows.append("\(dayWord(d)): " + tags.sorted().joined(separator: ", ")) }
         }
-        var out = rows.isEmpty ? "no tags in the last \(n) days" : "tags: " + rows.joined(separator: " | ")
-        let disc = journal.discoveries
+        var out = rows.isEmpty ? (allowedTags == nil ? "no tags" : "no relevant tags") + " in the last \(n) days" : "tags: " + rows.joined(separator: " | ")
+        if hidden {
+            let about = focusMetric.map { $0.info.name.lowercased() } ?? "this question"
+            out += " (only tags that can affect \(about) are listed; do not link other tags to it)"
+        }
+        var disc = journal.discoveries
+        if let allowed = allowedTags {
+            let blocked = CoachRules.allTags.filter { !allowed.contains($0) }.map { $0.lowercased() }
+            disc = disc.filter { line in !blocked.contains { line.lowercased().contains($0) } }
+        }
         if !disc.isEmpty { out += "; discoveries: " + disc.joined(separator: " ") }
         else if let p = journal.progressText { out += "; \(p)" }
         return emit("getJournal", status: "Reading your journal…", out)

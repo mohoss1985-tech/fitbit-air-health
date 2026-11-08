@@ -144,19 +144,25 @@ struct CoachView: View {
 struct CoachSheet: View {
     let metric: MetricID?
     @Environment(CoachEngine.self) private var engine
+    @Environment(AppNav.self) private var nav
     @State private var seeded = false
+    /// v1.3: question from `nav.coachPrompt` (Coach note chip), sent once right after seeding.
+    @State private var prompt: String?
 
     init(metric: MetricID?) { self.metric = metric }
 
     var body: some View {
-        CoachConversation(context: .sheet(metric))
+        CoachConversation(context: .sheet(metric), prompt: prompt)
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationBackground(Theme.paper)
             .onAppear {
                 guard !seeded else { return }
                 seeded = true
-                engine.start(about: metric)
+                let q = nav.takeCoachPrompt()
+                // With a question to send, skip the instant opener: the reply answers the question.
+                engine.start(about: metric, opener: q == nil)
+                prompt = q
             }
     }
 }
@@ -232,7 +238,8 @@ struct CoachNoteCard: View {
             if !collapsed && !note.chips.isEmpty {
                 CoachFlowLayout(spacing: Space.s) {
                     ForEach(Array(note.chips.prefix(2)), id: \.self) { chip in
-                        SuggestionChip(text: chip) { nav.openCoach(about: note.metric) }
+                        // v1.3: the chip opens Coach and sends its question.
+                        SuggestionChip(text: chip) { nav.openCoach(about: note.metric, asking: chip) }
                     }
                 }
                 .padding(.top, Space.xs)

@@ -34,6 +34,10 @@ struct ContentView: View {
                 live.start(health: health)
                 await Notifier.requestPermission()
             }
+            #if DEBUG
+            // v1.3: `-runChecks` runs the Coach B1–B5 self-test once and prints "CHECK …" lines.
+            if ProcessInfo.processInfo.arguments.contains("-runChecks") { runCoachChecks() }
+            #endif
         }
         .onChange(of: health.hasAsked) { _, asked in
             guard asked, !Demo.isOn else { return }
@@ -63,6 +67,13 @@ struct ContentView: View {
     }
 
     /// Hands the coach the stores it reads (tools + rules). Safe to call again after each refresh.
+    #if DEBUG
+    private func runCoachChecks() {
+        let failures = CoachRulesChecks.run(health: health, journal: journal) { print("CHECK \($0)") }
+        print(failures.isEmpty ? "CHECK ALL PASSED" : "CHECK \(failures.count) FAILED")
+    }
+    #endif
+
     private func configureCoach() {
         coach.configure(health: health, journal: journal)
     }
@@ -89,7 +100,9 @@ private struct MainTabs: View {
         }
         // Custom bar floats over content; each tab reserves room for it with a safe-area inset.
         // The bar hides while the keyboard is up (Coach composer), so the composer sits right on the keyboard.
-        .overlay(alignment: .bottom) { if !keyboardUp { TabBar(selection: $nav.tab, tabs: tabs) } }
+        .overlay(alignment: .bottom) {
+            if !keyboardUp { TabBar(selection: $nav.tab, tabs: tabs) { nav.reselect($0) } }
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardUp = true }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in keyboardUp = false }
         .sheet(isPresented: $nav.showMenu) { MenuView() }
@@ -122,6 +135,8 @@ private struct MainTabs: View {
 private struct TabBar: View {
     @Binding var selection: AppTab
     var tabs: [AppTab] = AppTab.allCases
+    /// Tap on the tab that is already selected.
+    var onReselect: (AppTab) -> Void = { _ in }
     static let reservedHeight: CGFloat = 76
 
     var body: some View {
@@ -131,7 +146,7 @@ private struct TabBar: View {
                 Button {
                     var tx = Transaction()
                     tx.disablesAnimations = true
-                    withTransaction(tx) { selection = t }
+                    if t == selection { onReselect(t) } else { withTransaction(tx) { selection = t } }
                 } label: {
                     VStack(spacing: Space.xs) {
                         Group {

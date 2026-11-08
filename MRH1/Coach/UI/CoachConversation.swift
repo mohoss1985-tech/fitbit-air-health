@@ -16,6 +16,14 @@ enum CoachContext: Equatable {
 
 struct CoachConversation: View {
     let context: CoachContext
+    /// v1.3: a question to send once when it arrives (CoachSheet passes `nav.coachPrompt`).
+    /// The Coach tab reads `nav.coachPrompt` itself.
+    var prompt: String? = nil
+
+    init(context: CoachContext, prompt: String? = nil) {
+        self.context = context
+        self.prompt = prompt
+    }
 
     @Environment(CoachEngine.self) private var engine
     @Environment(HealthStore.self) private var health
@@ -29,6 +37,7 @@ struct CoachConversation: View {
     @State private var pillSheet: MetricState?
     @State private var confirmDelete = false
     @State private var chipTaps = 0
+    @State private var sentPrompt = false
     @FocusState private var composerFocused: Bool
 
     static let footer = "AI coach on this iPhone · can be wrong · wellness, not medical advice."
@@ -50,7 +59,7 @@ struct CoachConversation: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: Space.xl) {
-                        intro
+                        intro.id(Self.topID)
                         ForEach(engine.messages) { m in
                             turn(m).id(m.id)
                         }
@@ -67,14 +76,26 @@ struct CoachConversation: View {
                     .animation(Motion.crossfade, value: showThinking)
                 }
                 .scrollDismissesKeyboard(.interactively)
-                .defaultScrollAnchor(engine.messages.isEmpty ? .top : .bottom)
+                // v1.3 B4: a short chat sits at the top (no empty band above the first reply);
+                // a long chat still opens at the latest turn.
+                .chatScrollAnchor()
+                .onAppear {
+                    if #unavailable(iOS 18) { scrollDown(proxy, animated: false) }
+                }
                 .onChange(of: engine.messages.count) { _, _ in scrollDown(proxy) }
                 .onChange(of: engine.messages.last?.reply?.body) { _, _ in scrollDown(proxy, animated: false) }
                 .onChange(of: engine.isThinking) { _, _ in scrollDown(proxy) }
+                // Tap the Coach tab again → top of the chat.
+                .onChange(of: nav.scrollTopTick[.coach]) { _, _ in
+                    guard context == .tab else { return }
+                    withAnimation(reduceMotion ? nil : .smooth(duration: 0.35)) { proxy.scrollTo(Self.topID, anchor: .top) }
+                }
             }
             bottomBar
         }
         .background(Theme.paper.ignoresSafeArea())
+        // Swipe right from the left edge = the back arrow (same as every other screen).
+        .simultaneousGesture(backSwipe)
         .sheet(item: $pillSheet) { MetricSheet(state: $0) }
         .sensoryFeedback(.selection, trigger: chipTaps)
         .confirmationDialog("Delete coach history?", isPresented: $confirmDelete, titleVisibility: .visible) {
@@ -87,9 +108,45 @@ struct CoachConversation: View {
             if !was && now { announce("Coach is replying") }
             if was && !now { announce("Coach replied") }
         }
+        // v1.3: Coach note chips → send their question once when the coach appears.
+        .onAppear { sendPendingPrompt() }
+        .onChange(of: prompt) { _, _ in sendPendingPrompt() }
+        .onChange(of: nav.coachPrompt) { _, _ in sendPendingPrompt() }
+        .onChange(of: nav.tab) { _, _ in sendPendingPrompt() }
+    }
+
+    /// Sheet: sends `prompt` once. Tab: takes `nav.coachPrompt` while the Coach tab is showing (and no sheet is
+    /// up), starts a fresh chat and sends it. Coach off → `takeCoachPrompt()` returns nil.
+    private func sendPendingPrompt() {
+        switch context {
+        case .sheet:
+            guard let p = prompt, !sentPrompt else { return }
+            sentPrompt = true
+            send(p, about: context.metric)
+        case .tab:
+            guard nav.coachPrompt != nil, nav.tab == .coach, !nav.showCoachSheet,
+                  let p = nav.takeCoachPrompt() else { return }
+            stop()
+            composerFocused = false
+            engine.start(about: nil, opener: false)
+            send(p, about: nil)
+        }
     }
 
     private static let bottomID = "coach.bottom"
+    private static let topID = "coach.top"
+
+    private var backSwipe: some Gesture {
+        DragGesture(minimumDistance: 20, coordinateSpace: .global)
+            .onEnded { g in
+                guard context == .tab, !engine.messages.isEmpty,
+                      g.startLocation.x < 40,
+                      g.translation.width > 80,
+                      abs(g.translation.height) < g.translation.width * 0.6 else { return }
+                stop(); composerFocused = false
+                withAnimation(reduceMotion ? nil : Motion.enter) { engine.newChat() }
+            }
+    }
 
     // MARK: Header
 
@@ -298,6 +355,23 @@ struct CoachConversation: View {
 
     private func announce(_ text: String) {
         UIAccessibility.post(notification: .announcement, argument: text)
+    }
+}
+
+// MARK: - Scroll anchor (v1.3 B4)
+
+private extension View {
+    /// iOS 18+: short content aligns to the top, the first layout of a long chat starts at the bottom, and growth
+    /// keeps the bottom in view. iOS 17: top anchor; `CoachConversation` scrolls down on appear and on new turns
+    /// (`scrollTo` on content shorter than the viewport is a no-op, so a short chat stays at the top).
+    @ViewBuilder func chatScrollAnchor() -> some View {
+        if #available(iOS 18, *) {
+            self.defaultScrollAnchor(.top, for: .alignment)
+                .defaultScrollAnchor(.bottom, for: .initialOffset)
+                .defaultScrollAnchor(.bottom, for: .sizeChanges)
+        } else {
+            self.defaultScrollAnchor(.top)
+        }
     }
 }
 

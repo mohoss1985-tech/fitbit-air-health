@@ -69,6 +69,7 @@ struct TrendsView: View {
             .padding(.top, Space.s)
             .padding(.bottom, Space.xxl)
         }
+        .scrollsToTopOnReselect(.trends)
         .background(Theme.paper)
         .navigationTitle("Trends")
         .toolbar {

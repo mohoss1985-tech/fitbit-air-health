@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Swipeable day cards ("Your week" on Today)
 
-/// Horizontal day cards, newest on the right. The day circles at the top of Today
+/// Horizontal day cards, newest on the right. The day circles in the Week segment of Today
 /// select a card through `selected`.
 struct WeekStrip: View {
     @Environment(HealthStore.self) private var health

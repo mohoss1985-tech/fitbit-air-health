@@ -1,0 +1,61 @@
+# v1.3-02 — Scroll depth and hierarchy for the Today screen (measurable rules)
+
+This builds on research/03 (the §1 hierarchy, §3 spacing and §9 checklist all still apply). It covers only what 03 does not: how deep people scroll, what has to sit above the fold, in-page navigation, collapsing, and the iOS 26/27 Liquid Glass scroll behaviour.
+
+## Sources (pages actually read, 2026-11-08)
+- NN/g, *Scrolling and Attention* (2018 eyetracking, 130k fixations): https://www.nngroup.com/articles/scrolling-and-attention/
+- NN/g, *Illusion of Completeness / false floors*: https://www.nngroup.com/articles/illusion-of-completeness/
+- NN/g, *Progressive Disclosure*: https://www.nngroup.com/articles/progressive-disclosure/
+- NN/g, *In-page links*: https://www.nngroup.com/articles/in-page-links/
+- NN/g, *Accordions on mobile*: https://www.nngroup.com/articles/mobile-accordions/
+- NN/g, *Sticky headers*: https://www.nngroup.com/articles/sticky-headers/
+- NN/g, *Inverted pyramid*: https://www.nngroup.com/articles/inverted-pyramid/
+- NN/g, *Dashboards: preattentive*: https://www.nngroup.com/articles/dashboards-preattentive/
+- Apple HIG pages, read as JSON through developer.apple.com/tutorials/data/…: Layout https://developer.apple.com/design/human-interface-guidelines/layout · Scroll views https://developer.apple.com/design/human-interface-guidelines/scroll-views · Tab bars (change log: Liquid Glass Jul 2025 and Dec 2025, art updated 8 Jun 2026) https://developer.apple.com/design/human-interface-guidelines/tab-bars · Segmented controls https://developer.apple.com/design/human-interface-guidelines/segmented-controls · Disclosure controls https://developer.apple.com/design/human-interface-guidelines/disclosure-controls · Pickers https://developer.apple.com/design/human-interface-guidelines/pickers · Toolbars https://developer.apple.com/design/human-interface-guidelines/toolbars
+- Apple, *Adopting Liquid Glass*: https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass · `scrollEdgeEffectStyle(_:for:)`, `safeAreaBar(edge:…)`, `tabBarMinimizeBehavior(_:)` API pages on developer.apple.com/documentation/swiftui
+- Material 3 date pickers, through Android Compose: https://developer.android.com/develop/ui/compose/components/datepickers (m3.material.io only renders with JavaScript, so it could not be read)
+- Baymard #1129, *"Collapsed Sections" Layout on Mobile*: https://baymard.com/guidelines/1129-collapsed-sections-layout-on-mobile (rated "Essential – Impactful" for mobile apps; the findings are paywalled, so only that rating is cited)
+
+## Findings
+
+**F1 — Attention drops off a cliff after the first screen.** NN/g 2018: 57 % of viewing time is above the fold, 74 % is in the first two screens and 81 % in the first three. The second screen alone gets about 17 %. The top half of the first screen gets more than 65 % of the above-the-fold time. Users "rarely scroll beyond the third screenful." This was measured on desktop. A phone screen is about 3× shorter, so a 3-screen budget on a phone holds much less content. *Rule: the answer sits in the top half of screen 1, and nothing the owner checks daily goes deeper than screen 2.*
+
+**F2 — Put the answer first.** HIG Layout: "place the most important items near the top." NN/g inverted pyramid: put the conclusion first and the detail after it in descending order, so a reader who stops early still gets the point. On Today the conclusion is verdict plus the three gauges. The M–S strip is navigation, not an answer, and right now it uses about 80 pt of the most valuable space on screen.
+
+**F3 — Watch for false floors.** NN/g: large gaps and full-width dividers make people think the page has ended. In one study 6 of 8 users didn't realise they could scroll. Fixes: let the next item show above the fold, keep gaps moderate, and add a visible cue after a big element. Our Today header ends with `Space.section` (32 pt) of padding plus an orb fade, which is a typical false floor under a hero.
+
+**F4 — Disclose in two levels, no more.** NN/g: more than 2 levels "typically have low usability." Put the frequent items on the first level so people only need level 2 occasionally. HIG Disclosure: "Use no more than one disclosure button in a single view," and put the most-used controls at the top. Baymard rates collapsible sections on long mobile pages as essential. NN/g Accordions: don't auto-expand the first section if that pushes the other headings out of view, expand in place, and give long expanded content a sticky header.
+
+**F5 — In-page links help on long mobile pages, with conditions.** NN/g: they help on mobile, where the same content takes many more scrolls. Put them at the top of the content, match the link text to the section heading, land the target heading near the top with a little space above it, and never let sticky elements cover the heading. A page with only 4–5 topics may be better split into separate views. In-page links suit content read in order. Accordions suit content people pick from, but every open costs a tap.
+
+**F6 — Use a segmented control for closely related subviews.** HIG: use a segmented control "to switch between closely related subviews," with ≤5 segments on iPhone, noun labels, equal widths, text or icons but not both, and no intro text. Use a tab bar for separate sections of the app. *Today and Week are two time views of the same data, which fits a segmented control. They are not separate sections, so a new tab would be wrong.*
+
+**F7 — Sticky headers have a size limit.** NN/g: keep the content-to-chrome ratio high (13:1 is reasonable, 2:1 is "excessively large"). Use an opaque, high-contrast background, avoid jumpy movement, and keep tap targets at least 1 × 1 cm. On a ~730 pt content viewport, 13:1 means a pinned bar ≤ 56 pt.
+
+**F8 — Liquid Glass (iOS 26, still current in iOS 27 HIG).** The tab bar floats above content on glass. Use the system scroll edge effect instead of custom backgrounds under bars ("Instead of applying a solid or semi-opaque background color beneath controls, use a scroll edge effect"). Use the edge effect only where the scroll view runs behind floating UI, with one edge effect per view. Prefer `.automatic` style, since it gives more opaque separation for text outside glass controls and for pinned headers. `safeAreaBar(edge:)` insets the safe area and extends the scroll edge effect under custom bars. `tabBarMinimizeBehavior` exists, but HIG describes it for tab bars with an accessory. HIG also says to keep the tab bar visible and not hide tabs. Full-bleed backgrounds such as our orbs should extend under bars.
+
+**F9 — Auto-scroll as little as possible.** HIG Scroll views: when your app scrolls for the user, scroll "only as much as necessary to help people retain context." Don't nest same-axis scroll views. Show partial content at the edge to signal that more exists.
+
+**F10 — Use the compact date style when space is tight.** HIG Pickers: the compact date picker is a button showing the current value that opens a modal calendar. Material 3 docked pickers sit inline near their field, and modal pickers are for focused selection. Neither system puts a date strip above the primary content of a summary screen. Date context lives in the title area or next to the content it filters.
+
+**F11 — Use grouping, not colour, to show relatedness.** NN/g Dashboards: proximity and shared containers are stronger signals of relatedness than colour. This supports 03 §1.5 (gap between groups ≥ 2× gap inside a group).
+
+## Decisions for MRH1 v1.3
+
+Viewport budget (iPhone 17/18 Pro, 402 × 874 pt, default Dynamic Type): roughly the first 700 pt from the top of the screen are visible above the floating tab bar. Call this **Fold 1**.
+
+1. **New top-down order (Fold 1 = answer only):** `topBar` → verdict (`Typo.title`) → rings (Sleep · Recovery · Strain) → `statusLines` → **`PanelsStrip`** (body panels, "N to watch") → **Today | Week switch**. The M–S `DayCircles` leave the header (F2, F10). Acceptance check: on a screenshot, the switch's top edge is ≤ 700 pt and the rings are entirely within the top 50 % of the screen (F1).
+2. **Date context moves into the title row.** `topBar` shows "Today · Sat 8 Nov" (locale-formatted, `Typo.headline`, ink) between the menu and **+** buttons. Nothing about the date sits above the verdict (F10).
+3. **Add a segmented `PillPicker` "Today | Week" under the panels strip.** Two segments, nouns, equal width, `minHeight` 44 pt (raise it from 36 pt for this instance, or wrap it in a 44 pt frame). Switching segments crossfades only (`Motion.crossfade`), with no slide. Store the selection in `@SceneStorage("today.segment")`. Default to **Today**, except on Mondays when it defaults to **Week** while the weekly report is new (F6).
+4. **Pin the switch.** Use `LazyVStack(spacing: Space.cardGap, pinnedViews: .sectionHeaders)` with the switch as the `Section` header. The pinned bar is ≤ 56 pt tall: a 44 pt switch with `Space.xs` (4) above and `Space.s` (8) below (F7). Background is `Theme.paper`, opaque. On iOS 26+ also set `.scrollEdgeEffectStyle(.automatic, for: .top)`. Don't add a custom gradient (F8).
+5. **The Today segment holds ≤ 5 cards, then the journal**, in this order: `CoachNoteCard` (if any) → `StrainTargetCard` → `LastNightCard` → `StressCard` → `HealthMonitorCard` (with `DriftBanner` folded into its top row when drifting) → `JournalCard` → footer. No section label is needed inside this segment (F1, F4, 03 §1.7).
+6. **The Week segment holds:** `DayCircles` (now the week's day selector, placed next to the content it filters, F10) → `SleepBalanceCard` → `WeekStrip` → `WeeklyReportCard` (Mondays, first after the circles). Tapping a day circle selects that day in place without any scroll. Remove the current `proxy.scrollTo("week")` jump (F9).
+7. **Never more than 5 cards before a section label or segment boundary.** If a later feature pushes either segment past 5 cards, add a `SectionLabel` (already `.isHeader`, so it appears in the VoiceOver headings rotor). That gives VoiceOver users jump links at no cost (F5).
+8. **Collapse `HealthMonitorCard` when it's quiet.** When no vital `isConcern`, show one row "All vitals in your usual range" plus a chevron that expands it in place (`DisclosureGroup`-style, expanded state in `@SceneStorage`). Auto-expand when something drifts. This is the only disclosure control on Today (F4).
+9. **Avoid false floors.** Header `.padding(.bottom, Space.section)` becomes `Space.xl` (24). Shorten the orb mask fade so the panels strip sits on solid `Theme.paper`. Inside the header, 03's spacing still holds: `Space.xl` between header blocks and `Space.cardGap` (12) between cards (F3).
+10. **Spacing tokens.** Panels strip to switch: `Space.xl` (24). Switch to first card: `Space.m` (12). Card to card: `Space.cardGap` (12). Before the journal and footer group: `Space.section` (32, ≥ 2× cardGap, F11). Bottom inset: `Space.xxl` (48) plus the system tab-bar safe area. No full-width dividers anywhere on Today (F3).
+11. **Peek rule.** In both segments at default type, at least 44 pt of the first card shows below the pinned switch above the tab bar. Check this on both the light and dark screenshots.
+12. **Scroll-to-top on tab reselect** (already built) also resets the scroll offset but **keeps** the segment. A second reselect when already at the top switches back to **Today**, so a double reselect always means "home". This is our own convention, not something the HIG says.
+13. **Liquid Glass hygiene:** keep the system tab bar with no custom background. Leave `tabBarMinimizeBehavior` at default, since we have no accessory and the HIG says to keep tabs visible. Let the orb background keep extending under the status bar. Don't put `.glassEffect` on cards; glass is for controls only (F8).
+14. **Accessibility layout.** At `dynamicTypeSize >= .accessibility1` the pinned switch stops pinning (plain header) so it doesn't eat more than 1/13 of the viewport. The rings stack to one column per 03 §3.
+15. **Measure it.** In the demo build, log `onScrollGeometryChange` max offset per session (debug only) and confirm the median Today session needs ≤ 2 screens (≈ 1,460 pt) to reach the Week content. With the switch it's 0 pt plus one tap.

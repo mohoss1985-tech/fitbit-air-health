@@ -40,6 +40,7 @@ struct PanelsView: View {
             if ProcessInfo.processInfo.arguments.contains("metabolic") { proxy.scrollTo("metabolic", anchor: .top) }
         }
         }
+        .scrollsToTopOnReselect(.body)
         .background(Theme.paper)
         .navigationTitle("Body")
         .navigationBarTitleDisplayMode(.inline)

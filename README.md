@@ -6,6 +6,20 @@
 
 Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google, Fitbit or Apple.
 
+## New in v1.3 · Today, re-ordered
+
+- **Gauges first.** Sleep · Recovery · Strain sit right under the greeting; body panels are on the first screen.
+- **Pinned mini gauges.** Scroll down and the three gauges shrink into a small bar that stays at the top.
+- **Today | Week switch.** The week (day circles, sleep balance, week strip, Monday report) is one tap away.
+- **Health monitor folds** to one line when every vital is in your usual range.
+- **iOS polish.** Tap the current tab to go back and scroll to the top; swipe right to go back in a Coach chat.
+- **Coach fixes.** Headline and Coach note always agree; recovery questions get recovery answers, worded by your score;
+  journal tags are only linked to metrics they affect; Coach note chips ask their question.
+
+| Today | Scrolled (pinned gauges) | Week | Light |
+|---|---|---|---|
+| ![](screenshots/v1.3/A-today-top.png) | ![](screenshots/v1.3/A-today-pinned.png) | ![](screenshots/v1.3/A-week-top.png) | ![](screenshots/v1.3/A-light-today-pinned.png) |
+
 ## New in v1.2 · Blood pressure and metabolic signals
 
 <p align="center">

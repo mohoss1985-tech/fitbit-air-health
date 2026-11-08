@@ -1,9 +1,13 @@
 import SwiftUI
 
-/// Today: one calm read, then the detail right below it (DESIGN_SPEC §4).
-/// Order: header (menu · greeting · +) → day circles → verdict over orbs → rings → freshness →
-/// strain target → stress → panels → drift → health monitor → last night → your week →
-/// weekly report (Mondays) → journal → footer.
+/// Today: one calm read, then the detail right below it (DESIGN_SPEC_v1.3 §4, supersedes DESIGN_SPEC §4).
+/// Order: header (menu · greeting + date · +) → verdict over orbs → rings (Sleep · Recovery · Strain) →
+/// freshness / status lines → body panels → "Today | Week" switch (pinned once scrolled) →
+///   Today: coach note (if any) → strain target → last night → stress → drift banner (when drifting) →
+///          health monitor (folds to one row when quiet) → journal → footer.
+///   Week:  day circles (select a day in place) → weekly report (Mondays) → sleep balance → week strip → footer.
+/// When the big rings scroll away a compact gauge bar (36 pt rings) pins above the switch (TodayPinned.swift).
+/// Nothing pins at accessibility type sizes. Do not put the M–S day circles back in the header.
 struct TodayView: View {
     @Environment(HealthStore.self) private var health
     @Environment(AppNav.self) private var nav
@@ -16,49 +20,192 @@ struct TodayView: View {
     @State private var animateRings = TickRingGate.firstOpenToday("today.rings")
     @State private var selectedDay: Date?
 
+    /// Segment + the day it was picked: a pick from an earlier day falls back to the default
+    /// (Week on Mondays while the weekly report is new, Today otherwise).
+    @SceneStorage("today.segment") private var segmentRaw = ""
+    @SceneStorage("today.segmentDay") private var segmentDay = ""
+
+    // Scroll tracking (global y, relative to the top of the safe area).
+    @State private var safeTop: CGFloat = 0
+    @State private var viewportHeight: CGFloat = 0
+    @State private var gaugeProgress: Double = 0
+    @State private var switchPinned = false
+    @State private var atTop = true
+
     private var now: Date { Demo.now }
     private var hour: Int { Calendar.current.component(.hour, from: now) }
     private var isEvening: Bool { hour >= 18 || hour < 4 }
+    private var pins: Bool { typeSize < .accessibility1 }
+
+    private var dayKey: String {
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: now)
+        return "\(c.year ?? 0)-\(c.month ?? 0)-\(c.day ?? 0)"
+    }
+    private var defaultSegment: TodaySegment {
+        Calendar.current.component(.weekday, from: now) == 2 ? .week : .today
+    }
+    private var segment: Binding<TodaySegment> {
+        Binding(get: {
+            segmentDay == dayKey ? (TodaySegment(rawValue: segmentRaw) ?? defaultSegment) : defaultSegment
+        }, set: {
+            segmentRaw = $0.rawValue
+            segmentDay = dayKey
+        })
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    header(proxy)
-                    VStack(alignment: .leading, spacing: Space.cardGap) {
-                        if let note = coachNote { CoachNoteCard(note: note) }
-                        StrainTargetCard()
-                        StressCard()
-                        PanelsStrip { nav.tab = .body }
-                        DriftBanner()
-                        HealthMonitorCard()
-                        if let s = health.lastSleep { LastNightCard(session: s) }
-
-                        SectionLabel("Your week")
-                            .padding(.top, Space.section - Space.cardGap)
-                            .id("week")
-                        SleepBalanceCard()
-                        WeekStrip(selected: $selectedDay)
-
-                        if Calendar.current.component(.weekday, from: now) == 2 {
-                            WeeklyReportCard()   // Mondays: last week's report (owned by Trends + Week)
-                                .padding(.top, Space.section - Space.cardGap)
+                    header
+                    PanelsStrip { nav.tab = .body }
+                        .padding(.horizontal, Space.gutter)
+                        .id("today.panels")
+                        .overlay(alignment: .bottom) {
+                            // Scroll target whose top is one gauge bar above the switch: scrolling it to the top
+                            // lands the switch exactly on its pinned line.
+                            Color.clear
+                                .frame(height: max(0, (pins ? TodayPinned.compactHeight : 0) - (Space.xl - Space.xs)))
+                                .id("today.switch")
+                                .accessibilityHidden(true)
                         }
-
-                        JournalCard { nav.showJournal = true }
-                            .padding(.top, Space.section - Space.cardGap)
-
-                        footer
+                    // Panels → switch Space.xl (the bar carries Space.xs of it), switch → first card Space.m.
+                    TodaySwitchBar(segment: segment)
+                        .padding(.top, Space.xl - Space.xs)
+                        .opacity(switchPinned ? 0 : 1)
+                        .accessibilityHidden(switchPinned)
+                        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY + (Space.xl - Space.xs) } action: { y in
+                            track(switchTop: y)
+                        }
+                    ZStack(alignment: .top) {
+                        // A short segment (Week) still fills the screen under the pinned stack, so switching
+                        // segments while pinned never makes the page jump. A spacer, not a min-height frame:
+                        // the cards keep their ideal heights (WeekStrip's horizontal ScrollView would stretch).
+                        Color.clear
+                            .frame(height: pins ? max(0, viewportHeight - TodayPinned.compactHeight - TodayPinned.switchHeight
+                                                       - (Space.m - Space.s) - Space.xxl) : 0)
+                            .accessibilityHidden(true)
+                        if segment.wrappedValue == .today {
+                            todaySegment.fixedSize(horizontal: false, vertical: true).transition(.opacity)
+                        } else {
+                            weekSegment.fixedSize(horizontal: false, vertical: true).transition(.opacity)
+                        }
                     }
+                    .padding(.top, Space.m - Space.s)
                     .padding(.horizontal, Space.gutter)
                     .padding(.bottom, Space.xxl)
                 }
             }
             .scrollIndicators(.hidden)
+            .scrollsToTopOnReselect(.today)
+            .modifier(TopOffsetTracker(atTop: $atTop))
             .background(Theme.paper)
+            .overlay(alignment: .top) {
+                if pins && (gaugeProgress > 0 || switchPinned) {
+                    TodayPinnedStack(progress: gaugeProgress, switchPinned: switchPinned, segment: segment)
+                }
+            }
+            .background {
+                GeometryReader { g in
+                    Color.clear
+                        .onAppear {
+                            safeTop = g.frame(in: .global).minY + g.safeAreaInsets.top
+                            viewportHeight = g.size.height
+                        }
+                        .onChange(of: g.frame(in: .global).minY + g.safeAreaInsets.top) { _, v in safeTop = v }
+                        .onChange(of: g.size.height) { _, v in viewportHeight = v }
+                }
+            }
             .refreshable { await health.refresh() }
+            // Switching while pinned keeps the switch where it is and shows the new segment from its top.
+            .onChange(of: segment.wrappedValue) { _, _ in
+                guard switchPinned else { return }
+                var t = Transaction(); t.disablesAnimations = true
+                withTransaction(t) { proxy.scrollTo("today.switch", anchor: .top) }
+            }
+            // A second reselect of the Today tab while already at the top goes "home" (Today segment).
+            .onChange(of: nav.scrollTopTick[.today]) { _, _ in
+                if atTop && segment.wrappedValue != .today {
+                    Motion.animate(Motion.crossfade) { segment.wrappedValue = .today }
+                }
+            }
+            .task { await applyLaunchArguments(proxy) }
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    // MARK: Segments
+
+    private var todaySegment: some View {
+        VStack(alignment: .leading, spacing: Space.cardGap) {
+            if let note = coachNote { CoachNoteCard(note: note) }
+            StrainTargetCard()
+            if let s = health.lastSleep { LastNightCard(session: s) }
+            StressCard()
+            DriftBanner()
+            HealthMonitorCard().id("today.monitor")
+
+            JournalCard { nav.showJournal = true }
+                .padding(.top, Space.section - Space.cardGap)
+
+            footer
+        }
+    }
+
+    private var weekSegment: some View {
+        VStack(alignment: .leading, spacing: Space.cardGap) {
+            // Selects a day card in place: WeekStrip centres it horizontally, the page does not scroll.
+            DayCircles(days: Array(health.history.suffix(7)), selected: selectedDay) { day in
+                Motion.animate(Motion.morph) { selectedDay = day }
+            }
+            if Calendar.current.component(.weekday, from: now) == 2 {
+                WeeklyReportCard()   // Mondays: last week's report (owned by Trends + Week)
+            }
+            SleepBalanceCard()
+            WeekStrip(selected: $selectedDay)
+            footer
+        }
+    }
+
+    // MARK: Scroll tracking → compact gauge bar + pinned switch
+
+    private func track(ringsBottom yGlobal: CGFloat) {
+        let y = yGlobal - safeTop
+        let h = TodayPinned.compactHeight
+        var p: Double
+        if #available(iOS 18, *) {
+            // Morph tied to scroll: starts as the rings' labels reach the bar, done once they're under it.
+            p = Double((h + 40 - y) / 40)
+            p = (max(0, min(p, 1)) * 50).rounded() / 50
+        } else {
+            p = y < h + 8 ? 1 : 0
+        }
+        guard p != gaugeProgress else { return }
+        if #available(iOS 18, *) { gaugeProgress = p } else { Motion.animate(Motion.enter) { gaugeProgress = p } }
+    }
+
+    private func track(switchTop yGlobal: CGFloat) {
+        let pinned = pins && (yGlobal - safeTop) <= TodayPinned.compactHeight
+        if pinned != switchPinned { switchPinned = pinned }
+    }
+
+    /// Screenshot hooks (same family as `-tab` / `-open`): `-segment today|week`,
+    /// `-todayScroll gauges|pinned|monitor` (gauge bar only / gauge bar + pinned switch / health monitor).
+    private func applyLaunchArguments(_ proxy: ScrollViewProxy) async {
+        let args = ProcessInfo.processInfo.arguments
+        func value(_ key: String) -> String? {
+            guard let i = args.firstIndex(of: key), i + 1 < args.count else { return nil }
+            return args[i + 1]
+        }
+        if let s = value("-segment").flatMap(TodaySegment.init(rawValue:)) { segment.wrappedValue = s }
+        guard let scroll = value("-todayScroll") else { return }
+        try? await Task.sleep(for: .seconds(2.5))
+        switch scroll {
+        case "gauges": proxy.scrollTo("today.panels", anchor: .top)
+        case "pinned": proxy.scrollTo("today.switch", anchor: .top)
+        case "monitor": proxy.scrollTo("today.monitor", anchor: .center)
+        default: break
+        }
     }
 
     // MARK: Coach note (v1.1, rule-based, under the freshness chips)
@@ -79,13 +226,9 @@ struct TodayView: View {
 
     // MARK: Header (the only place with orbs)
 
-    private func header(_ proxy: ScrollViewProxy) -> some View {
+    private var header: some View {
         VStack(alignment: .leading, spacing: Space.xl) {
             topBar
-            DayCircles(days: Array(health.history.suffix(7))) { day in
-                selectedDay = day
-                Motion.animate(Motion.morph) { proxy.scrollTo("week", anchor: .top) }
-            }
             Text(verdict)
                 .typo(.title)
                 .foregroundStyle(Theme.ink)
@@ -97,16 +240,23 @@ struct TodayView: View {
                 .overlay(alignment: .topTrailing) {
                     CoachMarkSlot(metric: nil, name: "today’s scores")
                 }
+                .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { y in
+                    track(ringsBottom: y)
+                }
             statusLines
         }
         .padding(.horizontal, Space.gutter)
         .padding(.top, Space.s)
-        .padding(.bottom, Space.section)
+        .padding(.bottom, Space.xl)
+        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { y in
+            // iOS 17 has no onScrollGeometryChange: the header's own position says "at the top".
+            if #unavailable(iOS 18) { atTop = y - safeTop >= -2 }
+        }
         .background(alignment: .top) {
             OrbBackground(tier: recoveryTier, evening: isEvening)
                 .frame(height: 480)
-                .mask(LinearGradient(stops: [.init(color: .black, location: 0.6),
-                                             .init(color: .clear, location: 1)],
+                .mask(LinearGradient(stops: [.init(color: .black, location: 0.55),
+                                             .init(color: .clear, location: 0.92)],
                                      startPoint: .top, endPoint: .bottom))
                 // Bleed up behind the status bar so the header has no grey strip.
                 .padding(.top, -60)
@@ -192,10 +342,7 @@ struct TodayView: View {
 
     // MARK: Rings (Sleep · Recovery · Strain, recovery is the hero)
 
-    private var recoveryTier: StatusTier? {
-        guard let s = health.recovery?.score else { return nil }
-        return s >= 67 ? .inRange : (s >= 34 ? .watch : .outOfRange)
-    }
+    private var recoveryTier: StatusTier? { todayRecoveryTier(health.recovery?.score) }
 
 
     @ViewBuilder private var rings: some View {
@@ -334,16 +481,18 @@ struct TodayView: View {
     }
 }
 
-// MARK: - Day circles (top of Today): each day ringed by its recovery
+// MARK: - Day circles (Week segment): each day ringed by its recovery, selects a day card in place
 
 private struct DayCircles: View {
     let days: [DaySummary]
+    let selected: Date?
     let onTap: (Date) -> Void
 
     var body: some View {
         HStack(spacing: 0) {
             ForEach(days) { d in
                 let isToday = Calendar.current.isDate(d.date, inSameDayAs: Demo.now)
+                let isSelected = selected.map { Calendar.current.isDate($0, inSameDayAs: d.date) } ?? false
                 Button { onTap(d.date) } label: {
                     VStack(spacing: Space.xs) {
                         Text(d.date.formatted(.dateTime.weekday(.narrow)))
@@ -353,7 +502,7 @@ private struct DayCircles: View {
                             Circle().stroke(Theme.hair, lineWidth: 2.5)
                             Circle()
                                 .trim(from: 0, to: Double(d.recovery ?? 0) / 100)
-                                .stroke(tier(d.recovery)?.fill ?? Theme.hair,
+                                .stroke(todayRecoveryTier(d.recovery)?.fill ?? Theme.hair,
                                         style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
                                 .rotationEffect(.degrees(-90))
                             Text(d.date.formatted(.dateTime.day()))
@@ -361,6 +510,8 @@ private struct DayCircles: View {
                                 .foregroundStyle(isToday ? Theme.paper : Theme.ink)
                         }
                         .frame(width: 38, height: 38)
+                        // Selected day: a small ink dot under the circle (no layout change).
+                        Circle().fill(Theme.ink).frame(width: 4, height: 4).opacity(isSelected ? 1 : 0)
                     }
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .contentShape(Rectangle())
@@ -368,14 +519,27 @@ private struct DayCircles: View {
                 .buttonStyle(PressStyle())
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(isToday ? "Today" : d.date.formatted(.dateTime.weekday(.wide).day()))
-                .accessibilityValue(d.recovery.map { "Recovery \($0) percent, \(tier($0)?.word ?? "")" } ?? "No reading")
-                .accessibilityHint("Shows this day in Your week")
+                .accessibilityValue(d.recovery.map { "Recovery \($0) percent, \(todayRecoveryTier($0)?.word ?? "")" } ?? "No reading")
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+                .accessibilityHint("Shows this day’s card below")
             }
         }
     }
+}
 
-    private func tier(_ r: Int?) -> StatusTier? {
-        guard let r else { return nil }
-        return r >= 67 ? .inRange : (r >= 34 ? .watch : .outOfRange)
+// MARK: - Top-of-scroll tracking (second tab reselect at the top → Today segment)
+
+private struct TopOffsetTracker: ViewModifier {
+    @Binding var atTop: Bool
+    func body(content: Content) -> some View {
+        if #available(iOS 18, *) {
+            content.onScrollGeometryChange(for: Bool.self) { g in
+                g.contentOffset.y + g.contentInsets.top <= 2
+            } action: { _, top in
+                atTop = top
+            }
+        } else {
+            content   // iOS 17: the header's position sets atTop (see `header`).
+        }
     }
 }
