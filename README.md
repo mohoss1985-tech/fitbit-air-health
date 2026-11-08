@@ -6,6 +6,23 @@
 
 Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google, Fitbit or Apple.
 
+## New in v1.2 · Blood pressure and metabolic signals
+
+<p align="center">
+  <img src="screenshots/v1.2/dark-body-bp.png" width="200" alt="Body with blood pressure">
+  <img src="screenshots/v1.2/dark-body-metabolic.png" width="200" alt="Metabolic health signals">
+  <img src="screenshots/v1.2/dark-coach.png" width="200" alt="Coach composer above the tab bar">
+</p>
+
+- **Blood pressure from your own cuff:** any home cuff that saves to Apple Health (Withings, Omron…). Latest reading,
+  30-day average and a normal / elevated / high label from the adult guideline ranges. The Fitbit Air has no
+  blood-pressure sensor and MRH1 never estimates one.
+- **Metabolic health signals:** five habits research links to insulin sensitivity (steps, exercise, sleep length,
+  bedtime regularity, resting heart rate trend), each on track or room to improve. Not a blood-sugar or insulin number.
+- **One easy-day rule everywhere:** after two hard days, the headline, Strain target, Live tab and Coach all say "easy".
+- **Fixes:** content no longer hides under the floating tab bar (iOS 27), a back arrow in the Coach tab, faster Apple
+  Health refresh.
+
 ## New in v1.1 · Coach
 
 A free AI coach that runs **entirely on your iPhone** (Apple's on-device model, no internet code). Ask about your

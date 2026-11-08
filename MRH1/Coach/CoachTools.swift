@@ -158,7 +158,7 @@ final class CoachToolContext {
             p.append("recovery: none yet (\(early))")
         }
         p.append("sleepScore " + (health.sleepScore.map(String.init) ?? "none"))
-        let t = Scores.strainTarget(health.recovery)
+        let t = Scores.todayStrainTarget(health)
         if let st = health.strain {
             p.append("strain \(fmt1(st.value)) of 21, target \(Int(t.lowerBound))–\(Int(t.upperBound))"
                      + (st.value >= t.upperBound ? " (target reached)" : ""))

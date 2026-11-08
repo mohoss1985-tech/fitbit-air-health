@@ -390,7 +390,7 @@ struct ScoreDetailView: View {
 
     @ViewBuilder private var strainBody: some View {
         let s = health.strain
-        let target = Scores.strainTarget(health.recovery)
+        let target = Scores.todayStrainTarget(health)
         scoreHeader(progress: (s?.value ?? 0) / 21, color: Theme.ember, ringName: "Strain", chip: nil,
                     headline: strainAdvice(s?.value, target: target),
                     caption: "All-day load on your heart, 0–21. Each step up is harder: 10–13 moderate, 14–17 high, 18+ all out.") {

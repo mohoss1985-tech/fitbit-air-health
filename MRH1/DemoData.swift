@@ -233,6 +233,7 @@ extension HealthStore {
                           factors: d.bodyAgeFactors.map { AgeFactor(label: $0.0, years: $0.1, detail: $0.2) })
         weekly = Insights.weeklyReport(history: days, states: new, nights: main)
 
+        bloodPressure = Self.demoBloodPressure(now: now)
         sourceRows = demoSourceRows(now: now)
         hasAsked = true
         errorMessage = nil

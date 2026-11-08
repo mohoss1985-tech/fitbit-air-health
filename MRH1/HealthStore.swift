@@ -53,6 +53,8 @@ final class HealthStore {
     var bodyAge: BodyAge?
     var weekly: WeeklyReport?
     var age: Int?
+    /// v1.2: home-cuff blood pressure readings from Apple Health (oldest first). Fitbit Air has no BP sensor.
+    var bloodPressure: [BPReading] = []
 
     var isAvailable: Bool { Demo.isOn || HKHealthStore.isHealthDataAvailable() }
 
@@ -102,6 +104,7 @@ final class HealthStore {
 
     private var readTypes: Set<HKObjectType> {
         var types: Set<HKObjectType> = Set(quantityIDs.map { HKQuantityType($0) })
+        types.formUnion(Self.bloodPressureReadTypes)
         types.insert(HKCategoryType(.sleepAnalysis))
         types.insert(HKObjectType.workoutType())
         if let dob = HKObjectType.characteristicType(forIdentifier: .dateOfBirth) { types.insert(dob) }
@@ -153,6 +156,7 @@ final class HealthStore {
         async let energy = dailySeries(.activeEnergyBurned, unit: .kilocalorie(), sum: true)
         async let nights = sleepSessions(days: 31)
         async let workouts = workoutsList(days: 31)
+        async let bp = Self.fetchBloodPressure(store)
 
         let today = Calendar.current.startOfDay(for: Date())
         let stepsAll = await steps
@@ -204,7 +208,16 @@ final class HealthStore {
         // One heart-rate fetch for the whole history window (was ~21 sequential queries in v0.4).
         let hrFrom = Calendar.current.date(byAdding: .day, value: -(Self.historyDays + 1), to: today) ?? today
         let hrAll = await heartRate(from: hrFrom, to: Date())
-        func hrSlice(_ from: Date, _ to: Date) -> [HRPoint] { hrAll.filter { $0.date >= from && $0.date < to } }
+        // Binary search on the time-sorted samples (a linear filter here cost ~100 ms per refresh on the main thread).
+        func firstIndex(atOrAfter d: Date) -> Int {
+            var lo = 0, hi = hrAll.count
+            while lo < hi { let mid = (lo + hi) / 2; if hrAll[mid].date < d { lo = mid + 1 } else { hi = mid } }
+            return lo
+        }
+        func hrSlice(_ from: Date, _ to: Date) -> [HRPoint] {
+            let a = firstIndex(atOrAfter: from), b = firstIndex(atOrAfter: to)
+            return a < b ? Array(hrAll[a..<b]) : []
+        }
         latestSampleDate = hrAll.last?.date
 
         // Heart rate during sleep, from the raw heart-rate samples of that session.
@@ -255,6 +268,7 @@ final class HealthStore {
         bodyAge = Insights.bodyAge(age: age, states: new, nights: Array(main))
         self.weekly = Insights.weeklyReport(history: days, states: new, nights: Array(main))
 
+        bloodPressure = await bp
         sourceRows = await buildSourceRows()
         lastRefresh = Date()
         JournalStore.current?.attach(history: days)

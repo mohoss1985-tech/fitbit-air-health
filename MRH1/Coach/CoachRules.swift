@@ -56,7 +56,7 @@ enum CoachRules {
             return hour >= 18 ? "Help me sleep better" : "How did I sleep?"
         }()
         let strain: String = {
-            let t = Scores.strainTarget(health.recovery)
+            let t = Scores.todayStrainTarget(health)
             if let v = health.strain?.value, v >= t.upperBound { return "Done enough today?" }
             return "How hard today?"
         }()
@@ -527,6 +527,11 @@ enum CoachRules {
         return nil
     }
 
+    /// Today's intensity cap from the rules (no note bookkeeping). Coach off → `.any` (exact v1.0 behaviour).
+    static func todayCap(_ health: HealthStore) -> IntensityCap {
+        CoachPrefs.isEnabled ? evaluateCapOnly(health) : .any
+    }
+
     /// Cap only (used by starters; no note bookkeeping).
     private static func evaluateCapOnly(_ health: HealthStore) -> IntensityCap {
         guard let journal = JournalStore.current else { return .moderate }
@@ -670,6 +675,8 @@ enum CoachRules {
         let cap: IntensityCap
 
         var c: Context { ctx }
+        /// Strain target after the cap (two hard days → easy range, etc.).
+        var target: ClosedRange<Double> { cap.strainTarget(c.target) }
         func has(_ id: String) -> Bool { fired.contains { $0.signal.id == id } }
         func signal(_ id: String) -> CoachSignal? { fired.first { $0.signal.id == id }?.signal }
 
@@ -827,8 +834,16 @@ enum CoachRules {
                 let name = m.id == .sleepTotal ? "sleep" : m.label.lowercased()
                 return low ? "Recovery \(r.score) %: \(name) is the main drag." : "Recovery \(r.score) %: \(name) is helping most."
             }()
+            let planChip: String = {
+                switch cap {
+                case .any: return "Plan a hard session"
+                case .moderate: return "Plan my workout"
+                case .easy: return "Plan an easy session"
+                case .rest: return "Plan a rest day"
+                }
+            }()
             let chips = low ? ["What helps today?", "Plan my workout", "Is this a concern?"]
-                            : ["Plan a hard session", "Weekly review", "How hard today?"]
+                            : [planChip, "Weekly review", "How hard today?"]
             if q.contains("concern") {
                 return reply("This is a wellness score, not a diagnosis.",
                              ["One low day is common after short sleep, alcohol or hard training.", "If you feel unwell for several days, check with a doctor."],
@@ -984,7 +999,7 @@ enum CoachRules {
             if let r = c.recovery { s.append("Recovery is \(r.score) %, so \(cap.plainWord) effort fits.") } else { s.append(capReason) }
             if let st = c.strainNow { s.append("Strain is \(fmt1(st)) so far.") }
             if has("R6") { s.append("You’ve reached it: a cool-down or walk is enough.") }
-            return reply("Aim for strain \(fmtRange(c.target)) today.", s,
+            return reply("Aim for strain \(fmtRange(target)) today.", s,
                          pills: [pill(.restingHR), sleepPill()],
                          chips: ["Plan my workout", "Explain my strain", "What are my zones?"])
         }

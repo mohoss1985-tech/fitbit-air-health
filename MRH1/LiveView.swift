@@ -267,7 +267,7 @@ struct LiveView: View {
 
     private var todayCard: some View {
         let t = live.today
-        let target = Scores.strainTarget(health.recovery)
+        let target = Scores.todayStrainTarget(health)
         let steps = t.steps ?? health.stepsToday
         let energy = t.energy ?? health.activeEnergyToday
         return VStack(alignment: .leading, spacing: Space.m) {

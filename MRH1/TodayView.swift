@@ -140,18 +140,28 @@ struct TodayView: View {
 
     private var morningVerdict: String {
         guard let r = health.recovery else { return "Calibrating. A few more nights with the Air." }
-        let t = Scores.strainTarget(r)
+        let t = Scores.todayStrainTarget(health)
+        // The coach's cap (e.g. two hard days in a row) wins, so the headline matches the Coach note below it.
+        let cap = CoachRules.todayCap(health)
+        if (cap == .rest || cap == .easy) && r.score >= 34 {
+            return r.score >= 67 ? "Recovered, but keep today easy." : "Partly recovered. Keep today easy."
+        }
+        if cap == .moderate && r.score >= 67 { return "Recovered. Keep today steady." }
         if r.score >= 67 { return "Recovered. Room for a hard session, strain \(Int(t.lowerBound))–\(Int(t.upperBound))." }
         if r.score >= 34 { return "Partly recovered. Keep today moderate." }
         return "Run down. Make today an easy one."
     }
 
     private var afternoonVerdict: String {
-        let t = Scores.strainTarget(health.recovery)
+        let t = Scores.todayStrainTarget(health)
         let s = health.strain?.value ?? 0
         let range = "\(Int(t.lowerBound))–\(Int(t.upperBound))"
         if s >= t.upperBound { return "Past your strain target. Ease off to protect tomorrow." }
         if s >= t.lowerBound { return "In your strain target of \(range). Anything more is optional." }
+        let cap = CoachRules.todayCap(health)
+        if cap == .rest || cap == .easy {
+            return String(format: "Strain %.1f of your %@ target. Easy day: a walk is enough.", locale: .current, s, range)
+        }
         return String(format: "Strain %.1f of your %@ target. Room for a session.", locale: .current, s, range)
     }
 

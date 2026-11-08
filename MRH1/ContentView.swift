@@ -108,9 +108,11 @@ private struct MainTabs: View {
 
     private func tab<V: View>(_ t: AppTab, @ViewBuilder _ root: () -> V) -> some View {
         NavigationStack(path: nav.path(t)) {
+            // Inset on the root view itself: on iOS 27 an inset on the NavigationStack no longer reaches
+            // the scroll views, so the last rows (and the Coach composer) sat under the floating tab bar.
             root().withRoutes()
+                .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: keyboardUp ? 0 : TabBar.reservedHeight) }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: keyboardUp ? 0 : TabBar.reservedHeight) }
         .toolbar(.hidden, for: .tabBar)
         .tag(t)
     }

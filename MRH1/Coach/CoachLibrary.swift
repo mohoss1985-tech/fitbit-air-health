@@ -18,6 +18,17 @@ extension IntensityCap {
     /// The stricter of two caps.
     func capped(at other: IntensityCap) -> IntensityCap { libraryRank <= other.libraryRank ? self : other }
 
+    /// Today's strain target once the coach's cap is applied, so the Strain card, the Today note
+    /// and the coach never disagree ("keep today easy" vs "a moderate session gets you there").
+    func strainTarget(_ base: ClosedRange<Double>) -> ClosedRange<Double> {
+        switch self {
+        case .rest: return 0...min(5, base.upperBound)
+        case .easy: return min(5, base.lowerBound)...min(8, base.upperBound)
+        case .moderate: return min(10, base.lowerBound)...min(14, base.upperBound)
+        case .any: return base
+        }
+    }
+
     /// Plain words for copy: "light only", "easy", "steady", "any intensity".
     var plainWord: String {
         switch self {
@@ -318,5 +329,13 @@ enum CoachLibrary {
         let parts = p.prefix(4).enumerated().compactMap { i, v in v > 0 ? "\(names[i]) \(v) s" : nil }
         guard let first = parts.first else { return "" }
         return ([first.prefix(1).uppercased() + first.dropFirst()] + parts.dropFirst()).joined(separator: ", ") + "."
+    }
+}
+
+@MainActor extension Scores {
+    /// The one strain target every screen shows: recovery-based, then capped by the coach's rules
+    /// (e.g. two hard days in a row → easy range). Coach off → the plain v1.0 target.
+    static func todayStrainTarget(_ health: HealthStore) -> ClosedRange<Double> {
+        CoachRules.todayCap(health).strainTarget(strainTarget(health.recovery))
     }
 }

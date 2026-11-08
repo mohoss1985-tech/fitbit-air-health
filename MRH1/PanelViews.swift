@@ -18,6 +18,7 @@ struct PanelsView: View {
     }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: Space.section) {
                 header
@@ -26,12 +27,18 @@ struct PanelsView: View {
                 PanelResults(panel: panel, onOpen: { sheet = $0 })
                     .id(panel)
                     .transition(.opacity)
+                MetabolicCard().id("metabolic")
                 BodyFooter()
             }
             .padding(.horizontal, Space.gutter)
             .padding(.top, Space.s)
             .padding(.bottom, Space.section)
             .animation(.easeOut(duration: 0.2), value: panel)
+        }
+        .onAppear {
+            // Screenshot hook (same family as -tab / -open): `-scroll metabolic` lands on the new card.
+            if ProcessInfo.processInfo.arguments.contains("metabolic") { proxy.scrollTo("metabolic", anchor: .top) }
+        }
         }
         .background(Theme.paper)
         .navigationTitle("Body")
@@ -155,7 +162,7 @@ private struct PanelResults: View {
                     }
                     if panel == .heart {
                         Rectangle().fill(Theme.hair).frame(height: 0.5)
-                        NoSensorRow()
+                        BloodPressureRow()
                     }
                 }
             }

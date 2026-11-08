@@ -58,7 +58,8 @@ struct StrainTargetCard: View {
     @Environment(AppNav.self) private var nav
 
     var body: some View {
-        let target = Scores.strainTarget(health.recovery)
+        let cap = CoachRules.todayCap(health)
+        let target = cap.strainTarget(Scores.strainTarget(health.recovery))
         let now = health.strain?.value ?? 0
         Card {
             CardTitle(title: "Strain target",
@@ -71,7 +72,7 @@ struct StrainTargetCard: View {
             }
             .typo(.caption).foregroundStyle(Theme.graphite)
             .accessibilityHidden(true)
-            Text(advice(now: now, target: target))
+            Text(advice(now: now, target: target, cap: cap))
                 .typo(.body).foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -79,9 +80,12 @@ struct StrainTargetCard: View {
         .coachAccessibilityAction { nav.openCoach(about: nil) }
     }
 
-    private func advice(now: Double, target: ClosedRange<Double>) -> String {
+    private func advice(now: Double, target: ClosedRange<Double>, cap: IntensityCap) -> String {
         if now >= target.upperBound { return "Target reached. More digs into tomorrow’s recovery." }
         if now >= target.lowerBound { return "You’re in your target zone for today." }
+        if cap == .rest || cap == .easy {
+            return String(format: "%.1f so far. Easy day: a walk or mobility is enough.", locale: .current, now)
+        }
         return String(format: "%.1f so far. A 30–45 min moderate session gets you there.", locale: .current, now)
     }
 }

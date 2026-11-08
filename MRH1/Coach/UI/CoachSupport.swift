@@ -54,7 +54,7 @@ enum CoachStarterSource {
     static func fallback(_ health: HealthStore) -> [CoachStarter] {
         let score = health.recovery?.score
         let sleepMin = health.lastSleep?.asleepMinutes ?? 0
-        let target = Scores.strainTarget(health.recovery)
+        let target = Scores.todayStrainTarget(health)
         let strain = health.strain?.value
 
         let recovery: String = {
