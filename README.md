@@ -2,7 +2,7 @@
 
 **Recovery, strain and sleep scores for your Fitbit Air, explained like a lab result. On-device. No subscription.**
 
-[**▶ Live demo**](https://mohoss1985-tech.github.io/mrh2/demo/) · [Project page](https://mohoss1985-tech.github.io/mrh2/)
+[**▶ Live demo**](https://mohoss1985-tech.github.io/fitbit-air-health/demo/) · [Project page](https://mohoss1985-tech.github.io/fitbit-air-health/)
 
 Works with Fitbit Air via Google Health and Apple Health. Not affiliated with Google, Fitbit or Apple.
 
@@ -86,7 +86,8 @@ Fitbit Air ──► Google Health ──► Apple Health ──► MRH1 (on thi
 ## Build
 
 1. Open `MRH1.xcodeproj` in Xcode (26 or later; the Metal Toolchain component must be installed: `xcodebuild -downloadComponent MetalToolchain`).
-2. Select the MRH1 target → Signing & Capabilities → choose your team.
+2. Signing uses the owner's free Personal Team (`B9RRMBU363`). Building it yourself? Select the MRH1 target → Signing & Capabilities → choose your own team.
+   With a free Apple ID the install expires after 7 days: press ▶ again to renew.
 3. Run on an iPhone. In the Simulator the app runs on deterministic sample data (`-demo`); pass `-realHealth` to read HealthKit instead.
 
 Screenshot launch arguments: `-tab today|live|body|trends`, `-open recovery|strain|sleep|menu|journal`, `-uiLight` / `-uiDark`, `-demoNow 17:40`.
@@ -101,7 +102,11 @@ Screenshot launch arguments: `-tab today|live|body|trends`, `-open recovery|stra
 | `DESIGN_SPEC_v1.1.md`, `GOAL_v1.1.md` | Coach spec and goal |
 | `MRH1/Coach/` | Coach: rules, workout library, on-device engine, tools, safety, UI |
 | `research/` | Research behind the design (brands, competitors, UI craft, live data, graphics, market) |
-| `screenshots/v1/`, `screenshots/v1.1/` | Simulator screenshots, light and dark |
+| `GOAL*.md`, `DESIGN_SPEC_v1.3.md` | Goals and specs per version |
+| `screenshots/` | Simulator screenshots per version (`v1`, `v1.1`, `v1.2`, `v1.3`) |
+| `design/` | Mood board, design directions and prototypes |
+| `notes/` | Historical project notes |
+| `reference-captures/` | Local only (git-ignored): recordings of the owner's real health apps |
 
 ---
 
