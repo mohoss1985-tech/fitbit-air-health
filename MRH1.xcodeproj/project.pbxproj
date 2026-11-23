@@ -228,9 +228,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Test App Fitbit";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Optional: MRH1 can read live heart rate that your band broadcasts over Bluetooth. Readings stay on this iPhone.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "MRH1 reads your Fitbit Air data from Apple Health to compute recovery, strain and sleep scores on this iPhone. Nothing leaves the device.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "MRH1 does not write to Apple Health.";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Optional: MRH1 can read live heart rate that your band broadcasts over Bluetooth. Readings stay on this iPhone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -240,7 +241,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mrh.MRH1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mohoss.mrh1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
@@ -259,9 +260,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Test App Fitbit";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Optional: MRH1 can read live heart rate that your band broadcasts over Bluetooth. Readings stay on this iPhone.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "MRH1 reads your Fitbit Air data from Apple Health to compute recovery, strain and sleep scores on this iPhone. Nothing leaves the device.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "MRH1 does not write to Apple Health.";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Optional: MRH1 can read live heart rate that your band broadcasts over Bluetooth. Readings stay on this iPhone.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -271,7 +273,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mrh.MRH1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mohoss.mrh1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
